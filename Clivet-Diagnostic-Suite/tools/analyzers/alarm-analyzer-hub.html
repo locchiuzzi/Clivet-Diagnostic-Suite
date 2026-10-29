@@ -195,52 +195,45 @@
     <!-- FIX: Sostituito 'overflow-y-auto' con 'overflow-y-scroll' per prevenire il Layout Shift -->
     <main id="main-scroll-area" class="max-w-[1600px] mx-auto w-full px-4 md:px-6 pt-6 pb-12 flex flex-col flex-grow relative min-h-0 overflow-y-scroll custom-scrollbar">
 
-        <div id="systems-wrapper" class="w-full" data-view="grid">
+            <div id="systems-wrapper" class="w-full" data-view="grid">
 
                     <!-- HEADER SEZIONE -->
-                    <div class="mb-5">
-                        <h2 data-i18n="systems_select" class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-5">Select the Control System</h2>
+                <div class="mb-5">
+                    <h2 data-i18n="systems_select" class="text-[22px] md:text-[28px] font-bold text-slate-900 dark:text-white tracking-[0.36px] mb-5">Select the Control System</h2>
 
-                        <!-- Aggiunto w-full per stabilizzare il layout orizzontale -->
                         <div class="flex flex-col lg:flex-row lg:items-center justify-between w-full gap-4">
                             
                             <!-- SEGMENTED CONTROL FILTERS -->
-                            <div class="relative flex p-1 bg-slate-200/60 dark:bg-slate-800/80 rounded-xl w-full lg:w-auto lg:flex-shrink-0" id="category-filters">
-                                <!-- Slider animato (Background fisico) -->
-                                <div id="category-slider" class="absolute top-1 bottom-1 left-0 bg-white dark:bg-slate-600 rounded-lg shadow-sm transition-all duration-500 ease-[var(--spring-easing)] z-0 pointer-events-none"></div>
+                            <!-- Sfondo allineato a bg-slate-200/80 per coerenza perfetta -->
+                            <div class="relative flex p-0.5 bg-slate-200/80 dark:bg-slate-800/80 rounded-[8px] w-full lg:max-w-[400px] h-[36px] lg:flex-shrink-0" id="category-filters">
+                                <div id="category-slider" class="absolute top-0.5 bottom-0.5 left-0 bg-white dark:bg-slate-600 rounded-[6px] shadow-sm transition-all duration-500 ease-[var(--spring-easing)] z-0 pointer-events-none"></div>
                                 
-                                <!-- Bottoni (Testo in primo piano) -->
-                                <button onclick="setCategory('all')" id="btn-cat-all" data-i18n="systems_all" class="cat-btn relative z-10 flex-1 px-6 py-2 text-sm font-medium text-slate-900 dark:text-white transition-colors duration-300 focus:outline-none">All Systems</button>
-                                <button onclick="setCategory('air')" id="btn-cat-air" data-i18n="systems_air" class="cat-btn relative z-10 flex-1 px-6 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-300 focus:outline-none">AIR</button>
-                                <button onclick="setCategory('water')" id="btn-cat-water" data-i18n="systems_water" class="cat-btn relative z-10 flex-1 px-6 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-300 focus:outline-none">WATER</button>
+                                <button onclick="setCategory('all')" id="btn-cat-all" data-i18n="systems_all" class="cat-btn relative z-10 flex-1 flex items-center justify-center text-[13px] font-semibold text-slate-900 dark:text-white transition-colors duration-300 focus:outline-none">All Systems</button>
+                                <button onclick="setCategory('air')" id="btn-cat-air" data-i18n="systems_air" class="cat-btn relative z-10 flex-1 flex items-center justify-center text-[13px] font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-300 focus:outline-none">AIR</button>
+                                <button onclick="setCategory('water')" id="btn-cat-water" data-i18n="systems_water" class="cat-btn relative z-10 flex-1 flex items-center justify-center text-[13px] font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-300 focus:outline-none">WATER</button>
                             </div>
 
                             <!-- SEARCH BAR & CONTROLS -->
-                            <!-- Aggiunto justify-between e lg:justify-end per ancorarlo rigidamente -->
-                            <div class="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
+                            <div class="flex items-center gap-2 w-full lg:w-auto justify-end">
 
-                                <!-- SEARCH FIELD CONTAINER -->
-                                <!-- FIX: w-full sostituito con flex-1 per rispettare il Touch Target del bottone (i) -->
-                                <div class="relative flex-1 lg:flex-none lg:w-80 group">
+                                <div class="relative flex-1 lg:flex-none lg:w-[320px] h-[36px] group">
 
                                     <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                                        <svg class="h-[18px] w-[18px] text-[#8E8E93] dark:text-[#98989D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
+                                        <svg class="h-[16px] w-[16px] text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
                                     </div>
 
-                                    <!-- FIX: Dark mode bg modificato in System Gray 5 (#2C2C2E) -->
-                                    <input type="search" id="searchInput" oninput="filterSystems()" data-i18n-placeholder="systems_search" placeholder="Search Control System" 
-                                        class="w-full pl-9 pr-10 py-1.5 bg-[#F2F2F7] dark:bg-[#2C2C2E] border-none rounded-[10px] text-[16px] text-black dark:text-white placeholder:text-[#AEAEB2] dark:placeholder:text-[#636366] focus:outline-none focus:bg-white dark:focus:bg-[#3A3A3C] focus:ring-[3px] focus:ring-[#007AFF]/40 transition-all duration-200">
+                                    <!-- FIX CENTRATURA VERTICALE: Aggiunto 'py-0' e 'leading-normal' per un perfetto bilanciamento dell'asse Y -->
+<input type="search" id="searchInput" oninput="filterSystems()" data-i18n-placeholder="systems_search" placeholder="Search Control System" 
+    class="w-full h-full py-0 pl-9 pr-10 bg-slate-200/80 dark:bg-slate-800/80 border-none rounded-[10px] text-[17px] leading-normal tracking-[-0.4px] text-black dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:bg-white dark:focus:bg-[#3A3A3C] focus:ring-[3px] focus:ring-blue-500/40 transition-all duration-200">
 
                                     <button type="button" id="searchClearBtn" onclick="clearSearchInput()" aria-label="Clear Search" 
-                                        class="absolute inset-y-0 right-0 flex items-center justify-center w-[44px] h-full text-[#8E8E93] dark:text-[#98989D] hover:text-[#3A3A3C] dark:hover:text-[#E5E5EA] transition-opacity duration-200 focus:outline-none focus-visible:ring-[3px] focus-visible:ring-[#007AFF]/40 rounded-[10px] opacity-0 pointer-events-none scale-90">
+                                        class="absolute inset-y-0 right-0 flex items-center justify-center w-[36px] h-full text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 transition-opacity duration-200 focus:outline-none focus-visible:ring-[3px] focus-visible:ring-blue-500/40 rounded-[10px] opacity-0 pointer-events-none scale-90">
                                         <svg aria-hidden="true" class="w-[15px] h-[15px]" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd"></path></svg>
                                     </button>
                                 </div>
 
-                                <!-- Info Button -->
-                                <!-- flex-shrink-0 lavora in tandem con il flex-1 del container precedente -->
                                 <button type="button" aria-label="Search Info" data-i18n-aria="ui_moreInfo" aria-haspopup="dialog" onclick="toggleInfo(event, 'infoSearch')"
-                                    class="flex-shrink-0 flex items-center justify-center w-[44px] h-[44px] text-[#007AFF] hover:text-[#0056b3] dark:text-[#0A84FF] dark:hover:text-[#409CFF] bg-transparent hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors focus:outline-none focus-visible:ring-[3px] focus-visible:ring-[#007AFF]/40">
+                                    class="flex-shrink-0 flex items-center justify-center w-[44px] h-[44px] text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors focus:outline-none focus-visible:ring-[3px] focus-visible:ring-blue-500/40">
                                     <svg aria-hidden="true" class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"></path></svg>
                                 </button>
                             </div>
@@ -258,7 +251,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
                             </svg>
                         </div>
-                        <h3 data-i18n="systems_air_title" class="text-lg font-bold text-slate-800 dark:text-slate-100">Air Units</h3>
+                        <h3 data-i18n="systems_air_title" class="text-[20px] font-semibold tracking-[0.38px] text-slate-800 dark:text-slate-100">Air Units</h3>
                     </div>
                     <button onclick="toggleGroup('group-air-grid', this)" aria-label="Collapse Group" data-i18n-aria="ui_collapseGroup" class="group-toggle-btn hit-44 p-1.5 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors focus:outline-none">
                         <svg class="w-5 h-5 transition-transform duration-300 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
@@ -275,8 +268,8 @@
                                 </svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens AR1</h3>
-                                <p data-i18n="systems_ar1" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for CSRN-Y Rooftop units CLIVETPack3 series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens AR1</h3>
+                                <p data-i18n="systems_ar1" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for CSRN-Y Rooftop units CLIVETPack3 series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'AR1')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -290,8 +283,8 @@
                                 </svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens AZ1</h3>
-                                <p data-i18n="systems_az1" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt for CPAN-iY units ZEPHIR4 series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens AZ1</h3>
+                                <p data-i18n="systems_az1" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt for CPAN-iY units ZEPHIR4 series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'AZ1')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -305,8 +298,8 @@
                                 </svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens A00</h3>
-                                <p data-i18n="systems_a00" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for CLIVETPack2 series Rooftop units.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens A00</h3>
+                                <p data-i18n="systems_a00" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for CLIVETPack2 series Rooftop units.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'A00')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -320,8 +313,8 @@
                                 </svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens A01</h3>
-                                <p data-i18n="systems_a01" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for CPAN-XHE3 units ZEPHIR3 series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens A01</h3>
+                                <p data-i18n="systems_a01" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for CPAN-XHE3 units ZEPHIR3 series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'A01')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -349,7 +342,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path>
                             </svg>
                         </div>
-                        <h3 data-i18n="systems_water_title" class="text-lg font-bold text-slate-800 dark:text-slate-100">Water Units</h3>
+                        <h3 data-i18n="systems_water_title" class="text-[20px] font-semibold tracking-[0.38px] text-slate-800 dark:text-slate-100">Water Units</h3>
                     </div>
                     <button onclick="toggleGroup('group-water-grid', this)" aria-label="Collapse Group" data-i18n-aria="ui_collapseGroup" class="group-toggle-btn hit-44 p-1.5 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors focus:outline-none">
                         <svg class="w-5 h-5 transition-transform duration-300 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
@@ -364,8 +357,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W02</h3>
-                                <p data-i18n="systems_w02" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-XIN and WSAT-XIN series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens W02</h3>
+                                <p data-i18n="systems_w02" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-XIN and WSAT-XIN series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'W02')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -377,8 +370,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W01</h3>
-                                <p data-i18n="systems_w01" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSHN-XEE2, WSH-XEE2, and WSHH-LEE1 series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens W01</h3>
+                                <p data-i18n="systems_w01" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSHN-XEE2, WSH-XEE2, and WSHH-LEE1 series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'W01')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -390,8 +383,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W03</h3>
-                                <p data-i18n="systems_w03" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-XSC3 and WSAT-XSC3 series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens W03</h3>
+                                <p data-i18n="systems_w03" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-XSC3 and WSAT-XSC3 series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'W03')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -403,8 +396,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W04</h3>
-                                <p data-i18n="systems_w04" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-XEM and WSAT-XEM series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens W04</h3>
+                                <p data-i18n="systems_w04" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-XEM and WSAT-XEM series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'W04')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -416,8 +409,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W05</h3>
-                                <p data-i18n="systems_w05" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAT-YSC4 and WSAN-YSC4 series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens W05</h3>
+                                <p data-i18n="systems_w05" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAT-YSC4 and WSAN-YSC4 series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'W05')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -429,8 +422,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W00</h3>
-                                <p data-i18n="systems_w00" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for various Chiller and Heat Pump units.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens W00</h3>
+                                <p data-i18n="systems_w00" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for various Chiller and Heat Pump units.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'W00')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -442,8 +435,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W0i</h3>
-                                <p data-i18n="systems_w0i" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WDAT-iL3, WDAT-iZ4, WDAT-iK4, and WDH-iK4 series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens W0i</h3>
+                                <p data-i18n="systems_w0i" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for WDAT-iL3, WDAT-iZ4, WDAT-iK4, and WDH-iK4 series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'W0i')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -455,8 +448,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W0i MF</h3>
-                                <p data-i18n="systems_w0imf" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WDAN-iK4 series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens W0i MF</h3>
+                                <p data-i18n="systems_w0imf" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for WDAN-iK4 series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'W0i_MF')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -468,8 +461,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens Wi2</h3>
-                                <p data-i18n="systems_wi2" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WiSAN-YEE1 PL (polyvalent) series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens Wi2</h3>
+                                <p data-i18n="systems_wi2" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for WiSAN-YEE1 PL (polyvalent) series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'Wi2')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -481,8 +474,8 @@
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
                             <div class="text-wrapper flex-grow pr-6">
-                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens WK2</h3>
-                                <p data-i18n="systems_wk2" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-YSC4 PL (polyvalent) series.</p>
+                                <h3 class="text-[17px] font-semibold tracking-[-0.4px] text-slate-900 dark:text-white">Siemens WK2</h3>
+                                <p data-i18n="systems_wk2" class="text-[13px] leading-[18px] tracking-[-0.08px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-YSC4 PL (polyvalent) series.</p>
                             </div>
                             <button onclick="openInfoModal(event, 'WK2')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
@@ -1468,34 +1461,127 @@
             
             const btnText = showAllBtnContainer.querySelector('.show-all-text');
             const icon = showAllBtnContainer.querySelector('svg');
+            const mainScroll = document.getElementById('main-scroll-area');
+
+            // 1. Rispetto Dynamic Type e Accessibilità (Apple HIG Reduced Motion)
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            if (prefersReducedMotion) {
+                cards.forEach((card, index) => {
+                    const shouldHide = isExpanded && index >= 4;
+                    card.classList.toggle('hidden', shouldHide);
+                    card.dataset.hiddenByTop4 = shouldHide ? "true" : "false";
+                });
+                const template = ClivetI18n.get('ui_showAllCards') || "Show all {n} units";
+                if (btnText) btnText.textContent = isExpanded ? template.replace('{n}', cards.length) : (ClivetI18n.get('ui_showTopCards') || "Show less");
+                if (icon) icon.classList.toggle('rotate-180', !isExpanded);
+                showAllBtnContainer.dataset.expanded = isExpanded ? "false" : "true";
+                return;
+            }
+
+            // 2. Misura e blocca l'altezza iniziale (senza generare layout thrashing)
+            const startHeight = grid.offsetHeight;
+            grid.style.height = `${startHeight}px`;
+            grid.style.overflow = 'hidden';
+            grid.style.willChange = 'height';
+
+            const extraCards = cards.slice(4);
 
             if (isExpanded) {
-                cards.forEach((card, index) => {
-                    if (index >= 4) {
-                        card.classList.add('hidden');
-                        card.dataset.hiddenByTop4 = "true";
-                    }
+                // --- AZIONE: COLLASSA (HIG Fluid Motion) ---
+                // Calcolo altezza finale target senza mostrare il calcolo all'utente
+                extraCards.forEach(c => c.classList.add('hidden'));
+                const targetHeight = grid.offsetHeight;
+                extraCards.forEach(c => c.classList.remove('hidden'));
+
+                // Transizione parallela: dissolvenza e chiusura altezza partono nello stesso frame
+                requestAnimationFrame(() => {
+                    grid.style.transition = 'height 0.38s var(--spring-easing)';
+                    grid.style.height = `${targetHeight}px`;
+
+                    extraCards.forEach(card => {
+                        card.style.transition = 'opacity 0.22s ease-out, transform 0.25s ease-out';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translate3d(0, 8px, 0) scale(0.98)';
+                    });
                 });
-                
+
+                // Testi e icone
                 const template = ClivetI18n.get('ui_showAllCards') || "Show all {n} units";
                 if (btnText) btnText.textContent = template.replace('{n}', cards.length);
                 if (icon) icon.classList.remove('rotate-180');
                 showAllBtnContainer.dataset.expanded = "false";
-                
-                group.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                // Ancoraggio ottico reale su #main-scroll-area
+                if (mainScroll) {
+                    const groupRect = group.getBoundingClientRect();
+                    const mainRect = mainScroll.getBoundingClientRect();
+                    if (groupRect.top < mainRect.top) {
+                        mainScroll.scrollBy({ top: groupRect.top - mainRect.top - 16, behavior: 'smooth' });
+                    }
+                }
 
             } else {
-                cards.forEach(card => {
+                // --- AZIONE: ESPANDI (HIG Fluid Motion) ---
+                // Le prime 4 card rimangono intatte: NESSUN flash o reset di opacità
+                extraCards.forEach(card => {
                     card.classList.remove('hidden');
                     card.dataset.hiddenByTop4 = "false";
-                    card.classList.add('animate-entrance');
-                    setTimeout(() => card.classList.remove('animate-entrance'), 500);
+                    card.style.opacity = '0';
+                    card.style.transform = 'translate3d(0, 12px, 0)';
+                    card.style.transition = 'opacity 0.35s var(--smooth-easing), transform 0.35s var(--spring-easing)';
                 });
-                
+
+                const targetHeight = grid.scrollHeight;
+
+                requestAnimationFrame(() => {
+                    grid.style.transition = 'height 0.42s var(--spring-easing)';
+                    grid.style.height = `${targetHeight}px`;
+
+                    // Dissolvenza a cascata naturale (Stagger incrementale morbido)
+                    extraCards.forEach((card, idx) => {
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translate3d(0, 0, 0) scale(1)';
+                        }, 30 + (idx * 25));
+                    });
+                });
+
                 if (btnText) btnText.textContent = ClivetI18n.get('ui_showTopCards') || "Show less";
                 if (icon) icon.classList.add('rotate-180');
                 showAllBtnContainer.dataset.expanded = "true";
             }
+
+            // 3. Pulizia degli stili inline con salvaguardia (evita overflow:hidden bloccato in caso di multi-click)
+            let cleaned = false;
+            const cleanup = () => {
+                if (cleaned) return;
+                cleaned = true;
+                grid.style.transition = '';
+                grid.style.height = '';
+                grid.style.overflow = 'visible'; // Ripristina l'overflow per consentire le ombre hover HIG
+                grid.style.willChange = 'auto';
+
+                if (isExpanded) {
+                    extraCards.forEach(card => {
+                        card.classList.add('hidden');
+                        card.dataset.hiddenByTop4 = "true";
+                    });
+                }
+                extraCards.forEach(c => {
+                    c.style.transition = '';
+                    c.style.opacity = '';
+                    c.style.transform = '';
+                });
+                grid.removeEventListener('transitionend', onTransitionEnd);
+            };
+
+            const onTransitionEnd = (e) => {
+                if (e.target === grid && e.propertyName === 'height') cleanup();
+            };
+
+            grid.addEventListener('transitionend', onTransitionEnd);
+            setTimeout(cleanup, 480); // Safety fallback timer
         }
 
         function updateGroupButtonsText() {
