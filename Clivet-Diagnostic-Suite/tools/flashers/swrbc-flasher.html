@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clivet SwRBC 2.0</title>
+    
+    <link rel="icon" href="data:image/svg+xml,%3Csvg width='37' height='36' viewBox='0 0 37 36' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z' fill='%23949494'/%3E%3Cpath d='M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z' fill='%23949494'/%3E%3Cpath d='M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z' fill='%23007CB1'/%3E%3Cpath d='M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z' fill='%23007CB1'/%3E%3Cpath d='M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z' fill='%23007CB1'/%3E%3Cpath d='M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z' fill='%23007CB1'/%3E%3Cpath d='M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z' fill='%23007CB1'/%3E%3C/svg%3E">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: {} } }
+        let theme = localStorage.getItem('clivet_theme') || 'system';
+        if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <style>
+        html, body { margin: 0; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #475569; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #64748b; }
+        
+        .drag-over { border-color: #3b82f6 !important; background-color: #eff6ff !important; }
+        .dark .drag-over { background-color: #1e3a8a !important; }
+        input[type="file"] { color: transparent; }
+        input[type="file"]::-webkit-file-upload-button { visibility: visible; }
+        input[type="file"]::before { content: ''; display: inline-block; }
+
+        .view-layer { transition: opacity 0.3s ease; width: 100%; }
+        .view-hidden, .view-hidden-reverse { display: none !important; }
+        .view-active { opacity: 1; position: relative; z-index: 10; visibility: visible; display: flex !important; flex-direction: column !important; }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        .status-connected { animation: pulse-green 2s infinite; }
+        
+        .accordion-content { transition: max-height 0.4s ease-out, opacity 0.4s ease, margin 0.4s ease; max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; }
+        .accordion-content.expanded { max-height: 500px; opacity: 1; margin-top: 0.75rem; overflow: visible !important; }
+
+        .terminal-grid { display: grid; grid-template-columns: 85px 70px 1fr; gap: 8px; }
+        
+        .term-body-anim { transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; transform-origin: top; overflow: hidden; }
+        .term-body-collapsed { max-height: 0 !important; opacity: 0; border-width: 0 !important; }
+        
+        .ghost-btn-disabled { opacity: 0.5; pointer-events: none; filter: grayscale(100%); }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex flex-col relative min-h-full" onclick="closeAllDropdowns(event)">
+
+    <!-- GLOBAL DRAG OVERLAY -->
+    <div id="global-drag-overlay" class="hidden fixed inset-0 z-[500] bg-blue-900/90 backdrop-blur-sm flex-col items-center justify-center border-4 border-blue-500 border-dashed m-4 rounded-3xl transition-all duration-300 pointer-events-none">
+        <div class="bg-white/10 p-6 rounded-full mb-4">
+            <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+        </div>
+        <h2 id="ui-drop-update" class="text-2xl sm:text-3xl font-bold text-white tracking-wide">Drop new XML file anywhere to load</h2>
+    </div>
+
+    <!-- GLOBAL HEADER -->
+    <header class="w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm z-40 flex-none h-16">
+        <div class="max-w-[1600px] mx-auto w-full px-4 md:px-6 h-full flex items-center justify-between">
+            
+            <!-- Left Side: Logo + Title -->
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z" fill="#949494"/>
+                        <path d="M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z" fill="#949494"/>
+                        <path d="M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z" fill="#007CB1"/>
+                        <path d="M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z" fill="#007CB1"/>
+                        <path d="M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z" fill="#007CB1"/>
+                        <path d="M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z" fill="#007CB1"/>
+                        <path d="M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z" fill="#007CB1"/>
+                    </svg>
+                    <div class="flex flex-col justify-center">
+                        <h1 id="ui-title" class="text-lg font-bold text-slate-900 dark:text-white leading-none">Clivet SwRBC 2.0</h1>
+                        <p id="ui-subtitle" class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-1 leading-none">Modbus RTU Flasher</p>
+                    </div>
+                </div>
+                <span class="hidden sm:flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 uppercase border border-slate-200 dark:border-slate-600 app-version"></span>
+            </div>
+            
+            <!-- Right Side: Navigation Icons -->
+            <div class="flex items-center space-x-1 sm:space-x-2">
+                <a href="../../index.html" class="flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition focus:outline-none border border-transparent">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10"></path></svg>
+                    <span id="ui-btn-home" class="hidden sm:inline font-bold text-sm">Home</span>
+                </a>
+                <button onclick="openMenuModal()" class="flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition focus:outline-none border border-transparent">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <span id="ui-btn-menu" class="hidden sm:inline font-bold text-sm">Menu</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN WRAPPER: Impostato overflow-hidden per rimuovere DEFINITIVAMENTE la scrollbar dalla pagina principale -->
+    <main class="max-w-[1600px] mx-auto w-full px-4 md:px-6 py-4 flex flex-col flex-grow relative overflow-x-hidden">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: UPLOAD ZONE                        -->
+        <!-- ========================================== -->
+        <!-- Nessuno scroll permesso qui: l'area si comprime e basta -->
+        <div id="view-upload" class="view-layer view-active flex flex-col flex-grow min-h-0 overflow-hidden pb-2">
+            <!-- DropZone Elastica Pura: proporzioni fisse, si schiaccia senza generare scroll -->
+            <div id="dropZone" class="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-3xl shadow-sm border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center transition-all duration-300 w-full flex-grow flex-shrink min-h-0 overflow-hidden">
+                <div class="flex flex-col items-center justify-center mb-3 sm:mb-6 pointer-events-none text-center flex-shrink min-h-0 overflow-hidden">
+                    <div class="bg-blue-50 dark:bg-slate-700 p-3 sm:p-4 rounded-full mb-2 sm:mb-4 flex-shrink-0 transition-all">
+                        <svg class="w-8 h-8 sm:w-12 sm:h-12 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    </div>
+                    <span id="ui-desc" class="text-base sm:text-xl font-bold text-slate-700 dark:text-slate-200 truncate max-w-full px-2">Drag and drop Parameter List (.xml) here</span>
+                    <span id="ui-or" class="text-[10px] sm:text-sm font-medium text-slate-400 dark:text-slate-500 mt-1 sm:mt-2 uppercase tracking-widest flex-shrink-0">- or -</span>
+                </div>
+                <div class="flex justify-center w-full flex-shrink-0">
+                    <label for="xmlFileInput" id="ui-btn" class="cursor-pointer py-2 px-6 sm:py-3 sm:px-8 rounded-xl text-sm sm:text-base font-bold bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 whitespace-nowrap">
+                        Browse XML File
+                    </label>
+                    <input type="file" id="xmlFileInput" class="hidden" accept=".xml">
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: CONNECTION & FLASHER DASHBOARD     -->
+        <!-- ========================================== -->
+        <div id="view-connection" class="view-layer view-hidden pb-4">
+            
+            <button onclick="resetTool()" class="group flex items-center space-x-2 text-sm font-bold text-slate-500 dark:text-slate-400 mb-5 hover:text-slate-800 dark:hover:text-white transition-colors focus:outline-none w-max pr-4">
+                <svg class="w-4 h-4 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <span id="ui-btn-back">Load different file</span>
+            </button>
+
+            <!-- File Info Panel (Stacked List) -->
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6 flex flex-col">
+                <div class="px-5 py-3 border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30 flex items-center space-x-3">
+                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <h3 id="ui-file-title" class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">Loaded parameters list</h3>
+                </div>
+                <div class="flex flex-col divide-y divide-slate-100 dark:divide-slate-700/50">
+                    <div class="px-5 py-3.5 flex items-start justify-between hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                        <span id="ui-lbl-filename" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest w-1/3 mt-0.5">Filename</span>
+                        <span id="display-filename" class="text-sm font-bold text-slate-800 dark:text-slate-200 text-right break-words w-2/3 pl-4 font-sans">unknown.xml</span>
+                    </div>
+                    <div class="px-5 py-3.5 flex items-start justify-between hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                        <span id="ui-lbl-matricola" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest w-1/3 mt-0.5">Serial Number or Item code</span>
+                        <span id="display-matricola" class="text-sm font-bold text-slate-800 dark:text-slate-200 text-right break-words w-2/3 pl-4 font-sans">N/A</span>
+                    </div>
+                    <div class="px-5 py-3.5 flex items-start justify-between hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                        <span id="ui-lbl-sw" class="text-[11px] font-bold text-slate-400 uppercase tracking-widest w-1/3 mt-0.5">Software Version</span>
+                        <span id="display-sw" class="text-sm font-bold text-slate-800 dark:text-slate-200 text-right break-words w-2/3 pl-4 font-sans">N/A</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Connection Setup -->
+            <div class="bg-white dark:bg-slate-800 px-6 py-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col relative z-20 mb-6">
+                
+                <div id="serial-unsupported-banner" class="hidden absolute inset-0 z-20 bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center rounded-2xl">
+                    <svg class="w-12 h-12 text-amber-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <h3 id="ui-noserial-title" class="text-lg font-bold text-white mb-2">Browser Not Supported</h3>
+                    <p id="ui-noserial-desc" class="text-sm text-slate-300">The Web Serial API requires a modern Chromium-based browser (like Chrome or Edge) on desktop to access physical COM ports.</p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <div>
+                            <h3 id="ui-conn-title" class="text-base font-bold text-slate-900 dark:text-white leading-none mb-1">Modbus RS-485</h3>
+                            <div class="flex items-center space-x-1.5 mt-1">
+                                <div id="status-indicator" class="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-600 transition-colors"></div>
+                                <p id="ui-conn-status" class="text-xs text-slate-500 dark:text-slate-400 font-medium">Disconnected</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-2 w-full sm:w-auto z-10 flex-shrink-0">
+                        <button id="btn-connect" onclick="connectSerial()" class="w-full sm:w-auto px-6 py-2.5 rounded-xl text-sm font-bold bg-slate-900 dark:bg-blue-600 text-white hover:bg-slate-800 dark:hover:bg-blue-500 transition shadow-sm flex items-center justify-center space-x-2 focus:outline-none">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+                            <span id="ui-btn-connect">Select COM Port & Connect</span>
+                        </button>
+                        <!-- Disconnect Elegante -->
+                        <button id="btn-disconnect" onclick="disconnectSerialUI()" class="hidden w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-100 dark:bg-slate-800 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 border border-transparent hover:border-rose-200 dark:hover:border-rose-800 transition flex items-center justify-center space-x-2 focus:outline-none">
+                            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 11-12.728 0M12 3v9"></path></svg>
+                            <span id="ui-btn-disconnect">Disconnect</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ADVANCED SETTINGS -->
+                <div class="mt-4 border-t border-slate-100 dark:border-slate-700/50 pt-1 z-10">
+                    <button onclick="toggleAdvanced()" class="flex items-center text-[11px] font-bold text-slate-500 dark:text-slate-400 hover:text-blue-500 transition focus:outline-none py-2 uppercase tracking-wide">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span id="ui-lbl-adv">Advanced Connection Settings</span>
+                    </button>
+                    
+                    <div id="adv-panel" class="accordion-content">
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 pb-2">
+                            <!-- Custom Baudrate -->
+                            <div class="relative w-full" data-id="baud">
+                                <span id="ui-lbl-baud" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Baudrate</span>
+                                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-2.5 border border-slate-200 dark:border-slate-700 flex justify-between items-center cursor-pointer hover:border-blue-400 transition relative" onclick="toggleDD('baud')">
+                                    <span id="dd-val-baud" class="text-sm font-bold text-slate-800 dark:text-slate-200">9600</span>
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div id="bdg-baud" class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                </div>
+                                <ul id="dd-list-baud" class="hidden absolute left-0 right-0 mt-1 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden text-sm font-bold text-slate-800 dark:text-slate-200">
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('baud', '1200')">1200</li>
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('baud', '2400')">2400</li>
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('baud', '4800')">4800</li>
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('baud', '9600')">9600</li>
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('baud', '19200')">19200</li>
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('baud', '38400')">38400</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Custom Data Bit -->
+                            <div class="relative w-full" data-id="datab">
+                                <span id="ui-lbl-datab" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Data bits</span>
+                                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-2.5 border border-slate-200 dark:border-slate-700 flex justify-between items-center cursor-pointer hover:border-blue-400 transition relative" onclick="toggleDD('datab')">
+                                    <span id="dd-val-datab" class="text-sm font-bold text-slate-800 dark:text-slate-200">8</span>
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div id="bdg-datab" class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                </div>
+                                <ul id="dd-list-datab" class="hidden absolute left-0 right-0 mt-1 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden text-sm font-bold text-slate-800 dark:text-slate-200">
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('datab', '7')">7</li>
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('datab', '8')">8</li>
+                                </ul>
+                            </div>
+
+                            <!-- Custom Stop Bit -->
+                            <div class="relative w-full" data-id="stopb">
+                                <span id="ui-lbl-stopb" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Stop bits</span>
+                                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-2.5 border border-slate-200 dark:border-slate-700 flex justify-between items-center cursor-pointer hover:border-blue-400 transition relative" onclick="toggleDD('stopb')">
+                                    <span id="dd-val-stopb" class="text-sm font-bold text-slate-800 dark:text-slate-200">1</span>
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div id="bdg-stopb" class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                </div>
+                                <ul id="dd-list-stopb" class="hidden absolute left-0 right-0 mt-1 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden text-sm font-bold text-slate-800 dark:text-slate-200">
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('stopb', '1')">1</li>
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('stopb', '2')">2</li>
+                                </ul>
+                            </div>
+
+                            <!-- Custom Parity -->
+                            <div class="relative w-full" data-id="parity">
+                                <span id="ui-lbl-parity" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Parity</span>
+                                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-2.5 border border-slate-200 dark:border-slate-700 flex justify-between items-center cursor-pointer hover:border-blue-400 transition relative" onclick="toggleDD('parity')">
+                                    <span id="dd-val-parity" class="text-sm font-bold text-slate-800 dark:text-slate-200 capitalize">None</span>
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    <div id="bdg-parity" class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                </div>
+                                <ul id="dd-list-parity" class="hidden absolute left-0 right-0 mt-1 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl overflow-hidden text-sm font-bold text-slate-800 dark:text-slate-200">
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('parity', 'none')">None</li>
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('parity', 'even')">Even</li>
+                                    <li class="px-4 py-2 hover:bg-blue-50 dark:hover:bg-blue-900/50 cursor-pointer transition" onclick="selectDD('parity', 'odd')">Odd</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Custom Slave ID (Number Spinner) -->
+                            <div class="relative w-full col-span-2 md:col-span-1" data-id="slave">
+                                <span id="ui-lbl-slave" class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Slave ID</span>
+                                <div class="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-1.5 border border-slate-200 dark:border-slate-700 flex justify-between items-center relative">
+                                    <button onclick="changeSlave(-1)" class="w-7 h-7 rounded flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition focus:outline-none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg></button>
+                                    <span id="dd-val-slave" class="text-sm font-bold text-slate-800 dark:text-slate-200 text-center w-8">1</span>
+                                    <button onclick="changeSlave(1)" class="w-7 h-7 rounded flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700 transition focus:outline-none"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg></button>
+                                    <div id="bdg-slave" class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 px-1 mt-1">
+                            <div class="flex items-center space-x-1.5"><div class="w-2 h-2 rounded-full bg-green-500"></div><span class="text-[10px] text-slate-500" id="ui-badge-xml">From XML</span></div>
+                            <div class="flex items-center space-x-1.5"><div class="w-2 h-2 rounded-full bg-amber-400"></div><span class="text-[10px] text-slate-500" id="ui-badge-man">Manually Edited</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Start Flash Action Panel -->
+            <div id="flash-panel" class="hidden bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 z-10 mb-2">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                    </div>
+                    <div class="text-left">
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white leading-none mb-1.5" id="ui-ready-title">Ready to Flash</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm" id="ui-ready-desc">Ensure unit is powered and ready to receive.</p>
+                    </div>
+                </div>
+                <button onclick="startFlashing()" class="w-full sm:w-auto py-3 px-8 rounded-xl text-sm font-bold bg-blue-600 text-white hover:bg-blue-700 transition shadow-md hover:shadow-lg focus:outline-none flex-shrink-0">
+                    <span id="ui-btn-startflash">Start Flashing</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: FLASHING PROGRESS & TERMINAL       -->
+        <!-- ========================================== -->
+        <div id="view-progress" class="view-layer view-hidden flex flex-col flex-grow pb-10">
+            
+            <!-- PROGRESS BAR CARD -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6 flex-shrink-0 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div id="prog-icon" class="w-10 h-10 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center transition-colors">
+                            <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                        </div>
+                        <div>
+                            <h3 id="prog-title" class="text-lg font-bold text-slate-900 dark:text-white leading-tight">Waiting for connection...</h3>
+                            <p id="prog-count" class="text-sm text-slate-500 dark:text-slate-400 font-mono">-</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div id="mismatch-badge" class="hidden items-center space-x-1.5 px-3 py-1.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg text-xs font-bold border border-amber-200 dark:border-amber-800 transition-colors">
+                            <span id="mismatch-count">0</span>
+                            <span id="ui-lbl-mismatches">Mismatches</span>
+                        </div>
+                        <div id="prog-perc" class="text-2xl font-bold text-slate-800 dark:text-slate-200 font-mono">0%</div>
+                        <button id="btn-abort" onclick="abortProcess()" class="hidden px-4 py-2 bg-slate-100 dark:bg-slate-800 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 border border-transparent hover:border-rose-200 dark:hover:border-rose-800 rounded-lg text-xs font-bold transition focus:outline-none flex items-center space-x-1">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span id="ui-btn-abort">Abort</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="w-full bg-slate-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                    <div id="prog-bar" class="bg-blue-500 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- ACTION BUTTONS -->
+            <div id="result-actions" class="mb-6 flex flex-wrap items-center justify-center gap-3">
+                <button id="btn-action-loadnew" onclick="resetTool()" disabled class="ghost-btn-disabled w-full sm:w-auto px-5 py-3 rounded-xl text-sm font-bold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white transition shadow-sm focus:outline-none hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span id="ui-btn-loadnew">Load New XML</span>
+                </button>
+                <button id="btn-action-backset" onclick="backToSettings()" disabled class="ghost-btn-disabled w-full sm:w-auto px-5 py-3 rounded-xl text-sm font-bold bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white transition shadow-sm focus:outline-none hover:bg-slate-300 dark:hover:bg-slate-600 flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span id="ui-btn-backset">Back to Settings</span>
+                </button>
+                <button id="btn-action-flashagain" onclick="startFlashing()" disabled class="ghost-btn-disabled w-full sm:w-auto px-5 py-3 rounded-xl text-sm font-bold bg-blue-600 text-white transition shadow-md focus:outline-none hover:bg-blue-700 hover:shadow-lg flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span id="ui-btn-flashagain">Flash Again</span>
+                </button>
+                <button id="btn-action-details" onclick="openDetailsModal()" class="hidden w-full sm:w-auto px-5 py-3 rounded-xl text-sm font-bold bg-amber-500 text-white hover:bg-amber-600 transition shadow-md focus:outline-none flex items-center justify-center space-x-2">
+                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    <span id="ui-btn-details">View Details</span>
+                </button>
+            </div>
+
+            <!-- Live Terminal -->
+            <div id="terminal-container" class="bg-slate-900 rounded-2xl border border-slate-700 shadow-inner flex flex-col relative overflow-hidden">
+                <!-- Terminal Header -->
+                <div class="bg-slate-800 px-4 py-2.5 border-b border-slate-700 flex justify-between items-center select-none cursor-pointer hover:bg-slate-750 transition z-10" onclick="toggleTerminal()">
+                    <div class="flex items-center space-x-2">
+                        <svg id="term-chevron" class="w-4 h-4 text-slate-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <span class="text-xs text-slate-300 font-mono font-bold tracking-widest">LIVE TERMINAL OUTPUT</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button id="btn-export-log" onclick="exportLog(event)" class="hidden text-[10px] text-slate-400 hover:text-white transition font-bold font-mono tracking-widest flex items-center space-x-1.5 focus:outline-none"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg><span id="ui-btn-exportlog">EXPORT (.TXT)</span></button>
+                        <span class="flex items-center text-[10px] text-slate-400 font-mono"><div class="w-2 h-2 rounded-full bg-green-500 mr-1.5 animate-pulse"></div> RS-485</span>
+                    </div>
+                </div>
+                
+                <!-- Terminal Body -->
+                <div id="terminal-body" class="term-body-anim flex flex-col h-[250px]">
+                    <div class="px-4 py-1.5 bg-slate-900/50 border-b border-slate-800 terminal-grid text-[9px] text-slate-500 font-mono uppercase tracking-widest font-bold select-none flex-shrink-0">
+                        <span id="ui-t-time">Time</span>
+                        <span id="ui-t-reg">Reg</span>
+                        <span id="ui-t-stat">Details</span>
+                    </div>
+                    <!-- Log Box -->
+                    <div id="terminal-output" class="p-4 font-mono text-[11px] leading-relaxed overflow-y-auto flex-grow custom-scrollbar flex flex-col">
+                        <!-- Logs iniettati via JS -->
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+    </main>
+
+    <!-- MODALE ERROR DETAILS -->
+    <div id="details-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center bg-slate-900 bg-opacity-60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 m-4 max-h-[90vh]">
+            <div class="flex justify-between items-center px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <h2 id="ui-details-title" class="text-lg font-bold text-slate-800 dark:text-white">Mismatched Parameters</h2>
+                </div>
+                <button onclick="closeDetailsModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <div class="hidden sm:flex items-center justify-between px-6 py-2 border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-widest sticky top-0 z-10 flex-shrink-0 shadow-sm">
+                <div class="w-1/6" id="ui-col-index">Index</div>
+                <div class="w-2/6" id="ui-col-desc">Description</div>
+                <div class="w-1/6 text-center" id="ui-col-exp">Expected</div>
+                <div class="w-1/6 text-center" id="ui-col-read">Read</div>
+                <div class="w-1/6 text-right" id="ui-col-status">Status</div>
+            </div>
+            
+            <div class="p-4 overflow-y-auto custom-scrollbar flex-grow bg-slate-50/50 dark:bg-slate-900/20">
+                <ul id="details-modal-list" class="space-y-2">
+                    <!-- Contenuto iniettato -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE MENU PRINCIPALE -->
+    <div id="menu-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900 bg-opacity-60 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-4xl h-full sm:h-[80vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700">
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <h2 id="ui-modal-title" class="text-lg font-bold text-slate-800 dark:text-white">Menu</h2>
+                </div>
+                <button onclick="closeMenuModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Wrapper Elastico Interno -->
+            <div class="flex flex-col md:flex-row flex-grow min-h-0 overflow-hidden">
+                <!-- Tab-Bar Mobile / Sidebar Desktop -->
+                <div class="w-full md:w-1/3 lg:w-1/4 bg-slate-50 dark:bg-slate-800/30 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-3 md:p-4 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto space-x-2 md:space-x-0 md:space-y-2 flex-shrink-0 custom-scrollbar">
+                    <button id="tab-btn-lang" onclick="switchSettingsTab('lang')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+                        <span id="ui-lang-title">Language</span>
+                    </button>
+                    <button id="tab-btn-theme" onclick="switchSettingsTab('theme')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <span id="ui-theme-title">Appearance</span>
+                    </button>
+                    <button id="tab-btn-about" onclick="switchSettingsTab('about')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span id="ui-about-title">About / Info</span>
+                    </button>
+                </div>
+                
+                <!-- Content Area -->
+                <div class="w-full md:w-2/3 lg:w-3/4 p-4 md:p-6 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800 flex-grow min-h-0">
+                    <!-- Tab Lingua -->
+                    <div id="tab-content-lang" class="settings-pane block">
+                        <h3 id="ui-fav-title" class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Favorites</h3>
+                        <div id="fav-lang-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8"></div>
+                        <h3 id="ui-all-title" class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">All Languages</h3>
+                        <div id="all-lang-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                    </div>
+
+                    <!-- Tab Tema -->
+                    <div id="tab-content-theme" class="settings-pane hidden">
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6" id="ui-theme-desc">Choose the appearance of the application.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <button id="theme-card-light" onclick="setTheme('light')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition focus:outline-none">
+                                <svg class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                <span class="font-bold text-slate-700 dark:text-slate-300" id="ui-theme-light">Light</span>
+                            </button>
+                            <button id="theme-card-dark" onclick="setTheme('dark')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition focus:outline-none">
+                                <svg class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                                <span class="font-bold text-slate-700 dark:text-slate-300" id="ui-theme-dark">Dark</span>
+                            </button>
+                            <button id="theme-card-system" onclick="setTheme('system')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition focus:outline-none">
+                                <svg class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <span class="font-bold text-slate-700 dark:text-slate-300" id="ui-theme-sys">System</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab About -->
+                    <div id="tab-content-about" class="settings-pane hidden text-slate-600 dark:text-slate-300 space-y-6">
+                        <div class="flex items-center space-x-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+                            <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                <svg viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z" fill="#949494"/>
+                                    <path d="M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z" fill="#949494"/>
+                                    <path d="M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z" fill="#007CB1"/>
+                                    <path d="M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z" fill="#007CB1"/>
+                                    <path d="M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z" fill="#007CB1"/>
+                                    <path d="M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z" fill="#007CB1"/>
+                                    <path d="M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z" fill="#007CB1"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 id="ui-about-main-title" class="text-xl font-bold text-slate-900 dark:text-white">Clivet SwRBC 2.0</h2>
+                                <p id="ui-about-subtitle" class="text-sm font-medium">Modbus RTU Flasher</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mt-4 mb-4">
+                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1" id="ui-about-version">Version</span>
+                                <span class="font-mono text-slate-800 dark:text-slate-200 app-version"></span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1" id="ui-about-release">Release Date</span>
+                                <span class="font-mono text-slate-800 dark:text-slate-200 app-date"></span>
+                            </div>
+                        </div>
+                        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-lg">
+                            <h3 class="font-bold text-amber-800 dark:text-amber-400 mb-2 flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span id="ui-about-disc-title">Disclaimer</span>
+                            </h3>
+                            <p class="text-sm text-amber-700 dark:text-amber-300 leading-relaxed" id="ui-about-disc-text"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const APP_VERSION = "v1.0.0";
+        const APP_DATE = "October 2026";
+        document.querySelectorAll('.app-version').forEach(el => el.innerText = APP_VERSION);
+        document.querySelectorAll('.app-date').forEach(el => el.innerText = APP_DATE);
+
+        let serialPort = null;
+        let reader = null;
+        let writer = null;
+        let xmlData = { fileParams: {}, modbusParams: {}, variables: [] };
+        let mismatchedVars = [];
+        let sessionLogs = [];
+        let abortFlag = false;
+        let processStartTime = 0;
+        let mismatchCount = 0;
+
+        const flags = {
+            en: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#012169" d="M0 0h64v48H0z"/><path stroke="#FFF" stroke-width="10" d="M0 0l64 48m0-48L0 48"/><path stroke="#C8102E" stroke-width="6" d="M0 0l64 48m0-48L0 48"/><path fill="#FFF" d="M24 0h16v48H24zM0 16h64v16H0z"/><path fill="#C8102E" d="M28 0h8v48h-8zM0 20h64v8H0z"/></svg>`,
+            it: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#009246" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#CE2B37" d="M42.7 0H64v48H42.7z"/></svg>`,
+            de: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#000" d="M0 0h64v16H0z"/><path fill="#DD0000" d="M0 16h64v16H0z"/><path fill="#FFCE00" d="M0 32h64v16H0z"/></svg>`,
+            fr: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#002395" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#ED2939" d="M42.7 0H64v48H42.7z"/></svg>`,
+            es: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#AA151B" d="M0 0h64v12H0zm0 36h64v12H0z"/><path fill="#F1BF00" d="M0 12h64v24H0z"/></svg>`,
+            zh: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#EE1C25" d="M0 0h64v48H0z"/><path fill="#FF0" d="M10.5 6a4.5 4.5 0 100 9 4.5 4.5 0 000-9zm11.5 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm2 4.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-1 5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-4.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>`,
+            pt: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#006600" d="M0 0h25.6v48H0z"/><path fill="#FF0000" d="M25.6 0H64v48H25.6z"/><circle cx="25.6" cy="24" r="8" fill="#FF0"/></svg>`,
+            ru: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v16H0z"/><path fill="#0039A6" d="M0 16h64v16H0z"/><path fill="#D52B1E" d="M0 32h64v16H0z"/></svg>`,
+            ja: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="14" fill="#BC002D"/></svg>`,
+            ko: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="12" fill="#CD2E3A"/><path d="M20 24a12 12 0 0024 0 6 6 0 01-12 0 6 6 0 00-12 0z" fill="#0F64CD"/></svg>`,
+            tr: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#E30A17" d="M0 0h64v48H0z"/><circle cx="24" cy="24" r="12" fill="#FFF"/><circle cx="28" cy="24" r="10" fill="#E30A17"/><path fill="#FFF" d="M36 19l2 5h5l-4 3 1 5-4-3-4 3 1-5-4-3h5z"/></svg>`,
+            pl: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v24H0z"/><path fill="#DC143C" d="M0 24h64v24H0z"/></svg>`,
+            nl: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#AE1C28" d="M0 0h64v16H0z"/><path fill="#FFF" d="M0 16h64v16H0z"/><path fill="#21468B" d="M0 32h64v16H0z"/></svg>`,
+            sv: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#006AA7" d="M0 0h64v48H0z"/><path fill="#FECC00" d="M18 0h8v48h-8zM0 18h64v8H0z"/></svg>`,
+            da: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#C60C30" d="M0 0h64v48H0z"/><path fill="#FFF" d="M18 0h6v48h-6zM0 20h64v6H0z"/></svg>`,
+            fi: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><path fill="#002F6C" d="M18 0h10v48H18zM0 18h64v12H0z"/></svg>`
+        };
+
+        const langNames = { en: "English", it: "Italiano", de: "Deutsch", fr: "Français", es: "Español", zh: "中文", pt: "Português", ru: "Русский", ja: "日本語", ko: "한국어", tr: "Türkçe", pl: "Polski", nl: "Nederlands", sv: "Svenska", da: "Dansk", fi: "Suomi" };
+        const favorites = ['en', 'it', 'de', 'fr', 'es', 'zh'];
+
+        // Comprehensive Dictionary Base
+        const baseDict = {
+            title: "Clivet SwRBC 2.0", subtitle: "Modbus RTU Flasher", home: "Home",
+            desc: "Drag and drop Parameter List (.xml) here", or: "- or -", btn: "Browse XML File",
+            modalTitle: "Menu", langTitle: "Language", themeTitle: "Appearance", themeDesc: "Choose the appearance of the application.", aboutTitle: "About / Info", versionLabel: "Version", releaseLabel: "Release Date",
+            disclaimerTitle: "Disclaimer", disclaimerText: "This diagnostic tool is intended exclusively for qualified technical personnel. It is provided 'as-is' without official warranties. Any modification to system parameters or configurations is performed at the user's sole risk and responsibility.",
+            themeLight: "Light", themeDark: "Dark", themeSys: "System", menu: "Menu", fav: "Favorites", allLangs: "All Languages",
+            fileTitle: "Loaded parameters list", lblFile: "Filename",
+            lblMatricola: "Serial Number or Item code", lblSw: "Software Version",
+            connTitle: "Modbus RS-485", connDesc: "Select your USB to RS-485 converter from the browser popup to establish a connection with the unit.",
+            btnConnect: "Select COM Port & Connect", btnConnected: "Port Connected", statusDis: "Disconnected", statusConn: "Connected", btnDisconnect: "Disconnect",
+            noSerialTitle: "Browser Not Supported", noSerialDesc: "The Web Serial API requires a modern Chromium-based browser on desktop to access physical COM ports.",
+            offlineText: "For an optimal first-time experience, an internet connection is recommended to load interface styles. Once loaded, it will work offline forever.",
+            dropUpdate: "Drop new XML file anywhere to load",
+            advSettings: "Advanced Connection Settings", lblBaud: "Baudrate", lblDatab: "Data bits", lblStopb: "Stop bits", lblParity: "Parity", lblSlave: "Slave ID",
+            fromXml: "From XML", manualEdit: "Manually Edited",
+            readyTitle: "Ready to Flash", readyDesc: "The system is connected. Ensure the unit is powered and ready to receive.",
+            flashStart: "Start Flashing", btnAbort: "Abort", processAborted: "Process Aborted",
+            pingPhase: "Waiting for connection...", pingFailed: "Communication Failed", pingFailedDesc: "Unit is unreachable. Ensure the PLC is powered, the cable is connected, and Baudrate/Slave ID are correct.",
+            btnCancel: "Cancel", btnRetry: "Retry Ping",
+            phaseWrite: "Flashing parameters to unit...", phaseRead: "Verifying data integrity...", phaseHeal: "Healing mismatched registers... Loop",
+            successTitle: "Flashing Successful", successDesc: "All parameters have been written and verified perfectly.",
+            errorTitle: "Flashing Errors Detected", errorDesc: "Some parameters could not be written correctly after multiple attempts.",
+            btnLoadNew: "Load New XML", btnFlashAgain: "Flash Again", btnBackSet: "Back to Settings", btnDetails: "View Details", detailsTitle: "Mismatched Parameters",
+            colIndex: "Index", colDesc: "Description", colExp: "Expected", colRead: "Read", statusLabel: "Status",
+            termTime: "Time", termReg: "Reg", termStatus: "Details", mismatches: "Mismatches", btnExportLog: "EXPORT (.TXT)"
+        };
+
+        const uiDict = {
+            en: { ...baseDict },
+            it: { ...baseDict, home: "Home", desc: "Trascina qui la Lista Parametri (.xml)", or: "- oppure -", btn: "Sfoglia file XML", modalTitle: "Menu", langTitle: "Lingua", themeTitle: "Aspetto", themeDesc: "Scegli il tema dell'applicazione.", aboutTitle: "Informazioni", versionLabel: "Versione", releaseLabel: "Data di Rilascio", disclaimerTitle: "Avvertenza", disclaimerText: "Questo strumento diagnostico è destinato esclusivamente a personale tecnico qualificato. Viene fornito 'così com'è' senza garanzie ufficiali. Qualsiasi modifica ai parametri o alle configurazioni di sistema è eseguita a rischio e responsabilità esclusiva dell'utente.", themeLight: "Chiaro", themeDark: "Scuro", themeSys: "Sistema", menu: "Menu", fav: "Preferiti", allLangs: "Tutte le lingue", fileTitle: "Lista parametri caricata", lblFile: "Nome file", lblMatricola: "Matricola o Item code", lblSw: "Versione Software", connDesc: "Seleziona il convertitore USB-RS485 dal popup del browser per stabilire la connessione.", btnConnect: "Seleziona Porta COM e Connetti", btnConnected: "Porta Connessa", statusDis: "Disconnesso", statusConn: "Connesso", btnDisconnect: "Disconnetti", noSerialTitle: "Browser Non Supportato", noSerialDesc: "Le API Web Serial richiedono un browser Chromium su PC (Chrome, Edge) per accedere alle porte COM.", offlineText: "Per un'esperienza ottimale al primo avvio, si consiglia una connessione internet per caricare gli stili.", dropUpdate: "Rilascia un nuovo file XML ovunque per caricarlo", advSettings: "Impostazioni di Connessione Avanzate", lblBaud: "Baudrate", lblDatab: "Data bit", lblStopb: "Stop bit", lblParity: "Parità", lblSlave: "ID Slave", fromXml: "Da XML", manualEdit: "Modificato Manualmente", readyTitle: "Pronto per il Flash", readyDesc: "Il sistema è connesso. Assicurarsi che l'unità sia alimentata e in ricezione.", flashStart: "Avvia Scrittura", btnAbort: "Interrompi", processAborted: "Processo Interrotto", pingPhase: "In attesa di connessione...", pingFailed: "Errore di Comunicazione", pingFailedDesc: "Unità irraggiungibile. Verificare che il PLC sia acceso, il cavo collegato e che Baudrate/Slave ID siano corretti.", btnCancel: "Annulla", btnRetry: "Riprova Ping", phaseWrite: "Scrittura parametri sull'unità in corso...", phaseRead: "Verifica integrità dati in corso...", phaseHeal: "Riparazione registri corrotti in corso... Ciclo", successTitle: "Scrittura Completata", successDesc: "Tutti i parametri sono stati scritti e verificati con successo.", errorTitle: "Rilevati Errori di Scrittura", errorDesc: "Alcuni parametri non sono stati scritti correttamente dopo vari tentativi.", btnLoadNew: "Carica Nuovo XML", btnFlashAgain: "Ripeti Flash", btnBackSet: "Torna alle Impostazioni", btnDetails: "Vedi Dettagli", detailsTitle: "Parametri Non Coincidenti", colIndex: "Indice", colDesc: "Descrizione", colExp: "Atteso", colRead: "Letto", statusLabel: "Stato", termTime: "Ora", termReg: "Reg", termStatus: "Dettagli", mismatches: "Incoerenze", btnExportLog: "ESPORTA LOG (.TXT)" },
+            de: { ...baseDict, home: "Startseite", desc: "Parameterliste (.xml) hier ablegen", or: "- oder -", btn: "XML-Datei durchsuchen", modalTitle: "Menü", langTitle: "Sprache", themeTitle: "Erscheinungsbild", themeDesc: "Wählen Sie das Design.", aboutTitle: "Info", disclaimerTitle: "Haftungsausschluss", disclaimerText: "Dieses Diagnosetool ist ausschließlich für qualifiziertes technisches Personal bestimmt. Es wird 'wie besehen' ohne offizielle Garantien zur Verfügung gestellt. Jede Änderung von Systemparametern oder Konfigurationen erfolgt auf alleiniges Risiko und in alleiniger Verantwortung des Benutzers.", themeLight: "Hell", themeDark: "Dunkel", themeSys: "System", menu: "Menü", fav: "Favoriten", allLangs: "Alle Sprachen", fileTitle: "Geladene Parameterliste", lblFile: "Dateiname", lblMatricola: "Seriennummer oder Artikelcode", lblSw: "Softwareversion", connDesc: "Wählen Sie Ihren USB-RS485-Konverter aus dem Browser-Popup, um die Verbindung herzustellen.", btnConnect: "COM-Port auswählen", btnConnected: "Port verbunden", statusDis: "Getrennt", statusConn: "Verbunden", btnDisconnect: "Trennen", noSerialTitle: "Browser nicht unterstützt", noSerialDesc: "Die Web Serial API erfordert einen modernen Chromium-Browser (Chrome/Edge).", offlineText: "Für ein optimales erstes Erlebnis wird eine Internetverbindung empfohlen.", dropUpdate: "Neue XML-Datei überall ablegen", advSettings: "Erweiterte Verbindungseinstellungen", lblBaud: "Baudrate", lblDatab: "Datenbits", lblStopb: "Stoppbits", lblParity: "Parität", lblSlave: "Slave-ID", fromXml: "Aus XML", manualEdit: "Manuell bearbeitet", readyTitle: "Bereit zum Flashen", readyDesc: "Das System ist verbunden. Stellen Sie sicher, dass das Gerät eingeschaltet und empfangsbereit ist.", flashStart: "Flashen Starten", btnAbort: "Abbrechen", processAborted: "Abgebrochen", pingPhase: "Warten auf Verbindung...", pingFailed: "Kommunikation fehlgeschlagen", pingFailedDesc: "Gerät ist nicht erreichbar. Überprüfen Sie Strom, Kabel und Baudrate/Slave ID.", btnCancel: "Abbrechen", btnRetry: "Ping wiederholen", phaseWrite: "Parameter werden auf das Gerät geflasht...", phaseRead: "Datenintegrität wird überprüft...", phaseHeal: "Fehlerhafte Register werden repariert... Zyklus", successTitle: "Flashen Erfolgreich", successDesc: "Alle Parameter wurden perfekt geschrieben und verifiziert.", errorTitle: "Fehler beim Flashen", errorDesc: "Einige Parameter konnten nach mehreren Versuchen nicht geschrieben werden.", btnLoadNew: "Neue XML laden", btnFlashAgain: "Erneut Flashen", btnBackSet: "Zurück zu Einstellungen", btnDetails: "Details anzeigen", detailsTitle: "Nicht übereinstimmende Parameter", colIndex: "Index", colDesc: "Beschreibung", colExp: "Erwartet", colRead: "Gelesen", statusLabel: "Status", termTime: "Zeit", termReg: "Reg", termStatus: "Details", mismatches: "Abweichungen", btnExportLog: "LOG EXPORTIEREN (.TXT)" },
+            fr: { ...baseDict, home: "Accueil", desc: "Déposez la liste des paramètres (.xml) ici", or: "- ou -", btn: "Parcourir Fichier XML", modalTitle: "Menu", langTitle: "Langue", themeTitle: "Apparence", themeDesc: "Choisissez le thème.", aboutTitle: "Info", disclaimerTitle: "Avertissement", disclaimerText: "Cet outil de diagnostic est destiné exclusivement au personnel technique qualifié. Il est fourni 'tel quel' sans garanties officielles. Toute modification des paramètres ou des configurations du système est effectuée aux risques et sous la seule responsabilité de l'utilisateur.", themeLight: "Clair", themeDark: "Sombre", themeSys: "Système", menu: "Menu", fav: "Favoris", allLangs: "Toutes les langues", fileTitle: "Liste de paramètres chargée", lblFile: "Nom de fichier", lblMatricola: "Numéro de Série ou Code Article", lblSw: "Version du Logiciel", connDesc: "Sélectionnez votre convertisseur USB vers RS-485 dans la fenêtre.", btnConnect: "Sélectionner le port COM", btnConnected: "Port Connecté", statusDis: "Déconnecté", statusConn: "Connecté", btnDisconnect: "Déconnecter", noSerialTitle: "Navigateur Non Supporté", noSerialDesc: "L'API Web Serial nécessite un navigateur basé sur Chromium (Chrome, Edge).", offlineText: "Une connexion Internet est recommandée au premier lancement.", dropUpdate: "Déposez un nouveau fichier XML n'importe où", advSettings: "Paramètres de connexion avancés", lblBaud: "Baudrate", lblDatab: "Bits de données", lblStopb: "Bits d'arrêt", lblParity: "Parité", lblSlave: "ID Esclave", fromXml: "De XML", manualEdit: "Modifié Manuellement", readyTitle: "Prêt à Flasher", readyDesc: "Le système est connecté. Assurez-vous que l'unité est sous tension.", flashStart: "Démarrer le Flash", btnAbort: "Interrompre", processAborted: "Processus Interrompu", pingPhase: "En attente de connexion...", pingFailed: "Échec de Communication", pingFailedDesc: "L'unité est injoignable. Vérifiez l'alimentation, le câble et le Baudrate/ID.", btnCancel: "Annuler", btnRetry: "Réessayer Ping", phaseWrite: "Flashage des paramètres sur l'unité...", phaseRead: "Vérification de l'intégrité des données...", phaseHeal: "Réparation des registres incohérents... Boucle", successTitle: "Flashage Réussi", successDesc: "Tous les paramètres ont été écrits et vérifiés.", errorTitle: "Erreurs de Flashage", errorDesc: "Certains paramètres n'ont pas pu être écrits après plusieurs tentatives.", btnLoadNew: "Charger un nouveau XML", btnFlashAgain: "Flasher à nouveau", btnBackSet: "Retour aux Paramètres", btnDetails: "Voir les Détails", detailsTitle: "Paramètres Incohérents", colIndex: "Indice", colDesc: "Description", colExp: "Attendu", colRead: "Lu", statusLabel: "Statut", termTime: "Heure", termReg: "Reg", termStatus: "Détails", mismatches: "Incohérences", btnExportLog: "EXPORTER LOG (.TXT)" },
+            es: { ...baseDict, home: "Inicio", desc: "Arrastre la lista de parámetros (.xml) aquí", or: "- o -", btn: "Examinar archivo XML", modalTitle: "Menú", langTitle: "Idioma", themeTitle: "Apariencia", themeDesc: "Elija el tema.", aboutTitle: "Info", disclaimerTitle: "Descargo de responsabilidad", disclaimerText: "Esta herramienta de diagnóstico está destinada exclusivamente a personal técnico cualificado. Se proporciona 'tal cual', sin garantías oficiales. Cualquier modificación en los parámetros o configuraciones del sistema se realiza bajo el propio riesgo y responsabilidad del usuario.", themeLight: "Claro", themeDark: "Oscuro", themeSys: "Sistema", menu: "Menú", fav: "Favoritos", allLangs: "Todos los idiomas", fileTitle: "Lista de parámetros cargada", lblFile: "Nombre de archivo", lblMatricola: "Número de Serie o Código de Artículo", lblSw: "Versión de Software", connDesc: "Seleccione su convertidor USB-RS485 desde la ventana emergente.", btnConnect: "Seleccionar puerto COM", btnConnected: "Puerto Conectado", statusDis: "Desconectado", statusConn: "Conectado", btnDisconnect: "Desconectar", noSerialTitle: "Navegador no soportado", noSerialDesc: "La API Web Serial requiere un navegador Chromium (Chrome o Edge).", offlineText: "Para una experiencia óptima, se recomienda conexión a internet.", dropUpdate: "Suelta un nuevo archivo XML en cualquier lugar", advSettings: "Configuración de conexión avanzada", lblBaud: "Baudios", lblDatab: "Bits de datos", lblStopb: "Bits de parada", lblParity: "Paridad", lblSlave: "ID Esclavo", fromXml: "De XML", manualEdit: "Editado Manualmente", readyTitle: "Listo para Flashear", readyDesc: "El sistema está conectado. Asegúrese de que la unidad esté encendida.", flashStart: "Iniciar Proceso", btnAbort: "Abortar", processAborted: "Proceso Abortado", pingPhase: "Esperando conexión...", pingFailed: "Fallo de Comunicación", pingFailedDesc: "Unidad inalcanzable. Verifique alimentación, cable y Baudios/ID.", btnCancel: "Cancelar", btnRetry: "Reintentar Ping", phaseWrite: "Flasheando parámetros en la unidad...", phaseRead: "Verificando la integridad de los datos...", phaseHeal: "Sanando registros defectuosos... Ciclo", successTitle: "Flasheo Exitoso", successDesc: "Todos los parámetros han sido escritos y verificados.", errorTitle: "Errores Detectados", errorDesc: "Algunos parámetros no pudieron escribirse después de varios intentos.", btnLoadNew: "Cargar nuevo XML", btnFlashAgain: "Flashear de nuevo", btnBackSet: "Volver a Configuración", btnDetails: "Ver Detalles", detailsTitle: "Parámetros Inconsistentes", colIndex: "Índice", colDesc: "Descripción", colExp: "Esperado", colRead: "Leído", statusLabel: "Estado", termTime: "Hora", termReg: "Reg", termStatus: "Detalles", mismatches: "Inconsistencias", btnExportLog: "EXPORTAR LOG (.TXT)" },
+            zh: { ...baseDict, home: "首页", desc: "在此拖放参数列表 (.xml)", or: "- 或 -", btn: "浏览 XML 文件", modalTitle: "菜单", langTitle: "语言", themeTitle: "外观", themeDesc: "选择外观。", aboutTitle: "关于 / 信息", disclaimerTitle: "免责声明", disclaimerText: "此诊断工具专供合格的技术人员使用。本工具按“原样”提供，不包含任何官方保证。对系统参数或配置的任何修改均由用户自行承担风险和责任。", themeLight: "浅色", themeDark: "深色", themeSys: "系统", menu: "菜单", fav: "最爱", allLangs: "所有语言", fileTitle: "已加载的参数列表", lblFile: "文件名", lblMatricola: "序列号或项目代码", lblSw: "软件版本", connDesc: "从浏览器弹出窗口中选择 USB 到 RS-485 转换器。", btnConnect: "选择 COM 端口", btnConnected: "已连接端口", statusDis: "未连接", statusConn: "已连接", btnDisconnect: "断开连接", noSerialTitle: "浏览器不支持", noSerialDesc: "Web Serial API 需要现代浏览器（如 Chrome 或 Edge）。", offlineText: "为获得最佳首次体验，建议连接互联网。", dropUpdate: "将新 XML 文件拖放到此处", advSettings: "高级连接设置", lblBaud: "波特率", lblDatab: "数据位", lblStopb: "停止位", lblParity: "奇偶校验", lblSlave: "从机 ID", fromXml: "来自 XML", manualEdit: "手动编辑", readyTitle: "准备闪存", readyDesc: "系统已连接。请确保设备已开启且就绪。", flashStart: "开始闪存", btnAbort: "中止", processAborted: "已中止", pingPhase: "等待连接...", pingFailed: "通信失败", pingFailedDesc: "设备无法访问。请确保 PLC 已通电，电缆已连接，并且波特率/从机 ID 正确。", btnCancel: "取消", btnRetry: "重试 Ping", phaseWrite: "正在将参数写入设备...", phaseRead: "正在验证数据完整性...", phaseHeal: "正在修复不匹配的寄存器... 循环", successTitle: "闪存成功", successDesc: "所有参数已完美写入和验证。", errorTitle: "检测到闪存错误", errorDesc: "多次尝试后，部分参数仍无法正确写入。", btnLoadNew: "加载新 XML", btnFlashAgain: "再次闪存", btnBackSet: "返回设置", btnDetails: "查看详情", detailsTitle: "不匹配的参数", colIndex: "索引", colDesc: "描述", colExp: "预期", colRead: "读取", statusLabel: "状态", termTime: "时间", termReg: "寄存器", termStatus: "细节", mismatches: "不匹配", btnExportLog: "导出日志 (.TXT)" },
+            pt: { ...baseDict, home: "Início", desc: "Arraste a lista de parâmetros (.xml) aqui", or: "- ou -", btn: "Navegar ficheiro XML", modalTitle: "Menu", langTitle: "Idioma", themeTitle: "Aparência", themeDesc: "Escolha o tema.", aboutTitle: "Sobre", disclaimerTitle: "Aviso", disclaimerText: "Esta ferramenta de diagnóstico destina-se exclusivamente a pessoal técnico qualificado. É fornecida 'tal como está', sem garantias oficiais. Qualquer modificação aos parâmetros ou configurações do sistema é efetuada por conta e risco e sob a responsabilidade exclusiva do utilizador.", themeLight: "Claro", themeDark: "Escuro", themeSys: "Sistema", menu: "Menu", fav: "Favoritos", allLangs: "Todos os idiomas", fileTitle: "Lista de parâmetros carregada", lblFile: "Ficheiro", lblMatricola: "Número de Série ou Código do Item", lblSw: "Versão do Software", connDesc: "Selecione o conversor USB-RS485 na janela do navegador.", btnConnect: "Selecionar porta COM", btnConnected: "Porta Conectada", statusDis: "Desconectado", statusConn: "Conectado", btnDisconnect: "Desconectar", noSerialTitle: "Navegador Não Suportado", noSerialDesc: "A API Web Serial requer um navegador Chromium moderno (Chrome ou Edge).", offlineText: "Uma conexão com a Internet é recomendada na primeira execução.", dropUpdate: "Solte um novo ficheiro XML em qualquer lugar", advSettings: "Configurações avançadas de conexão", lblBaud: "Baudrate", lblDatab: "Bits de dados", lblStopb: "Bits de parada", lblParity: "Paridade", lblSlave: "ID Escravo", fromXml: "Do XML", manualEdit: "Editado Manualmente", readyTitle: "Pronto para Flashear", readyDesc: "O sistema está conectado. Verifique se a unidade está ligada.", flashStart: "Iniciar Processo", btnAbort: "Abortar", processAborted: "Processo Abortado", pingPhase: "A aguardar ligação...", pingFailed: "Falha na Comunicação", pingFailedDesc: "Unidade inacessível. Verifique energia, cabo e Baudrate/ID.", btnCancel: "Cancelar", btnRetry: "Repetir Ping", phaseWrite: "A gravar parâmetros na unidade...", phaseRead: "A verificar a integridade dos dados...", phaseHeal: "A reparar registos com falha... Ciclo", successTitle: "Sucesso", successDesc: "Todos os parâmetros foram gravados e verificados perfeitamente.", errorTitle: "Erros Detetados", errorDesc: "Alguns parâmetros não puderam ser gravados após várias tentativas.", btnLoadNew: "Carregar Novo XML", btnFlashAgain: "Flashear Novamente", btnBackSet: "Voltar às Configurações", btnDetails: "Ver Detalhes", detailsTitle: "Parâmetros Inconsistentes", colIndex: "Índice", colDesc: "Descrição", colExp: "Esperado", colRead: "Lido", statusLabel: "Estado", termTime: "Hora", termReg: "Reg", termStatus: "Detalhes", mismatches: "Inconsistências", btnExportLog: "EXPORTAR LOG (.TXT)" },
+            ru: { ...baseDict, home: "Главная", desc: "Перетащите список параметров (.xml) сюда", or: "- или -", btn: "Выбрать файл XML", modalTitle: "Меню", langTitle: "Язык", themeTitle: "Внешний вид", themeDesc: "Выберите тему.", aboutTitle: "О программе", disclaimerTitle: "Отказ", disclaimerText: "Этот диагностический инструмент предназначен исключительно для квалифицированного технического персонала. Он предоставляется «как есть» без официальных гарантий. Любое изменение системных параметров или конфигураций осуществляется исключительно на страх и риск и под ответственность пользователя.", themeLight: "Светлая", themeDark: "Темная", themeSys: "Система", menu: "Меню", fav: "Избранное", allLangs: "Все языки", fileTitle: "Список параметров загружен", lblFile: "Имя файла", lblMatricola: "Серийный номер или код", lblSw: "Версия ПО", connDesc: "Выберите конвертер USB-RS485 во всплывающем окне браузера.", btnConnect: "Выбрать COM-порт", btnConnected: "Порт подключен", statusDis: "Отключено", statusConn: "Подключено", btnDisconnect: "Отключить", noSerialTitle: "Браузер не поддерживается", noSerialDesc: "API Web Serial требует браузер на базе Chromium (Chrome, Edge).", offlineText: "Для оптимальной работы рекомендуется интернет-соединение при первом запуске.", dropUpdate: "Перетащите новый файл XML", advSettings: "Расширенные настройки подключения", lblBaud: "Скорость", lblDatab: "Биты данных", lblStopb: "Стоп-биты", lblParity: "Четность", lblSlave: "Slave ID", fromXml: "Из XML", manualEdit: "Отредактировано вручную", readyTitle: "Готово к прошивке", readyDesc: "Система подключена. Убедитесь, что питание включено.", flashStart: "Начать прошивку", btnAbort: "Прервать", processAborted: "Прервано", pingPhase: "Ожидание подключения...", pingFailed: "Ошибка связи", pingFailedDesc: "Устройство недоступно. Проверьте питание, кабель и настройки (Baudrate/ID).", btnCancel: "Отмена", btnRetry: "Повторить Ping", phaseWrite: "Прошивка параметров в устройство...", phaseRead: "Проверка целостности данных...", phaseHeal: "Исправление ошибочных регистров... Цикл", successTitle: "Успешно", successDesc: "Все параметры были записаны и проверены.", errorTitle: "Обнаружены ошибки", errorDesc: "Некоторые параметры не удалось записать после нескольких попыток.", btnLoadNew: "Загрузить новый XML", btnFlashAgain: "Прошить снова", btnBackSet: "Назад к настройкам", btnDetails: "Подробнее", detailsTitle: "Несовпадающие параметры", colIndex: "Индекс", colDesc: "Описание", colExp: "Ожидалось", colRead: "Прочитано", statusLabel: "Статус", termTime: "Время", termReg: "Рег", termStatus: "Детали", mismatches: "Несовпадения", btnExportLog: "ЭКСПОРТ ЛОГА (.TXT)" },
+            ja: { ...baseDict, home: "ホーム", desc: "パラメータリスト(.xml)をドロップ", or: "- または -", btn: "XMLファイルを参照", modalTitle: "メニュー", langTitle: "言語", themeTitle: "外観", themeDesc: "テーマを選択", aboutTitle: "情報", disclaimerTitle: "免責事項", disclaimerText: "この診断ツールは、資格を持つ技術スタッフ専用です。公式な保証なしで「現状有姿」で提供されます。システムパラメータまたは設定の変更は、ユーザー自身の単独の責任とリスクにおいて実行されます。", themeLight: "ライト", themeDark: "ダーク", themeSys: "システム", menu: "メニュー", fav: "お気に入り", allLangs: "すべての言語", fileTitle: "ロードされたパラメータリスト", lblFile: "ファイル名", lblMatricola: "シリアル番号または製品コード", lblSw: "ソフトウェアバージョン", connDesc: "ブラウザのポップアップからUSB-RS485コンバータを選択します。", btnConnect: "COMポートを選択して接続", btnConnected: "ポート接続済み", statusDis: "切断", statusConn: "接続済み", btnDisconnect: "切断", noSerialTitle: "非対応ブラウザ", noSerialDesc: "Web Serial APIにはChromium系ブラウザ（ChromeまたはEdge）が必要です。", offlineText: "初回起動時はスタイルを読み込むためにインターネット接続を推奨します。", dropUpdate: "新しいXMLファイルを任意の場所にドロップ", advSettings: "高度な接続設定", lblBaud: "ボーレート", lblDatab: "データビット", lblStopb: "ストップビット", lblParity: "パリティ", lblSlave: "スレーブID", fromXml: "XMLから", manualEdit: "手動編集済み", readyTitle: "フラッシュの準備完了", readyDesc: "システムが接続されました。ユニットの電源が入っていることを確認してください。", flashStart: "フラッシュ処理を開始", btnAbort: "中止", processAborted: "処理を中止しました", pingPhase: "接続を待機中...", pingFailed: "通信失敗", pingFailedDesc: "ユニットに到達できません。電源、ケーブル、設定を確認してください。", btnCancel: "キャンセル", btnRetry: "Pingを再試行", phaseWrite: "ユニットへパラメータを書き込み中...", phaseRead: "データの整合性を確認中...", phaseHeal: "不一致レジスタを修復中... ループ", successTitle: "フラッシュ成功", successDesc: "すべてのパラメータが正常に書き込まれました。", errorTitle: "エラーを検出しました", errorDesc: "複数回試行しましたが、一部のパラメータを書き込めませんでした。", btnLoadNew: "新しいXMLをロード", btnFlashAgain: "再フラッシュ", btnBackSet: "設定に戻る", btnDetails: "詳細を表示", detailsTitle: "不一致パラメータ", colIndex: "インデックス", colDesc: "説明", colExp: "期待値", colRead: "読み取り値", statusLabel: "ステータス", termTime: "時間", termReg: "レジスタ", termStatus: "詳細", mismatches: "不一致", btnExportLog: "ログをエクスポート" },
+            ko: { ...baseDict, home: "홈", desc: "매개변수 목록(.xml)을 여기에 드롭", or: "- 또는 -", btn: "XML 파일 찾아보기", modalTitle: "메뉴", langTitle: "언어", themeTitle: "외관", themeDesc: "테마 선택.", aboutTitle: "정보", disclaimerTitle: "면책 조항", disclaimerText: "이 진단 도구는 자격을 갖춘 기술자만 사용할 수 있도록 제작되었습니다. 공식적인 보증 없이 '있는 그대로' 제공됩니다. 시스템 매개변수나 구성의 모든 수정은 전적으로 사용자의 위험과 책임하에 수행됩니다.", themeLight: "라이트", themeDark: "다크", themeSys: "시스템", menu: "메뉴", fav: "즐겨찾기", allLangs: "모든 언어", fileTitle: "로드된 매개변수 목록", lblFile: "파일명", lblMatricola: "일련 번호 또는 항목 코드", lblSw: "소프트웨어 버전", connDesc: "브라우저 팝업에서 USB-RS485 변환기를 선택하십시오.", btnConnect: "COM 포트 선택 및 연결", btnConnected: "포트 연결됨", statusDis: "연결 해제됨", statusConn: "연결됨", btnDisconnect: "연결 해제", noSerialTitle: "지원되지 않는 브라우저", noSerialDesc: "Web Serial API를 사용하려면 데스크톱에 Chromium 기반 브라우저가 필요합니다.", offlineText: "처음 사용할 때는 스타일을 로드하기 위해 인터넷 연결이 권장됩니다.", dropUpdate: "새 XML 파일을 아무 곳에나 드롭하세요", advSettings: "고급 연결 설정", lblBaud: "전송률", lblDatab: "데이터 비트", lblStopb: "정지 비트", lblParity: "패리티", lblSlave: "슬레이브 ID", fromXml: "XML에서", manualEdit: "수동 편집됨", readyTitle: "플래시 준비 완료", readyDesc: "시스템이 연결되었습니다. 장치에 전원이 공급되는지 확인하십시오.", flashStart: "플래시 프로세스 시작", btnAbort: "중단", processAborted: "처리 중단됨", pingPhase: "연결 대기 중...", pingFailed: "통신 실패", pingFailedDesc: "장치에 연결할 수 없습니다. 전원, 케이블, 설정을 확인하세요.", btnCancel: "취소", btnRetry: "Ping 재시도", phaseWrite: "장치에 매개변수 플래싱 중...", phaseRead: "데이터 무결성 확인 중...", phaseHeal: "불일치 레지스터 치료 중... 루프", successTitle: "성공", successDesc: "모든 매개변수가 완벽하게 쓰여지고 확인되었습니다.", errorTitle: "오류 감지됨", errorDesc: "여러 번 시도한 후에도 일부 매개변수를 쓰지 못했습니다.", btnLoadNew: "새 XML 로드", btnFlashAgain: "다시 플래시", btnBackSet: "설정으로 돌아가기", btnDetails: "자세히 보기", detailsTitle: "불일치 매개변수", colIndex: "인덱스", colDesc: "설명", colExp: "예상 값", colRead: "읽은 값", statusLabel: "상태", termTime: "시간", termReg: "레지스터", termStatus: "세부 정보", mismatches: "불일치", btnExportLog: "로그 내보내기" },
+            tr: { ...baseDict, home: "Ana Sayfa", desc: "Parametre Listesini (.xml) sürükleyin", or: "- veya -", btn: "XML Dosyasına Gözat", modalTitle: "Menü", langTitle: "Dil", themeTitle: "Görünüm", themeDesc: "Tema seçin.", aboutTitle: "Hakkında", disclaimerTitle: "Sorumluluk Reddi", disclaimerText: "Bu tanılama aracı yalnızca kalifiye teknik personel için tasarlanmıştır. Herhangi bir resmi garanti olmaksızın 'olduğu gibi' sağlanmaktadır. Sistem parametrelerinde veya yapılandırmalarında yapılacak herhangi bir değişiklik, tamamen kullanıcının kendi riski ve sorumluluğu altındadır.", themeLight: "Açık", themeDark: "Koyu", themeSys: "Sistem", menu: "Menü", fav: "Favoriler", allLangs: "Tüm Diller", fileTitle: "Yüklenen parametre listesi", lblFile: "Dosya adı", lblMatricola: "Seri Numarası veya Ürün Kodu", lblSw: "Yazılım Sürümü", connDesc: "Bağlantı için tarayıcı penceresinden USB-RS485 çeviricinizi seçin.", btnConnect: "COM Noktası Seç ve Bağlan", btnConnected: "Port Bağlı", statusDis: "Bağlı Değil", statusConn: "Bağlı", btnDisconnect: "Bağlantıyı Kes", noSerialTitle: "Tarayıcı Desteklenmiyor", noSerialDesc: "Web Serial API için Chrome veya Edge gibi Chromium tabanlı bir tarayıcı gereklidir.", offlineText: "Optimum deneyim için ilk açılışta internet bağlantısı önerilir.", dropUpdate: "Yüklemek için yeni XML dosyasını bırakın", advSettings: "Gelişmiş Bağlantı Ayarları", lblBaud: "Baudrate", lblDatab: "Veri bitleri", lblStopb: "Dur bitleri", lblParity: "Eşlik (Parity)", lblSlave: "Slave ID", fromXml: "XML'den", manualEdit: "Elle Düzenlendi", readyTitle: "Flaşlamaya Hazır", readyDesc: "Sistem bağlandı. Üniteye güç geldiğinden emin olun.", flashStart: "İşlemi Başlat", btnAbort: "İptal", processAborted: "İşlem Durduruldu", pingPhase: "Bağlantı bekleniyor...", pingFailed: "İletişim Başarısız", pingFailedDesc: "Üniteye ulaşılamıyor. Güç, kablo ve Baudrate/ID ayarlarını kontrol edin.", btnCancel: "İptal", btnRetry: "Ping'i Yeniden Dene", phaseWrite: "Parametreler üniteye yazılıyor...", phaseRead: "Veri bütünlüğü doğrulanıyor...", phaseHeal: "Hatalı kayıtlar onarılıyor... Döngü", successTitle: "İşlem Başarılı", successDesc: "Tüm parametreler başarıyla yazıldı ve doğrulandı.", errorTitle: "Hatalar Tespit Edildi", errorDesc: "Bazı parametreler çoklu denemelere rağmen yazılamadı.", btnLoadNew: "Yeni XML Yükle", btnFlashAgain: "Tekrar Flaşla", btnBackSet: "Ayarlara Dön", btnDetails: "Detayları Gör", detailsTitle: "Eşleşmeyen Parametreler", colIndex: "İndeks", colDesc: "Açıklama", colExp: "Beklenen", colRead: "Okunan", statusLabel: "Durum", termTime: "Zaman", termReg: "Kayıt", termStatus: "Detaylar", mismatches: "Uyuşmazlıklar", btnExportLog: "LOG DIŞA AKTAR (.TXT)" },
+            pl: { ...baseDict, home: "Strona główna", desc: "Przeciągnij listę parametrów (.xml) tutaj", or: "- lub -", btn: "Przeglądaj plik XML", modalTitle: "Menu", langTitle: "Język", themeTitle: "Wygląd", themeDesc: "Wybierz motyw.", aboutTitle: "Informacje", disclaimerTitle: "Zastrzeżenie", disclaimerText: "To narzędzie diagnostyczne jest przeznaczone wyłącznie dla wykwalifikowanego personelu technicznego. Jest dostarczane w stanie „takim, w jakim jest”, bez żadnych oficjalnych gwarancji. Wszelkie modyfikacje parametrów lub konfiguracji systemu są dokonywane wyłącznie na własne ryzyko i odpowiedzialność użytkownika.", themeLight: "Jasny", themeDark: "Ciemny", themeSys: "System", menu: "Menu", fav: "Ulubione", allLangs: "Wszystkie języki", fileTitle: "Załadowana lista parametrów", lblFile: "Nazwa pliku", lblMatricola: "Numer Seryjny lub Kod Produktu", lblSw: "Wersja oprogramowania", connDesc: "Wybierz konwerter USB-RS485 z okienka przeglądarki.", btnConnect: "Wybierz Port COM i Połącz", btnConnected: "Port podłączony", statusDis: "Rozłączony", statusConn: "Połączony", btnDisconnect: "Rozłącz", noSerialTitle: "Przeglądarka nie obsługiwana", noSerialDesc: "API Web Serial wymaga przeglądarki opartej na Chromium.", offlineText: "Do pierwszego uruchomienia zaleca się połączenie z Internetem.", dropUpdate: "Upuść nowy plik XML gdziekolwiek", advSettings: "Zaawansowane ustawienia połączenia", lblBaud: "Szybkość transmisji", lblDatab: "Bity danych", lblStopb: "Bity stopu", lblParity: "Parzystość", lblSlave: "ID Urządzenia", fromXml: "Z pliku XML", manualEdit: "Edytowano ręcznie", readyTitle: "Gotowe do wgrania", readyDesc: "System podłączony. Upewnij się, że urządzenie jest zasilane.", flashStart: "Rozpocznij proces", btnAbort: "Przerwij", processAborted: "Przerwano proces", pingPhase: "Oczekiwanie na połączenie...", pingFailed: "Błąd komunikacji", pingFailedDesc: "Urządzenie nieosiągalne. Sprawdź zasilanie, kabel i ustawienia Portu/ID.", btnCancel: "Anuluj", btnRetry: "Ponów Ping", phaseWrite: "Wgrywanie parametrów do urządzenia...", phaseRead: "Weryfikacja integralności danych...", phaseHeal: "Naprawianie niezgodnych rejestrów... Pętla", successTitle: "Wgrywanie zakończone sukcesem", successDesc: "Wszystkie parametry zostały poprawnie zapisane i zweryfikowane.", errorTitle: "Wykryto błędy", errorDesc: "Nie udało się zapisać niektórych parametrów po kilku próbach.", btnLoadNew: "Załaduj nowy XML", btnFlashAgain: "Wgraj ponownie", btnBackSet: "Wróć do Ustawień", btnDetails: "Pokaż szczegóły", detailsTitle: "Niezgodne parametry", colIndex: "Indeks", colDesc: "Opis", colExp: "Oczekiwano", colRead: "Odczyt", statusLabel: "Status", termTime: "Czas", termReg: "Rejestr", termStatus: "Szczegóły", mismatches: "Niezgodności", btnExportLog: "EKSPORTUJ LOG (.TXT)" },
+            nl: { ...baseDict, home: "Home", desc: "Sleep parameterlijst (.xml) hierheen", or: "- of -", btn: "Blader XML-bestand", modalTitle: "Menu", langTitle: "Taal", themeTitle: "Uiterlijk", themeDesc: "Kies het thema van de applicatie.", aboutTitle: "Over / Info", disclaimerTitle: "Vrijwaring", disclaimerText: "Dit diagnostische hulpmiddel is uitsluitend bedoeld voor gekwalificeerd technisch personeel. Het wordt 'as-is' geleverd zonder officiële garanties. Elke wijziging van systeemparameters of configuraties wordt uitgevoerd op eigen risico en verantwoordelijkheid van de gebruiker.", themeLight: "Licht", themeDark: "Donker", themeSys: "Systeem", menu: "Menu", fav: "Favorieten", allLangs: "Alle talen", fileTitle: "Geladen parameterlijst", lblFile: "Bestandsnaam", lblMatricola: "Serienummer of Artikelcode", lblSw: "Softwareversie", connDesc: "Selecteer uw USB-RS485 converter in het browservenster om verbinding te maken.", btnConnect: "Selecteer COM Poort & Verbind", btnConnected: "Poort verbonden", statusDis: "Losgekoppeld", statusConn: "Verbonden", btnDisconnect: "Loskoppelen", noSerialTitle: "Browser niet ondersteund", noSerialDesc: "De Web Serial API vereist een Chromium-gebaseerde browser (Chrome of Edge).", offlineText: "Voor de beste ervaring is internet vereist bij de eerste start om stijlen te laden.", dropUpdate: "Sleep overal een nieuw XML-bestand", advSettings: "Geavanceerde Verbindingsinstellingen", lblBaud: "Baudrate", lblDatab: "Databits", lblStopb: "Stopbits", lblParity: "Pariteit", lblSlave: "Slave-ID", fromXml: "Van XML", manualEdit: "Handmatig gewijzigd", readyTitle: "Klaar om te flashen", readyDesc: "Het systeem is verbonden. Zorg ervoor dat de unit is ingeschakeld en klaar is om te ontvangen.", flashStart: "Start Proces", btnAbort: "Afbreken", processAborted: "Proces Afgebroken", pingPhase: "Wachten op verbinding...", pingFailed: "Communicatie Mislukt", pingFailedDesc: "Apparaat is onbereikbaar. Controleer voeding, kabel en Baudrate/ID.", btnCancel: "Annuleren", btnRetry: "Opnieuw Ping", phaseWrite: "Parameters flashen naar unit...", phaseRead: "Gegevensintegriteit controleren...", phaseHeal: "Niet-overeenkomende registers herstellen... Loop", successTitle: "Flashen Succesvol", successDesc: "Alle parameters zijn correct weggeschreven en geverifieerd.", errorTitle: "Fouten Gedetecteerd", errorDesc: "Sommige parameters konden na meerdere pogingen niet worden geschreven.", btnLoadNew: "Laad Nieuwe XML", btnFlashAgain: "Opnieuw Flashen", btnBackSet: "Terug naar Instellingen", btnDetails: "Bekijk Details", detailsTitle: "Niet-overeenkomende Parameters", colIndex: "Index", colDesc: "Beschrijving", colExp: "Verwacht", colRead: "Gelezen", statusLabel: "Status", termTime: "Tijd", termReg: "Reg", termStatus: "Details", mismatches: "Mismatches", btnExportLog: "EXPORTEER LOG (.TXT)" },
+            sv: { ...baseDict, home: "Hem", desc: "Dra parameterlista (.xml) hit", or: "- eller -", btn: "Bläddra XML-fil", modalTitle: "Meny", langTitle: "Språk", themeTitle: "Utseende", themeDesc: "Välj applikationens tema.", aboutTitle: "Om / Info", disclaimerTitle: "Ansvarsfriskrivning", disclaimerText: "Detta diagnostikverktyg är uteslutande avsett för kvalificerad teknisk personal. Det tillhandahålls 'i befintligt skick' utan officiella garantier. All modifiering av systemparametrar eller konfigurationer utförs helt på användarens egen risk och under dennes ansvar.", themeLight: "Ljus", themeDark: "Mörk", themeSys: "System", menu: "Meny", fav: "Favoriter", allLangs: "Alla språk", fileTitle: "Laddad parameterlista", lblFile: "Filnamn", lblMatricola: "Serienummer eller Artikelkod", lblSw: "Mjukvaruversion", connDesc: "Välj din USB-RS485-omvandlare i webbläsarens popup för att ansluta.", btnConnect: "Välj COM-port & Anslut", btnConnected: "Port ansluten", statusDis: "Frånkopplad", statusConn: "Ansluten", btnDisconnect: "Koppla från", noSerialTitle: "Webbläsaren stöds inte", noSerialDesc: "Web Serial API kräver en Chromium-baserad webbläsare för att komma åt COM-portar.", offlineText: "En internetanslutning rekommenderas vid första uppstarten för att ladda gränssnitt.", dropUpdate: "Släpp en ny XML-fil var som helst", advSettings: "Avancerade anslutningsinställningar", lblBaud: "Baudrate", lblDatab: "Databitar", lblStopb: "Stoppbitar", lblParity: "Paritet", lblSlave: "Slav-ID", fromXml: "Från XML", manualEdit: "Manuellt ändrad", readyTitle: "Redo att flasha", readyDesc: "Systemet är anslutet. Se till att enheten är påslagen och redo.", flashStart: "Starta Flashning", btnAbort: "Avbryt", processAborted: "Processen Avbruten", pingPhase: "Väntar på anslutning...", pingFailed: "Kommunikation Misslyckades", pingFailedDesc: "Enheten kan inte nås. Kontrollera ström, kabel och Baudrate/ID.", btnCancel: "Avbryt", btnRetry: "Försök Ping Igen", phaseWrite: "Skriver parametrar till enheten...", phaseRead: "Verifierar dataintegritet...", phaseHeal: "Återställer felaktiga register... Loop", successTitle: "Flashning Klar", successDesc: "Alla parametrar har skrivits och verifierats framgångsrikt.", errorTitle: "Fel Upptäcktes", errorDesc: "Vissa parametrar kunde inte skrivas efter flera försök.", btnLoadNew: "Ladda Ny XML", btnFlashAgain: "Flasha Igen", btnBackSet: "Tillbaka till Inställningar", btnDetails: "Visa Detaljer", detailsTitle: "Felaktiga Parametrar", colIndex: "Index", colDesc: "Beskrivning", colExp: "Förväntat", colRead: "Läst", statusLabel: "Status", termTime: "Tid", termReg: "Reg", termStatus: "Detaljer", mismatches: "Felmatchningar", btnExportLog: "EXPORTERA LOGG (.TXT)" },
+            da: { ...baseDict, home: "Hjem", desc: "Træk parameterliste (.xml) her", or: "- eller -", btn: "Gennemse XML-fil", modalTitle: "Menu", langTitle: "Sprog", themeTitle: "Udseende", themeDesc: "Vælg applikationens tema.", aboutTitle: "Om / Info", disclaimerTitle: "Ansvarsfraskrivelse", disclaimerText: "Dette diagnostiske værktøj er udelukkende beregnet til kvalificeret teknisk personale. Det leveres 'som det er' og uden officielle garantier. Enhver ændring af systemparametre eller konfigurationer udføres udelukkende på brugerens eget ansvar og risiko.", themeLight: "Lys", themeDark: "Mørk", themeSys: "System", menu: "Menu", fav: "Foretrukne", allLangs: "Alle sprog", fileTitle: "Indlæst parameterliste", lblFile: "Filnavn", lblMatricola: "Serienummer eller Varenummer", lblSw: "Softwareversion", connDesc: "Vælg din USB-RS485 konverter i browserens popup for at oprette forbindelse.", btnConnect: "Vælg COM-port & Tilslut", btnConnected: "Port tilsluttet", statusDis: "Afbrudt", statusConn: "Tilsluttet", btnDisconnect: "Afbryd", noSerialTitle: "Browser ikke understøttet", noSerialDesc: "Web Serial API kræver en Chromium-baseret browser på desktop.", offlineText: "Internetforbindelse anbefales første gang til indlæsning af stilarter.", dropUpdate: "Slip en ny XML-fil hvor som helst", advSettings: "Avancerede forbindelsesindstillinger", lblBaud: "Baudrate", lblDatab: "Databits", lblStopb: "Stopbits", lblParity: "Paritet", lblSlave: "Slave ID", fromXml: "Fra XML", manualEdit: "Manuelt redigeret", readyTitle: "Klar til Flash", readyDesc: "Systemet er tilsluttet. Sørg for, at enheden er tændt og klar.", flashStart: "Start Flashning", btnAbort: "Afbryd", processAborted: "Processen Afbrudt", pingPhase: "Venter på forbindelse...", pingFailed: "Kommunikation Fejlede", pingFailedDesc: "Enheden er utilgængelig. Tjek strøm, kabel og Baudrate/ID.", btnCancel: "Annuller", btnRetry: "Prøv Ping Igen", phaseWrite: "Flasher parametre til enhed...", phaseRead: "Bekræfter dataintegritet...", phaseHeal: "Helbreder forkerte registre... Loop", successTitle: "Flashning Succes", successDesc: "Alle parametre blev skrevet og verificeret perfekt.", errorTitle: "Fejl fundet", errorDesc: "Nogle parametre kunne ikke skrives efter flere forsøg.", btnLoadNew: "Indlæs Ny XML", btnFlashAgain: "Flash Igen", btnBackSet: "Tilbage til Indstillinger", btnDetails: "Vis Detaljer", detailsTitle: "Forskellige Parametrar", colIndex: "Indeks", colDesc: "Beskrivelse", colExp: "Forventet", colRead: "Læst", statusLabel: "Status", termTime: "Tid", termReg: "Reg", termStatus: "Detaljer", mismatches: "Uoverensstemmelser", btnExportLog: "EKSPORTER LOG (.TXT)" },
+            fi: { ...baseDict, home: "Etusivu", desc: "Vedä parametriluettelo (.xml) tähän", or: "- tai -", btn: "Selaa XML-tiedostoa", modalTitle: "Valikko", langTitle: "Kieli", themeTitle: "Ulkomuoto", themeDesc: "Valitse teema.", aboutTitle: "Tietoja", disclaimerTitle: "Vastuuvapauslauseke", disclaimerText: "Tämä diagnostiikkatyökalu on tarkoitettu yksinomaan pätevälle tekniselle henkilöstölle. Se toimitetaan 'sellaisenaan' ilman virallisia takuita. Kaikki järjestelmäparametrien tai konfiguraatioiden muutokset tehdään yksinomaan käyttäjän omalla vastuulla ja riskillä.", themeLight: "Vaalea", themeDark: "Tumma", themeSys: "Järjestelmä", menu: "Valikko", fav: "Suosikit", allLangs: "Kaikki kielet", fileTitle: "Ladattu parametriluettelo", lblFile: "Tiedostonimi", lblMatricola: "Sarjanumero tai Nimikekoodi", lblSw: "Ohjelmistoversio", connDesc: "Valitse USB-RS485-muunnin selaimen ponnahdusikkunasta muodostaaksesi yhteyden.", btnConnect: "Valitse COM-portti ja Yhdistä", btnConnected: "Portti yhdistetty", statusDis: "Katkaistu", statusConn: "Yhdistetty", btnDisconnect: "Katkaise", noSerialTitle: "Selainta ei tueta", noSerialDesc: "Web Serial API vaatii Chromium-pohjaisen selaimen työpöydällä.", offlineText: "Ensimmäisellä käynnistyksellä suositellaan internetyhteyttä tyylien lataamiseksi.", dropUpdate: "Pudota uusi XML-tiedosto mihin tahansa", advSettings: "Lisäasetukset", lblBaud: "Siirtonopeus", lblDatab: "Databitit", lblStopb: "Stop-bitit", lblParity: "Pariteetti", lblSlave: "Slave-ID", fromXml: "XML:stä", manualEdit: "Muokattu manuaalisesti", readyTitle: "Valmis vilkkumaan", readyDesc: "Järjestelmä on yhdistetty. Varmista, että laitteessa on virta ja se on valmis.", flashStart: "Käynnistä Vilkku", btnAbort: "Keskeytä", processAborted: "Prosessi Keskeytetty", pingPhase: "Odotetaan yhteyttä...", pingFailed: "Tiedonsiirto Epäonnistui", pingFailedDesc: "Laite ei vastaa. Tarkista virta, kaapeli ja Baudrate/ID-asetukset.", btnCancel: "Peruuta", btnRetry: "Yritä Ping Uudelleen", phaseWrite: "Parametrien kirjoittaminen laitteeseen...", phaseRead: "Tietojen eheyden tarkistaminen...", phaseHeal: "Virheellisten rekisterien korjaus... Silmukka", successTitle: "Valmis", successDesc: "Kaikki parametrit on kirjoitettu ja varmistettu täydellisesti.", errorTitle: "Virheitä havaittu", errorDesc: "Joitakin parametreja ei voitu kirjoittaa useiden yritysten jälkeen.", btnLoadNew: "Lataa Uusi XML", btnFlashAgain: "Vilkku Uudelleen", btnBackSet: "Takaisin Asetuksiin", btnDetails: "Näytä tiedot", detailsTitle: "Yhteensopimattomat parametrit", colIndex: "Indeksi", colDesc: "Kuvaus", colExp: "Odotettu", colRead: "Luettu", statusLabel: "Tila", termTime: "Aika", termReg: "Reg", termStatus: "Tiedot", mismatches: "Epäjohdonmukaisuudet", btnExportLog: "VIE LOKI (.TXT)" }
+        };
+		
+        function setTheme(themeMode) {
+            localStorage.setItem('clivet_theme', themeMode);
+            const isDark = themeMode === 'dark' || (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+        }
+
+        function initApp() {
+            const favGrid = document.getElementById('fav-lang-grid');
+            const allGrid = document.getElementById('all-lang-grid');
+            if(favGrid && allGrid) {
+                Object.keys(langNames).forEach(k => {
+                    const btnHtml = `<button onclick="selectLanguage('${k}')" class="flex items-center space-x-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition focus:outline-none w-full text-left">${flags[k]} <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">${langNames[k]}</span></button>`;
+                    if (favorites.includes(k)) favGrid.innerHTML += btnHtml;
+                    allGrid.innerHTML += btnHtml;
+                });
+            }
+
+            if (!localStorage.getItem('clivet_first_run') && !navigator.onLine) {
+                const b = document.getElementById('offline-banner');
+                if(b) b.classList.remove('hidden');
+            }
+            localStorage.setItem('clivet_first_run', 'true');
+
+            let savedLang = localStorage.getItem('clivet_lang');
+            currentActiveLang = (savedLang && uiDict[savedLang]) ? savedLang : (uiDict[(navigator.language || navigator.userLanguage).split('-')[0].toLowerCase()] ? (navigator.language || navigator.userLanguage).split('-')[0].toLowerCase() : 'en');
+            
+            setTheme(localStorage.getItem('clivet_theme') || 'system');
+            
+            if (!('serial' in navigator)) {
+                document.getElementById('serial-unsupported-banner').classList.remove('hidden');
+            }
+
+            applyTranslations();
+        }
+
+        function dismissOfflineBanner() { const b = document.getElementById('offline-banner'); if(b) b.classList.add('hidden'); }
+        function openMenuModal() { const m = document.getElementById('menu-modal'); if(m) { m.classList.remove('hidden'); switchSettingsTab('lang'); } }
+        function closeMenuModal() { const m = document.getElementById('menu-modal'); if(m) m.classList.add('hidden'); }
+        function openDetailsModal() { const m = document.getElementById('details-modal'); if(m) m.classList.remove('hidden'); }
+        function closeDetailsModal() { const m = document.getElementById('details-modal'); if(m) m.classList.add('hidden'); }
+
+        function switchSettingsTab(tabId) {
+            document.querySelectorAll('.settings-pane').forEach(el => el.classList.add('hidden'));
+            const c = document.getElementById('tab-content-' + tabId);
+            if(c) c.classList.remove('hidden');
+            
+            ['lang', 'theme', 'about'].forEach(id => {
+                const b = document.getElementById('tab-btn-' + id);
+                if(b) {
+                    if (id === tabId) {
+                        b.className = "flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300";
+                    } else {
+                        b.className = "flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700";
+                    }
+                }
+            });
+        }
+
+        function selectLanguage(langCode) {
+            currentActiveLang = uiDict[langCode] ? langCode : 'en';
+            localStorage.setItem('clivet_lang', currentActiveLang);
+            applyTranslations();
+        }
+
+        function applyTranslations() {
+            const dict = uiDict[currentActiveLang] || uiDict['en'];
+            const en = uiDict['en'];
+            document.documentElement.lang = currentActiveLang;
+
+            const setText = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt || ''; };
+            
+            setText('ui-title', dict.title || en.title);
+            setText('ui-subtitle', dict.subtitle || en.subtitle);
+            setText('ui-about-main-title', dict.title || en.title);
+            setText('ui-about-subtitle', dict.subtitle || en.subtitle);
+            
+            setText('ui-desc', dict.desc || en.desc);
+            setText('ui-or', dict.or || en.or);
+            setText('ui-btn', dict.btn || en.btn);
+            
+            setText('ui-modal-title', dict.modalTitle || en.modalTitle);
+            setText('ui-lang-title', dict.langTitle || en.langTitle);
+            setText('ui-theme-title', dict.themeTitle || en.themeTitle);
+            setText('ui-theme-desc', dict.themeDesc || en.themeDesc);
+            setText('ui-about-title', dict.aboutTitle || en.aboutTitle);
+            setText('ui-about-version', dict.versionLabel || en.versionLabel);
+            setText('ui-about-release', dict.releaseLabel || en.releaseLabel);
+            setText('ui-about-disc-title', dict.disclaimerTitle || en.disclaimerTitle);
+            setText('ui-about-disc-text', dict.disclaimerText || en.disclaimerText);
+            setText('ui-fav-title', dict.fav || en.fav);
+            setText('ui-all-title', dict.allLangs || en.allLangs);
+            setText('ui-btn-menu', dict.menu || en.menu);
+            setText('ui-btn-home', dict.home || en.home);
+            
+            setText('ui-btn-back', dict.backToTools || en.backToTools);
+            setText('ui-file-title', dict.fileTitle || en.fileTitle);
+            setText('ui-lbl-filename', dict.lblFile || en.lblFile);
+            setText('ui-lbl-matricola', dict.lblMatricola || en.lblMatricola);
+            setText('ui-lbl-sw', dict.lblSw || en.lblSw);
+            setText('ui-conn-title', dict.connTitle || en.connTitle);
+            setText('ui-conn-desc', dict.connDesc || en.connDesc);
+            
+            if(!serialPort) {
+                setText('ui-btn-connect', dict.btnConnect || en.btnConnect);
+                setText('ui-conn-status', dict.statusDis || en.statusDis);
+            } else {
+                setText('ui-conn-status', dict.statusConn || en.statusConn);
+            }
+            setText('ui-btn-disconnect', dict.btnDisconnect || en.btnDisconnect);
+            
+            setText('ui-noserial-title', dict.noSerialTitle || en.noSerialTitle);
+            setText('ui-noserial-desc', dict.noSerialDesc || en.noSerialDesc);
+            
+            setText('ui-lbl-adv', dict.advSettings || en.advSettings);
+            setText('ui-lbl-baud', dict.lblBaud || en.lblBaud);
+            setText('ui-lbl-datab', dict.lblDatab || en.lblDatab);
+            setText('ui-lbl-stopb', dict.lblStopb || en.lblStopb);
+            setText('ui-lbl-parity', dict.lblParity || en.lblParity);
+            setText('ui-lbl-slave', dict.lblSlave || en.lblSlave);
+            setText('ui-badge-xml', dict.fromXml || en.fromXml);
+            setText('ui-badge-man', dict.manualEdit || en.manualEdit);
+
+            setText('ui-ready-title', dict.readyTitle || en.readyTitle);
+            setText('ui-ready-desc', dict.readyDesc || en.readyDesc);
+            setText('ui-btn-startflash', dict.flashStart || en.flashStart);
+            setText('ui-btn-abort', dict.btnAbort || en.btnAbort);
+            setText('ui-ping-failed', dict.pingFailed || en.pingFailed);
+            setText('ui-ping-failed-desc', dict.pingFailedDesc || en.pingFailedDesc);
+            setText('ui-btn-cancel', dict.btnCancel || en.btnCancel);
+            setText('ui-btn-retry', dict.btnRetry || en.btnRetry);
+
+            setText('ui-btn-loadnew', dict.btnLoadNew || en.btnLoadNew);
+            setText('ui-btn-flashagain', dict.btnFlashAgain || en.btnFlashAgain);
+            setText('ui-btn-backset', dict.btnBackSet || en.btnBackSet);
+            setText('ui-btn-details', dict.btnDetails || en.btnDetails);
+            setText('ui-details-title', dict.detailsTitle || en.detailsTitle);
+            setText('ui-col-index', dict.colIndex || en.colIndex);
+            setText('ui-col-desc', dict.colDesc || en.colDesc);
+            setText('ui-col-exp', dict.colExp || en.colExp);
+            setText('ui-col-read', dict.colRead || en.colRead);
+            setText('ui-col-status', dict.statusLabel || en.statusLabel);
+
+            setText('ui-t-time', dict.termTime || en.termTime);
+            setText('ui-t-reg', dict.termReg || en.termReg);
+            setText('ui-t-stat', dict.termStatus || en.termStatus);
+            setText('ui-lbl-mismatches', dict.mismatches || en.mismatches);
+            setText('ui-btn-exportlog', dict.btnExportLog || en.btnExportLog);
+            
+            const offlineEl = document.getElementById('ui-offline-text');
+            if (offlineEl) offlineEl.innerText = dict.offlineText || en.offlineText;
+            
+            const dropUpdEl = document.getElementById('ui-drop-update');
+            if (dropUpdEl) dropUpdEl.innerText = dict.dropUpdate || en.dropUpdate;
+
+            const progTitle = document.getElementById('prog-title');
+            if(progTitle && progTitle.innerText === (en.pingPhase || baseDict.pingPhase)) {
+                progTitle.innerText = dict.pingPhase || en.pingPhase;
+            }
+        }
+
+        function switchView(targetViewId) {
+            const views = ['view-upload', 'view-connection', 'view-progress'];
+            views.forEach(v => {
+                const el = document.getElementById(v);
+                if (!el) return;
+                if (v === targetViewId) {
+                    el.classList.remove('view-hidden', 'view-hidden-reverse', 'hidden');
+                    void el.offsetWidth;
+                    el.classList.add('view-active');
+                } else {
+                    if (el.classList.contains('view-active')) {
+                        el.classList.remove('view-active');
+                        if (targetViewId === 'view-connection' && v === 'view-upload') el.classList.add('view-hidden-reverse');
+                        else if (targetViewId === 'view-progress') el.classList.add('view-hidden-reverse');
+                        else el.classList.add('view-hidden');
+                    }
+                }
+            });
+            
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            }, 50);
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 150);
+        }
+
+        async function disconnectSerial() {
+            if(serialPort) {
+                keepReading = false;
+                if(reader) {
+                    try { await reader.cancel(); } catch(e){}
+                    reader = null;
+                }
+                try { await serialPort.close(); } catch(e){}
+                serialPort = null;
+            }
+        }
+
+        async function disconnectSerialUI() {
+            await disconnectSerial();
+            const dict = uiDict[currentActiveLang] || uiDict['en'];
+            document.getElementById('ui-conn-status').innerText = dict.statusDis || baseDict.statusDis;
+            
+            document.getElementById('btn-disconnect').classList.add('hidden');
+            const btnConn = document.getElementById('btn-connect');
+            btnConn.classList.remove('hidden');
+            btnConn.classList.remove('bg-green-600', 'hover:bg-green-700', 'cursor-default');
+            btnConn.classList.add('bg-slate-900', 'dark:bg-blue-600', 'hover:bg-slate-800', 'dark:hover:bg-blue-500');
+            
+            const indicator = document.getElementById('status-indicator');
+            indicator.classList.add('bg-slate-300', 'dark:bg-slate-600');
+            indicator.classList.remove('bg-green-500', 'status-connected');
+            
+            document.getElementById('flash-panel').classList.add('hidden');
+        }
+
+        async function resetTool() {
+            await disconnectSerial();
+            
+            xmlData = { fileParams: {}, modbusParams: {}, variables: [] };
+            mismatchedVars = [];
+            
+            const fNameEl = document.getElementById('display-filename');
+            if(fNameEl) fNameEl.innerText = 'unknown.xml';
+            
+            document.getElementById('display-matricola').innerText = 'N/A';
+            document.getElementById('display-sw').innerText = 'N/A';
+            
+            document.getElementById('btn-disconnect').classList.add('hidden');
+            const btnConn = document.getElementById('btn-connect');
+            btnConn.classList.remove('hidden');
+            btnConn.classList.add('bg-slate-900', 'dark:bg-blue-600', 'hover:bg-slate-800', 'dark:hover:bg-blue-500');
+            btnConn.classList.remove('bg-green-600', 'hover:bg-green-700', 'cursor-default');
+            
+            const indicator = document.getElementById('status-indicator');
+            indicator.classList.add('bg-slate-300', 'dark:bg-slate-600');
+            indicator.classList.remove('bg-green-500', 'status-connected');
+            
+            document.getElementById('flash-panel').classList.add('hidden');
+            const advPanel = document.getElementById('adv-panel');
+            advPanel.classList.remove('expanded');
+            advPanel.style.overflow = 'hidden';
+            
+            hidePingError();
+            document.getElementById('btn-action-details').classList.add('hidden');
+            document.getElementById('btn-export-log').classList.add('hidden');
+            document.getElementById('btn-abort').classList.add('hidden');
+            document.getElementById('mismatch-badge').classList.add('hidden');
+            
+            const dict = uiDict[currentActiveLang] || uiDict['en'];
+            document.getElementById('ui-btn-connect').innerText = dict.btnConnect || baseDict.btnConnect;
+            document.getElementById('ui-conn-status').innerText = dict.statusDis || baseDict.statusDis;
+            
+            switchView('view-upload');
+        }
+
+        function backToSettings() {
+            hidePingError();
+            switchView('view-connection');
+        }
+
+        function toggleAdvanced() {
+            const panel = document.getElementById('adv-panel');
+            if (panel.classList.contains('expanded')) {
+                panel.style.overflow = 'hidden';
+                panel.classList.remove('expanded');
+            } else {
+                panel.classList.add('expanded');
+                setTimeout(() => {
+                    if(panel.classList.contains('expanded')) {
+                        panel.style.overflow = 'visible';
+                    }
+                }, 400); 
+            }
+        }
+
+        function toggleTerminal() {
+            const body = document.getElementById('terminal-body');
+            const icon = document.getElementById('term-chevron');
+            if (body.classList.contains('term-body-collapsed')) {
+                body.classList.remove('term-body-collapsed');
+                icon.classList.add('rotate-180');
+            } else {
+                body.classList.add('term-body-collapsed');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        function markManual(id, userVal=null) {
+            const badge = document.getElementById(`bdg-${id}`);
+            if(!badge) return;
+            
+            let xmlVal = "";
+            if(id==='baud') xmlVal = xmlData.modbusParams.baudrate;
+            if(id==='datab') xmlVal = xmlData.modbusParams.bitdati;
+            if(id==='stopb') xmlVal = xmlData.modbusParams.bitstop;
+            if(id==='parity') xmlVal = xmlData.modbusParams.parita;
+            if(id==='slave') xmlVal = xmlData.modbusParams.address;
+            
+            if(!userVal) userVal = document.getElementById(`dd-val-${id}`).innerText;
+            if(id==='parity') userVal = userVal.toLowerCase();
+
+            const dict = uiDict[currentActiveLang] || uiDict['en'];
+            
+            if(userVal == xmlVal) {
+                badge.classList.remove('bg-amber-400');
+                badge.classList.add('bg-green-500');
+                badge.title = dict.fromXml || baseDict.fromXml;
+            } else {
+                badge.classList.remove('bg-green-500');
+                badge.classList.add('bg-amber-400');
+                badge.title = dict.manualEdit || baseDict.manualEdit;
+            }
+        }
+
+        function toggleDD(id) {
+            const list = document.getElementById(`dd-list-${id}`);
+            if(list.classList.contains('hidden')) {
+                closeAllDropdowns(null); 
+                list.classList.remove('hidden');
+            } else {
+                list.classList.add('hidden');
+            }
+        }
+
+        function selectDD(id, val) {
+            let uiVal = val;
+            if(id==='parity') uiVal = val.charAt(0).toUpperCase() + val.slice(1);
+            
+            document.getElementById(`dd-val-${id}`).innerText = uiVal;
+            document.getElementById(`dd-list-${id}`).classList.add('hidden');
+            markManual(id, val);
+        }
+
+        function closeAllDropdowns(e) {
+            if(e && e.target.closest('.relative') && !e.target.closest('.header')) return;
+            document.querySelectorAll('ul[id^="dd-list-"]').forEach(list => list.classList.add('hidden'));
+        }
+
+        function changeSlave(delta) {
+            const el = document.getElementById('dd-val-slave');
+            let val = parseInt(el.innerText) + delta;
+            if(val < 1) val = 1;
+            if(val > 247) val = 247;
+            el.innerText = val;
+            markManual('slave', val.toString());
+        }
+
+        const fileInput = document.getElementById('xmlFileInput');
+        let dragCounter = 0;
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+        document.body.addEventListener('dragenter', function(e) {
+            dragCounter++;
+            const dz = document.getElementById('dropZone');
+            if (dz && document.getElementById('view-upload').classList.contains('view-active')) {
+                dz.classList.add('drag-over');
+            } else {
+                const overlay = document.getElementById('global-drag-overlay');
+                if(overlay) { overlay.classList.remove('hidden'); overlay.classList.add('flex'); }
+            }
+        });
+
+        document.body.addEventListener('dragleave', function(e) {
+            dragCounter--;
+            if (dragCounter === 0) {
+                const overlay = document.getElementById('global-drag-overlay');
+                if(overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+                const dz = document.getElementById('dropZone');
+                if (dz) dz.classList.remove('drag-over');
+            }
+        });
+
+        document.body.addEventListener('drop', function(e) {
+            dragCounter = 0;
+            const overlay = document.getElementById('global-drag-overlay');
+            if(overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
+            const dz = document.getElementById('dropZone');
+            if(dz) dz.classList.remove('drag-over');
+            
+            let files = e.dataTransfer.files;
+            if (files && files.length > 0) processFile(files[0]); 
+        }, false);
+
+        if(fileInput) {
+            fileInput.addEventListener('click', function(event) { event.target.value = ''; });
+            fileInput.addEventListener('change', function(event) {
+                if (event.target.files.length > 0) processFile(event.target.files[0]);
+            });
+        }
+
+        function processFile(file) {
+            try {
+                if (!file.name.toLowerCase().endsWith('.xml')) { 
+                    alert("Please upload a valid .xml file."); 
+                    return; 
+                }
+                
+                const fNameEl = document.getElementById('display-filename');
+                if(fNameEl) fNameEl.innerText = file.name;
+                
+                const readerXML = new FileReader();
+                readerXML.onload = function(e) {
+                    try {
+                        const parser = new DOMParser();
+                        const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+                        
+                        if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+                            throw new Error("Invalid XML structure.");
+                        }
+
+                        xmlData = { fileParams: {}, modbusParams: {}, variables: [] };
+
+                        const datiFileNode = xmlDoc.getElementsByTagName('DATI_FILE')[0];
+                        if (datiFileNode) {
+                            let matr = datiFileNode.getAttribute('matricola') || "N/A";
+                            xmlData.fileParams.matricola = matr; 
+                        } else {
+                            xmlData.fileParams.matricola = "N/A";
+                        }
+
+                        const tipoMacchinaNode = xmlDoc.getElementsByTagName('TIPO_MACCHINA')[0];
+                        xmlData.modbusParams = {
+                            baudrate: tipoMacchinaNode ? (tipoMacchinaNode.getAttribute('baudrate') || "9600") : "9600",
+                            bitdati: tipoMacchinaNode ? (tipoMacchinaNode.getAttribute('bitdati') || "8") : "8",
+                            bitstop: tipoMacchinaNode ? (tipoMacchinaNode.getAttribute('bitstop') || "1") : "1",
+                            parita: tipoMacchinaNode ? (tipoMacchinaNode.getAttribute('parita') || "NONE").toLowerCase() : "none",
+                            address: tipoMacchinaNode ? (tipoMacchinaNode.getAttribute('address') || "1") : "1"
+                        };
+
+                        let sw = tipoMacchinaNode ? (tipoMacchinaNode.getAttribute('nome') || "N/A") : "N/A";
+                        xmlData.fileParams.swVersion = sw;
+
+                        const varsNodes = xmlDoc.getElementsByTagName('VARIABILE');
+                        for (let i = 0; i < varsNodes.length; i++) {
+                            const node = varsNodes[i];
+                            xmlData.variables.push({
+                                index: node.getAttribute('display_index') || "-",
+                                desc: node.getAttribute('desc') || "Unknown",
+                                addr_write: parseInt(node.getAttribute('addr_write') || "0", 10),
+                                addr_read: parseInt(node.getAttribute('addr_read') || "0", 10),
+                                f_write: parseInt(node.getAttribute('f_write') || "6", 10),
+                                f_read: parseInt(node.getAttribute('f_read') || "3", 10),
+                                value: node.getAttribute('value') || "0",
+                                scale_masck: node.getAttribute('scale_masck') || "1"
+                            });
+                        }
+
+                        const matEl = document.getElementById('display-matricola');
+                        if(matEl) matEl.innerText = xmlData.fileParams.matricola;
+                        const swEl = document.getElementById('display-sw');
+                        if(swEl) swEl.innerText = xmlData.fileParams.swVersion;
+
+                        const setBadge = (id) => {
+                            const badge = document.getElementById(`bdg-${id}`);
+                            if(badge) { 
+                                badge.classList.remove('bg-amber-400'); 
+                                badge.classList.add('bg-green-500'); 
+                                badge.title = (uiDict[currentActiveLang] || uiDict['en']).fromXml || baseDict.fromXml;
+                            }
+                        };
+
+                        document.getElementById('dd-val-baud').innerText = xmlData.modbusParams.baudrate; setBadge('baud');
+                        document.getElementById('dd-val-datab').innerText = xmlData.modbusParams.bitdati; setBadge('datab');
+                        document.getElementById('dd-val-stopb').innerText = xmlData.modbusParams.bitstop; setBadge('stopb');
+                        
+                        let pVal = xmlData.modbusParams.parita;
+                        if(!['none', 'even', 'odd'].includes(pVal)) pVal = 'none';
+                        document.getElementById('dd-val-parity').innerText = pVal.charAt(0).toUpperCase() + pVal.slice(1); setBadge('parity');
+                        
+                        document.getElementById('dd-val-slave').innerText = xmlData.modbusParams.address; setBadge('slave');
+
+                        switchView('view-connection');
+                        applyTranslations();
+
+                    } catch(err) {
+                        alert("An error occurred while parsing the XML file. Check format.");
+                    }
+                };
+                readerXML.readAsText(file);
+            } catch (error) {
+                alert("Could not process the file.");
+            }
+        }
+
+        async function connectSerial() {
+            if (!('serial' in navigator)) return; 
+
+            try {
+                const bRate = parseInt(document.getElementById('dd-val-baud').innerText);
+                const dBits = parseInt(document.getElementById('dd-val-datab').innerText);
+                const sBits = parseInt(document.getElementById('dd-val-stopb').innerText);
+                const pty = document.getElementById('dd-val-parity').innerText.toLowerCase();
+
+                serialPort = await navigator.serial.requestPort();
+                await serialPort.open({ baudRate: bRate, dataBits: dBits, stopBits: sBits, parity: pty });
+                
+                const dict = uiDict[currentActiveLang] || uiDict['en'];
+                document.getElementById('ui-conn-status').innerText = dict.statusConn || baseDict.statusConn;
+                
+                document.getElementById('btn-connect').classList.add('hidden');
+                document.getElementById('btn-disconnect').classList.remove('hidden');
+                
+                const indicator = document.getElementById('status-indicator');
+                indicator.classList.remove('bg-slate-300', 'dark:bg-slate-600');
+                indicator.classList.add('bg-green-500', 'status-connected');
+                
+                document.getElementById('flash-panel').classList.remove('hidden');
+
+            } catch (err) {
+                console.warn("Serial connection aborted or failed.");
+            }
+        }
+
+        function crc16(buffer) {
+            let crc = 0xFFFF;
+            for (let i = 0; i < buffer.length; i++) {
+                crc ^= buffer[i];
+                for (let j = 0; j < 8; j++) {
+                    if (crc & 0x0001) crc = (crc >> 1) ^ 0xA001;
+                    else crc = crc >> 1;
+                }
+            }
+            return crc;
+        }
+
+        async function sendModbusRequest(frame, expectedLength, timeoutMs = 5000) {
+            if(!serialPort) throw new Error("Port closed");
+            
+            await new Promise(r => setTimeout(r, 50));
+
+            const writer = serialPort.writable.getWriter();
+            await writer.write(new Uint8Array(frame));
+            writer.releaseLock();
+
+            let rxBuffer = [];
+            const reader = serialPort.readable.getReader();
+            const start = Date.now();
+            
+            try {
+                while (true) {
+                    if (Date.now() - start > timeoutMs) {
+                        const rxHex = Array.from(rxBuffer).map(b => b.toString(16).padStart(2,'0').toUpperCase()).join(' ');
+                        throw new Error(`Timeout ${rxHex}`);
+                    }
+                    
+                    const readPromise = reader.read();
+                    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), timeoutMs));
+                    const { value, done } = await Promise.race([readPromise, timeoutPromise]);
+                    
+                    if (done) break;
+                    if (value) {
+                        for(let i=0; i<value.length; i++) rxBuffer.push(value[i]);
+                    }
+
+                    if (rxBuffer.length >= 2) {
+                        if (rxBuffer[1] & 0x80) expectedLength = 5; 
+                        else if (rxBuffer[1] === 0x03 && rxBuffer.length >= 3) expectedLength = 5 + rxBuffer[2]; 
+                        else if (rxBuffer[1] === 0x06) expectedLength = 8; 
+                    }
+
+                    if (rxBuffer.length >= expectedLength) {
+                        return rxBuffer.splice(0, expectedLength);
+                    }
+                }
+            } finally {
+                reader.releaseLock();
+            }
+            return rxBuffer;
+        }
+
+        function toHexStr(arr) { return Array.from(arr).map(b => b.toString(16).padStart(2,'0').toUpperCase()).join(' '); }
+        
+        function getParamInfo(v) {
+            let idx = (v.index && v.index !== "-") ? v.index : v.addr_read.toString();
+            let desc = v.desc ? v.desc : "Unknown";
+            return `P${idx} ${desc}`;
+        }
+
+        function logTerminal(reg, details, isError = false, isWarn = false, isPingPhase = false, pingType = "") {
+            const time = new Date().toLocaleTimeString('en-GB', { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3 });
+            
+            let logString = "";
+            let colReg = "";
+            let colDetails = details;
+
+            if (isPingPhase) {
+                logString = `[${time}] ${pingType} | REG: ${reg} | ${details}`;
+                colReg = pingType; 
+                colDetails = `REG: ${reg} | ${details}`;
+            } else {
+                logString = `[${time}] REG: ${reg} | ${details}`;
+                colReg = `REG: ${reg}`;
+                colDetails = details;
+            }
+            
+            sessionLogs.push(logString); 
+
+            const term = document.getElementById('terminal-output');
+            const row = document.createElement('div');
+            
+            let colorClass = "text-green-400";
+            if(isError) colorClass = "text-red-400 font-bold";
+            else if(isWarn) colorClass = "text-amber-400 font-bold";
+
+            row.className = `terminal-grid w-full mb-1.5`;
+            row.innerHTML = `
+                <span class="${isError?'text-red-400':isWarn?'text-amber-400':'text-green-400'}">${time}</span>
+                <span class="${isError?'text-red-400':isWarn?'text-amber-400':'text-blue-400'} font-bold">${colReg}</span>
+                <span class="${isError?'text-red-400':isWarn?'text-amber-400':'text-green-400'} break-all">${colDetails}</span>
+            `;
+            
+            term.prepend(row); 
+            term.scrollTop = 0;
+            
+            if (term.children.length > 100) {
+                term.removeChild(term.lastElementChild);
+            }
+        }
+
+        function exportLog(e) {
+            e.stopPropagation(); 
+            if(sessionLogs.length === 0) return;
+            const logText = sessionLogs.join('\n');
+            const blob = new Blob([logText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Clivet_Flasher_Log_${new Date().toISOString().replace(/[:.]/g,'-')}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function hidePingError() { /* Obsolete, red overlay rimosso */ }
+        function showPingError() { /* Obsolete, red overlay rimosso */ }
+        function abortProcess() { abortFlag = true; }
+        
+        function updateMismatchUI() {
+            const countEl = document.getElementById('mismatch-count');
+            if(countEl) countEl.innerText = mismatchCount;
+        }
+
+        function toggleActionButtons(disabledState) {
+            const btnLoadNew = document.getElementById('btn-action-loadnew');
+            const btnBackSet = document.getElementById('btn-action-backset');
+            const btnFlash = document.getElementById('btn-action-flashagain');
+            
+            if(btnLoadNew) {
+                btnLoadNew.disabled = disabledState;
+                disabledState ? btnLoadNew.classList.add('ghost-btn-disabled') : btnLoadNew.classList.remove('ghost-btn-disabled');
+            }
+            if(btnBackSet) {
+                btnBackSet.disabled = disabledState;
+                disabledState ? btnBackSet.classList.add('ghost-btn-disabled') : btnBackSet.classList.remove('ghost-btn-disabled');
+            }
+            if(btnFlash) {
+                btnFlash.disabled = disabledState;
+                disabledState ? btnFlash.classList.add('ghost-btn-disabled') : btnFlash.classList.remove('ghost-btn-disabled');
+            }
+        }
+
+        async function startFlashing() {
+            document.getElementById('btn-export-log').classList.add('hidden');
+            document.getElementById('btn-abort').classList.remove('hidden');
+            document.getElementById('btn-action-details').classList.add('hidden');
+            abortFlag = false;
+            mismatchCount = 0;
+            
+            document.getElementById('mismatch-badge').classList.add('hidden');
+            updateMismatchUI();
+            
+            toggleActionButtons(true);
+            
+            const dict = uiDict[currentActiveLang] || uiDict['en'];
+            const titleEl = document.getElementById('prog-title');
+            const countEl = document.getElementById('prog-count');
+            const percEl = document.getElementById('prog-perc');
+            const barEl = document.getElementById('prog-bar');
+            const iconEl = document.getElementById('prog-icon');
+
+            const total = xmlData.variables.length;
+            if(total === 0 || !serialPort) return;
+            
+            switchView('view-progress');
+            document.getElementById('terminal-output').innerHTML = ''; 
+            sessionLogs = []; 
+            processStartTime = Date.now();
+
+            const slaveIdText = document.getElementById('dd-val-slave').textContent.trim();
+            const slaveId = parseInt(slaveIdText, 10) || 1;
+
+            const termBody = document.getElementById('terminal-body');
+            const termChevron = document.getElementById('term-chevron');
+            termBody.classList.remove('term-body-collapsed');
+            termChevron.classList.add('rotate-180');
+
+            // --- PHASE 0: PING ---
+            titleEl.innerText = dict.pingPhase || baseDict.pingPhase;
+            countEl.innerText = "-";
+            percEl.innerText = "0%";
+            barEl.style.width = "0%";
+            barEl.className = "bg-amber-400 h-3 rounded-full transition-all duration-100";
+            iconEl.innerHTML = `<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`;
+            iconEl.className = "w-10 h-10 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg flex items-center justify-center transition-colors";
+            
+            const firstVar = xmlData.variables[0];
+            let pingSuccess = false;
+            
+            logTerminal("PING", `Validating RS-485 connection on Slave ID ${slaveId}...`, false, true, true, "SYS");
+            
+            while (!abortFlag && !pingSuccess) {
+                try {
+                    let req = [slaveId, 0x03, (firstVar.addr_read >> 8) & 0xFF, firstVar.addr_read & 0xFF, 0x00, 0x01];
+                    let crc = crc16(req);
+                    req.push(crc & 0xFF, (crc >> 8) & 0xFF);
+                    
+                    logTerminal(firstVar.addr_read, `[${toHexStr(req)}]`, false, false, true, "TX");
+                    let res = await sendModbusRequest(req, 7, 2000); 
+                    
+                    logTerminal(firstVar.addr_read, `[${toHexStr(res)}]`, false, false, true, "RX");
+                    pingSuccess = true;
+                } catch(e) {
+                    logTerminal(firstVar.addr_read, `Attempt Failed (${e.message}) - Retrying in 2s...`, true, false, true, "TIMEOUT");
+                    
+                    let waitTime = 2000;
+                    let waited = 0;
+                    while(waited < waitTime && !abortFlag) {
+                        await new Promise(r => setTimeout(r, 100));
+                        waited += 100;
+                    }
+                }
+            }
+
+            if(abortFlag) {
+                handleAbort(dict, titleEl, countEl, iconEl, barEl);
+                return;
+            }
+
+            mismatchedVars = [];
+
+            // --- PHASE 1: WRITING ---
+            titleEl.innerText = dict.phaseWrite || baseDict.phaseWrite;
+            barEl.className = "bg-blue-500 h-3 rounded-full transition-all duration-100";
+            iconEl.innerHTML = `<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`;
+            iconEl.className = "w-10 h-10 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center transition-colors";
+            
+            for(let i=0; i<total; i++) {
+                if (abortFlag) break;
+                
+                const v = xmlData.variables[i];
+                const rawVal = parseFloat((v.value || "0").replace(',', '.'));
+                const scale = parseFloat((v.scale_masck || "1").replace(',', '.'));
+                
+                let valToWrite = Math.round(rawVal * scale);
+                if (valToWrite < 0) valToWrite = (valToWrite & 0xFFFF); 
+                
+                let expValStr = Number(rawVal.toFixed(4)).toString();
+                let paramInfo = getParamInfo(v);
+
+                try {
+                    let req = [slaveId, 0x06, (v.addr_write >> 8) & 0xFF, v.addr_write & 0xFF, (valToWrite >> 8) & 0xFF, valToWrite & 0xFF];
+                    let crc = crc16(req);
+                    req.push(crc & 0xFF, (crc >> 8) & 0xFF);
+                    
+                    logTerminal(v.addr_write, `[${toHexStr(req)}] | ${paramInfo}: ${expValStr}`);
+                    let res = await sendModbusRequest(req, 8, 1000); 
+                    
+                    if (res.length >= 2 && (res[1] & 0x80)) {
+                        logTerminal(v.addr_write, `EXCEPTION ${res[2].toString(16)} | ${paramInfo}`, true);
+                    }
+                } catch(e) {
+                    logTerminal(v.addr_write, `TIMEOUT | ${paramInfo}`, true);
+                }
+
+                const perc = Math.floor(((i+1)/total)*100);
+                countEl.innerText = `${i+1} / ${total}`;
+                percEl.innerText = `${perc}%`;
+                barEl.style.width = `${perc}%`;
+            }
+            
+            if(abortFlag) { handleAbort(dict, titleEl, countEl, iconEl, barEl); return; }
+
+            // --- PHASE 2: READING & CHECKING ---
+            titleEl.innerText = dict.phaseRead || baseDict.phaseRead;
+            barEl.className = "bg-purple-500 h-3 rounded-full transition-all duration-100";
+            iconEl.className = "w-10 h-10 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-lg flex items-center justify-center transition-colors";
+            
+            document.getElementById('mismatch-badge').classList.remove('hidden');
+
+            for(let i=0; i<total; i++) {
+                if (abortFlag) break;
+
+                const v = xmlData.variables[i];
+                const rawVal = parseFloat((v.value || "0").replace(',', '.'));
+                const scale = parseFloat((v.scale_masck || "1").replace(',', '.'));
+                let expValStr = Number(rawVal.toFixed(4)).toString();
+                let paramInfo = getParamInfo(v);
+                
+                try {
+                    let req = [slaveId, 0x03, (v.addr_read >> 8) & 0xFF, v.addr_read & 0xFF, 0x00, 0x01];
+                    let crc = crc16(req);
+                    req.push(crc & 0xFF, (crc >> 8) & 0xFF);
+                    
+                    let res = await sendModbusRequest(req, 7, 1000);
+                    
+                    if (res.length >= 2 && (res[1] & 0x80)) {
+                        logTerminal(v.addr_read, `MISMATCH ${paramInfo} (Exception: ${res[2].toString(16)})`, true);
+                        mismatchedVars.push(v);
+                        mismatchCount++; updateMismatchUI();
+                    } else {
+                        let readRaw = (res[3] << 8) | res[4];
+                        if (readRaw & 0x8000) readRaw = readRaw - 0x10000; 
+
+                        const readValLogical = Number((readRaw / scale).toFixed(4)).toString();
+
+                        if(readValLogical === expValStr) {
+                            logTerminal(v.addr_read, `Match OK (${paramInfo}: ${expValStr})`);
+                        } else {
+                            logTerminal(v.addr_read, `MISMATCH ${paramInfo} (Read: ${readValLogical} | Exp: ${expValStr})`, true);
+                            mismatchedVars.push(v);
+                            mismatchCount++; updateMismatchUI();
+                        }
+                    }
+                } catch(e) {
+                    logTerminal(v.addr_read, `MISMATCH ${paramInfo} (Timeout)`, true);
+                    mismatchedVars.push(v);
+                    mismatchCount++; updateMismatchUI();
+                }
+
+                const perc = Math.floor(((i+1)/total)*100);
+                countEl.innerText = `${i+1} / ${total}`;
+                percEl.innerText = `${perc}%`;
+                barEl.style.width = `${perc}%`;
+            }
+            
+            if(abortFlag) { handleAbort(dict, titleEl, countEl, iconEl, barEl); return; }
+
+            // --- PHASE 3: HEALING (Auto-Correction) ---
+            if(mismatchedVars.length > 0) {
+                let attempts = 0;
+                barEl.className = "bg-amber-500 h-3 rounded-full transition-all duration-100";
+                iconEl.className = "w-10 h-10 bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg flex items-center justify-center transition-colors";
+                
+                while(mismatchedVars.length > 0 && attempts < 2) {
+                    if (abortFlag) break;
+
+                    attempts++;
+                    const healStr = dict.phaseHeal || baseDict.phaseHeal;
+                    titleEl.innerText = `${healStr} ${attempts}/2`;
+                    logTerminal("HEAL", `Starting Loop ${attempts}`, false, true, true, "SYS");
+
+                    let unresolved = [];
+
+                    for(let i=0; i<mismatchedVars.length; i++) {
+                        if (abortFlag) break;
+
+                        const v = mismatchedVars[i];
+                        const rawVal = parseFloat((v.value || "0").replace(',', '.'));
+                        const scale = parseFloat((v.scale_masck || "1").replace(',', '.'));
+                        let valToWrite = Math.round(rawVal * scale);
+                        if (valToWrite < 0) valToWrite = (valToWrite & 0xFFFF); 
+
+                        let expValStr = Number(rawVal.toFixed(4)).toString();
+                        let paramInfo = getParamInfo(v);
+
+                        // Rewrite
+                        try {
+                            let reqW = [slaveId, 0x06, (v.addr_write >> 8) & 0xFF, v.addr_write & 0xFF, (valToWrite >> 8) & 0xFF, valToWrite & 0xFF];
+                            let crcW = crc16(reqW);
+                            reqW.push(crcW & 0xFF, (crcW >> 8) & 0xFF);
+                            await sendModbusRequest(reqW, 8, 1000);
+                            logTerminal(v.addr_write, `HEAL_TX | [${toHexStr(reqW)}] | ${paramInfo}: ${expValStr}`, false, true);
+                        } catch(e) {}
+
+                        // Re-Read
+                        try {
+                            let reqR = [slaveId, 0x03, (v.addr_read >> 8) & 0xFF, v.addr_read & 0xFF, 0x00, 0x01];
+                            let crcR = crc16(reqR);
+                            reqR.push(crcR & 0xFF, (crcR >> 8) & 0xFF);
+                            let resR = await sendModbusRequest(reqR, 7, 1000);
+                            
+                            if (resR.length >= 2 && (resR[1] & 0x80)) {
+                                unresolved.push(v);
+                            } else {
+                                let readRaw = (resR[3] << 8) | resR[4];
+                                if (readRaw & 0x8000) readRaw = readRaw - 0x10000;
+                                
+                                const readValLogical = Number((readRaw / scale).toFixed(4)).toString();
+                                
+                                if(readValLogical === expValStr) {
+                                    logTerminal(v.addr_read, `HEAL_RX | Match OK (${paramInfo}: ${expValStr})`, false, true);
+                                    v.finalRead = readValLogical;
+                                    mismatchCount--; updateMismatchUI();
+                                } else {
+                                    logTerminal(v.addr_read, `HEAL_RX | MISMATCH ${paramInfo} (Read: ${readValLogical} | Exp: ${expValStr})`, true);
+                                    v.finalRead = readValLogical;
+                                    unresolved.push(v);
+                                }
+                            }
+                        } catch(e) {
+                            unresolved.push(v);
+                        }
+                    }
+                    mismatchedVars = unresolved;
+                }
+            }
+
+            if(abortFlag) { handleAbort(dict, titleEl, countEl, iconEl, barEl); return; }
+
+            // --- FINAL RESULT UI ---
+            document.getElementById('btn-abort').classList.add('hidden');
+            iconEl.innerHTML = ''; 
+            document.getElementById('btn-export-log').classList.remove('hidden');
+            
+            let duration = ((Date.now() - processStartTime) / 1000).toFixed(1);
+
+            if(mismatchedVars.length === 0) {
+                titleEl.innerText = dict.successTitle || baseDict.successTitle;
+                countEl.innerText = dict.successDesc || baseDict.successDesc;
+                barEl.className = "bg-green-500 h-3 rounded-full transition-all duration-300";
+                iconEl.className = "w-10 h-10 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg flex items-center justify-center transition-colors";
+                iconEl.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>`;
+                logTerminal("END", `SUCCESSFULLY FINISHED | Time elapsed: ${duration}s`, false, false, true, "SYS");
+            } else {
+                titleEl.innerText = dict.errorTitle || baseDict.errorTitle;
+                countEl.innerText = dict.errorDesc || baseDict.errorDesc;
+                barEl.className = "bg-red-500 h-3 rounded-full transition-all duration-300";
+                iconEl.className = "w-10 h-10 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg flex items-center justify-center transition-colors";
+                iconEl.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                
+                document.getElementById('btn-action-details').classList.remove('hidden');
+                logTerminal("END", `${mismatchedVars.length} UNRESOLVED ERRORS | Time elapsed: ${duration}s`, true, false, true, "SYS");
+                
+                const list = document.getElementById('details-modal-list');
+                list.innerHTML = '';
+                mismatchedVars.forEach(err => {
+                    list.innerHTML += `
+                    <li class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-xl shadow-sm gap-2">
+                        <div class="flex items-center w-full sm:w-1/6">
+                            <span class="px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-mono rounded-lg">${err.index}</span>
+                        </div>
+                        <div class="w-full sm:w-2/6 text-xs font-bold text-slate-800 dark:text-slate-200 truncate pr-2" title="${err.desc}">${err.desc}</div>
+                        <div class="flex items-center w-full sm:w-1/6 sm:justify-center">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase mr-2 sm:hidden">Expected:</span>
+                            <span class="text-xs font-mono text-slate-500 dark:text-slate-400">${err.value}</span>
+                        </div>
+                        <div class="flex items-center w-full sm:w-1/6 sm:justify-center">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase mr-2 sm:hidden">Read:</span>
+                            <span class="text-xs font-mono text-red-500 font-bold">${err.finalRead || "N/A"}</span>
+                        </div>
+                        <div class="w-full sm:w-1/6 text-right">
+                            <span class="inline-block px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase rounded-md">Error</span>
+                        </div>
+                    </li>`;
+                });
+            }
+            
+            toggleActionButtons(false);
+        }
+
+        function handleAbort(dict, titleEl, countEl, iconEl, barEl) {
+            document.getElementById('btn-abort').classList.add('hidden');
+            document.getElementById('btn-export-log').classList.remove('hidden');
+            
+            titleEl.innerText = dict.processAborted || baseDict.processAborted;
+            countEl.innerText = "";
+            barEl.className = "bg-slate-500 h-3 rounded-full transition-all duration-300";
+            iconEl.innerHTML = `<svg class="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+            iconEl.className = "w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg flex items-center justify-center transition-colors";
+            
+            let duration = ((Date.now() - processStartTime) / 1000).toFixed(1);
+            logTerminal("ABORT", `Process manually aborted | Time elapsed: ${duration}s`, true, false, true, "SYS");
+            toggleActionButtons(false);
+        }
+
+        document.addEventListener("DOMContentLoaded", initApp);
+    </script>
+</body>
+</html>

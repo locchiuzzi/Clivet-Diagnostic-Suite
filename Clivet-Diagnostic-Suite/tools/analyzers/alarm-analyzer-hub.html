@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased h-screen overflow-hidden">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Alarm Snapshot Analyzers Hub</title>
+    
+    <!-- Favicon nativa offline -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg width='37' height='36' viewBox='0 0 37 36' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z' fill='%23949494'/%3E%3Cpath d='M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z' fill='%23949494'/%3E%3Cpath d='M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z' fill='%23007CB1'/%3E%3Cpath d='M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z' fill='%23007CB1'/%3E%3Cpath d='M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z' fill='%23007CB1'/%3E%3Cpath d='M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z' fill='%23007CB1'/%3E%3Cpath d='M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z' fill='%23007CB1'/%3E%3C/svg%3E">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: {} } };
+        if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) document.documentElement.classList.add('is-touch');
+        let theme = 'system';
+        try { theme = localStorage.getItem('clivet_theme') || 'system'; } catch (e) {}
+        if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        try { const l = localStorage.getItem('clivet_lang'); if (l) document.documentElement.lang = l; } catch (e) {}
+        setTimeout(() => document.documentElement.classList.add('i18n-ready'), 1500);
+    </script>
+    <style>html:not(.i18n-ready) body { visibility: hidden; }</style>
+
+    <style id="clivet-core-styles">
+        html, body { height: 100%; margin: 0; overflow: hidden; }
+        
+        :root {
+            --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --smooth-easing: cubic-bezier(0.4, 0, 0.2, 1);
+            --fs-app-title: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+        }
+        
+        .fs-app-title { font-size: var(--fs-app-title); }
+        .spring-anim { transition-timing-function: var(--spring-easing); }
+        
+        .custom-scrollbar { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+        .custom-scrollbar.is-scrolling { scrollbar-color: rgba(100, 116, 139, 0.55) transparent; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: transparent; border-radius: 8px; border: 2px solid transparent; background-clip: padding-box; }
+        .custom-scrollbar.is-scrolling::-webkit-scrollbar-thumb { background-color: rgba(100, 116, 139, 0.55); }
+
+        /* --- CARD ANIMATIONS & HOVER STATES (Apple HIG Standard) --- */
+        .system-card { 
+            transition: transform 0.4s var(--spring-easing), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease; 
+            will-change: transform, box-shadow;
+        }
+        .system-card:hover {
+            transform: translateY(-4px);
+            z-index: 30;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.16), 0 8px 16px -8px rgba(0, 0, 0, 0.08);
+        }
+        .dark .system-card:hover {
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5), 0 8px 16px -8px rgba(0, 0, 0, 0.3);
+        }
+        .system-card.hidden { display: none !important; }
+        
+        .system-group { transition: opacity 0.3s ease; }
+        .system-group.hidden { display: none; opacity: 0; }
+
+        /* Staggered Entrance Animation */
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-entrance { 
+            opacity: 0; 
+            animation: slideUpFade 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+        }
+
+        /* --- GRID VIEW LAYOUT (Optimized for Overflow & Elevation) --- */
+        .system-grid { display: grid; gap: 1rem; overflow: visible; padding: 4px; }
+
+        /* Apple HIG 44x44 Touch Target */
+        .hit-44 { position: relative; }
+        .hit-44::after { content: ''; position: absolute; top: 50%; left: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
+
+        /* GPU Compositor Strategy */
+        #menu-modal-content, #info-modal-content { backface-visibility: hidden; contain: layout paint; }
+
+        /* Tooltip Layer */
+        #hover-tip { position: fixed; z-index: 700; pointer-events: none; max-width: min(320px, calc(100vw - 16px)); opacity: 0; transform: translate3d(0, 4px, 0) scale(0.97); transition: opacity 120ms ease-out, transform 160ms var(--spring-easing); }
+        #hover-tip.is-visible { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+        #hover-tip .tip-body { background: #1e293b; color: #fff; border-radius: 8px; padding: 6px 10px; box-shadow: 0 10px 30px -8px rgba(0,0,0,.45); font-size: 11px; line-height: 1.35; text-align: center; }
+        #hover-tip .tip-title { display: block; font-weight: 700; font-size: 12px; }
+        #hover-tip .tip-sub { display: block; opacity: .82; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #hover-tip .tip-arrow { position: absolute; width: 10px; height: 10px; background: #1e293b; transform: rotate(45deg); left: var(--arrow-x, 50%); margin-left: -5px; }
+        #hover-tip[data-side="top"] .tip-arrow { bottom: -4px; } #hover-tip[data-side="bottom"] .tip-arrow { top: -4px; }
+        .dark #hover-tip .tip-body, .dark #hover-tip .tip-arrow { background: #f1f5f9; color: #0f172a; }
+        #global-tooltip { backface-visibility: hidden; }
+
+        /* Copy Feedback Motion */
+        .copy-out > * { transition: opacity 100ms ease-in, transform 100ms ease-in; opacity: 0; transform: scale(0.7); }
+        .copy-success { background-color: rgba(34, 197, 94, 0.12) !important; transition: background-color 200ms ease-out; }
+        .copy-check { animation: copyPop 460ms var(--spring-easing) both; transform-origin: center; }
+        .copy-check path { stroke-dasharray: 20; stroke-dashoffset: 20; animation: copyDraw 320ms 90ms cubic-bezier(0.65, 0, 0.35, 1) forwards; }
+        .copy-in > * { animation: fadeInGPU 240ms var(--smooth-easing) both; }
+        @keyframes copyPop { 0% { opacity: 0; transform: scale(0.35) rotate(-12deg); } 60% { opacity: 1; transform: scale(1.14) rotate(0deg); } 100% { transform: scale(1); } }
+        @keyframes copyDraw { to { stroke-dashoffset: 0; } }
+        @keyframes fadeInGPU { from { opacity: 0; transform: translate3d(0, 6px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+
+        /* HD Rendering */
+        svg { shape-rendering: geometricPrecision; }
+        body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        html { font-size: clamp(15px, 0.35vw + 13.6px, 17px); }
+        @media (min-width: 2200px) { html { font-size: 18px; } }
+        body { padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0); }
+
+        @media (hover: none) {
+            [class*="hover:scale-"]:hover, [class*="group-hover:scale-"], .group:hover [class*="group-hover:scale-"] { transform: none !important; box-shadow: none !important; }
+        }
+        
+        input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
+        a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid #3b82f6 !important; outline-offset: 2px !important; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex flex-col relative h-screen">
+
+    <!-- GLOBAL HEADER (1600px Alignment) -->
+    <header id="global-header" class="select-none w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm z-40 flex-none h-16">
+        <div class="max-w-[1600px] mx-auto w-full px-4 md:px-6 h-full flex items-center justify-between">
+            <div class="flex items-center min-w-0">
+                <a href="../../index.html" title="Back to Tools" data-i18n-title="nav_backToTools" aria-label="Back to Tools" data-i18n-aria="nav_backToTools" class="hit-44 group -ml-2 mr-2 sm:mr-3 inline-flex items-center h-10 pl-1.5 pr-2.5 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors focus:outline-none flex-shrink-0">
+                    <svg aria-hidden="true" class="w-5 h-5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path></svg>
+                    <span data-i18n="nav_tools" class="hidden md:inline text-sm font-semibold">Tools</span>
+                </a>
+                <span class="h-7 w-px bg-slate-200 dark:bg-slate-700 mr-3 sm:mr-4 flex-shrink-0" aria-hidden="true"></span>
+                <div class="flex items-center space-x-3 min-w-0">
+                    <svg id="app-logo" aria-hidden="true" class="w-8 h-8 flex-shrink-0" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z" fill="#949494"/><path d="M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z" fill="#949494"/><path d="M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z" fill="#007CB1"/><path d="M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z" fill="#007CB1"/><path d="M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z" fill="#007CB1"/><path d="M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z" fill="#007CB1"/><path d="M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z" fill="#007CB1"/>
+                    </svg>
+                    <div class="flex flex-col justify-center min-w-0">
+                        <h1 data-i18n="app_title" class="fs-app-title font-bold text-slate-900 dark:text-white leading-tight truncate">Clivet Diagnostic Suite</h1>
+                        <p data-i18n="app_subtitle" class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-0.5 leading-tight truncate">Alarm Snapshot Analyzer Hub</p>
+                    </div>
+                </div>
+                <div class="hidden sm:flex items-center ml-4 pl-4 border-l border-slate-200 dark:border-slate-700 h-7 flex-shrink-0">
+					<span class="inline-flex items-center justify-center h-5 px-2 rounded-md bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600/60 text-[11px] leading-none font-mono font-semibold text-slate-600 dark:text-slate-300 select-none app-version"></span>
+				</div>
+            </div>
+            
+            <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                <button onclick="openMenuModal()" aria-label="Menu" data-i18n-aria="nav_menu" aria-haspopup="dialog" class="hit-44 flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition focus:outline-none border border-transparent">
+                    <svg aria-hidden="true" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <span data-i18n="nav_menu" class="hidden sm:inline font-medium text-sm">Menu</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- TOOLTIP INFO GLOBALE (Smart Anchoring, Glassmorphism, Spring Anim) -->
+    <div id="global-tooltip" role="tooltip" onclick="event.stopPropagation()" class="hidden fixed z-[150] w-[320px] sm:w-[360px] max-h-[85vh] overflow-y-auto custom-scrollbar p-5 bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl border border-slate-300 dark:border-slate-500 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.25)] dark:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-slate-900/5 dark:ring-white/10 pointer-events-auto transition-[opacity,transform] duration-300 ease-[var(--spring-easing)] transform scale-95 opacity-0"></div>
+
+    <!-- MAIN APP WRAPPER -->
+    <main id="main-scroll-area" class="max-w-[1600px] mx-auto w-full px-4 md:px-6 pt-6 pb-12 flex flex-col flex-grow relative min-h-0 overflow-y-auto custom-scrollbar">
+
+        <div id="systems-wrapper" class="w-full" data-view="grid">
+            
+            <!-- HEADER SEZIONE (Segmented Control + Search + View Toggle + Collapse All) -->
+            <div class="mb-8">
+                <h2 data-i18n="systems_select" class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-5">Select the Control System</h2>
+                
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                    <!-- SEGMENTED CONTROL FILTERS -->
+                    <div class="flex p-1 bg-slate-200/60 dark:bg-slate-800/80 rounded-xl w-full lg:w-auto" id="category-filters">
+                        <button onclick="setCategory('all')" id="btn-cat-all" data-i18n="systems_all" class="cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm transition-all">All Systems</button>
+                        <button onclick="setCategory('air')" id="btn-cat-air" data-i18n="systems_air" class="cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">AIR</button>
+                        <button onclick="setCategory('water')" id="btn-cat-water" data-i18n="systems_water" class="cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">WATER</button>
+                    </div>
+
+                    <!-- SEARCH BAR & CONTROLS -->
+                    <div class="flex items-center gap-2 w-full lg:w-auto">
+                        <!-- Search Bar -->
+                        <div class="relative w-full lg:w-80 flex-shrink-0">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
+                            </div>
+                            <input type="search" id="searchInput" oninput="filterSystems()" data-i18n-placeholder="systems_search" placeholder="Search Control System..." class="w-full pl-9 pr-16 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500/50 focus:border-blue-500 transition-shadow shadow-sm">
+                            
+                            <!-- Clear Button (Hidden by default) -->
+                            <button type="button" id="searchClearBtn" onclick="clearSearchInput()" aria-label="Clear Search" class="absolute inset-y-0 right-8 flex items-center justify-center w-8 h-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors focus:outline-none opacity-0 pointer-events-none scale-90">
+                                <svg aria-hidden="true" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            
+                            <!-- Info Icon for Search -->
+                            <button type="button" aria-label="Search Info" data-i18n-aria="ui_moreInfo" aria-haspopup="dialog" class="absolute inset-y-0 right-1 flex items-center justify-center w-8 h-full text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none" onclick="toggleInfo(event, 'infoSearch')">
+                                <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AIR SYSTEMS GROUP -->
+            <div id="group-air" class="system-group mb-10">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">
+                            <!-- Enterprise Airflow/Wind Icon -->
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
+                            </svg>
+                        </div>
+                        <h3 data-i18n="systems_air_title" class="text-lg font-bold text-slate-800 dark:text-slate-100">Air Units</h3>
+                    </div>
+                    <button onclick="toggleGroup('group-air-grid', this)" aria-label="Collapse Group" data-i18n-aria="ui_collapseGroup" class="group-toggle-btn hit-44 p-1.5 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors focus:outline-none">
+                        <svg class="w-5 h-5 transition-transform duration-300 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                </div>
+                
+                <div id="group-air-grid" class="overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+                    <div class="system-grid pb-2">
+                        
+                        <a href="siemens-ar1.html" onclick="trackUsage('AR1')" data-category="air" data-sys="AR1" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
+                                </svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens AR1</h3>
+                                <p data-i18n="systems_ar1" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for CSRN-Y Rooftop units CLIVETPack3 series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'AR1')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-az1.html" onclick="trackUsage('AZ1')" data-category="air" data-sys="AZ1" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
+                                </svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens AZ1</h3>
+                                <p data-i18n="systems_az1" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt for CPAN-iY units ZEPHIR4 series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'AZ1')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+                        
+                        <a href="siemens-a00.html" onclick="trackUsage('A00')" data-category="air" data-sys="A00" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
+                                </svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens A00</h3>
+                                <p data-i18n="systems_a00" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for CLIVETPack2 series Rooftop units.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'A00')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-a01.html" onclick="trackUsage('A01')" data-category="air" data-sys="A01" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
+                                </svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens A01</h3>
+                                <p data-i18n="systems_a01" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for CPAN-XHE3 units ZEPHIR3 series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'A01')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+                    </div>
+                    <!-- Pulsante Show All (nascosto di default) -->
+                    <div id="group-air-show-all" class="hidden mt-4 flex justify-center no-print">
+                        <button onclick="expandGroupCards('group-air')" class="hit-44 flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition-all duration-200 focus:outline-none active:scale-95 shadow-sm">
+                            <span class="show-all-text">Show all</span>
+                            <svg aria-hidden="true" class="w-4 h-4 text-slate-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WATER SYSTEMS GROUP -->
+            <div id="group-water" class="system-group mb-10">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <div class="flex items-center gap-3">
+                        <div class="p-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400">
+                            <!-- Enterprise Water Drop Icon -->
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path>
+                            </svg>
+                        </div>
+                        <h3 data-i18n="systems_water_title" class="text-lg font-bold text-slate-800 dark:text-slate-100">Water Units</h3>
+                    </div>
+                    <button onclick="toggleGroup('group-water-grid', this)" aria-label="Collapse Group" data-i18n-aria="ui_collapseGroup" class="group-toggle-btn hit-44 p-1.5 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors focus:outline-none">
+                        <svg class="w-5 h-5 transition-transform duration-300 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                </div>
+                
+                <div id="group-water-grid" class="overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+                    <div class="system-grid pb-2">
+                        
+                        <a href="siemens-w02.html" onclick="trackUsage('W02')" data-category="water" data-sys="W02" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W02</h3>
+                                <p data-i18n="systems_w02" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-XIN and WSAT-XIN series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'W02')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-w01.html" onclick="trackUsage('W01')" data-category="water" data-sys="W01" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W01</h3>
+                                <p data-i18n="systems_w01" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSHN-XEE2, WSH-XEE2, and WSHH-LEE1 series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'W01')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-w03.html" onclick="trackUsage('W03')" data-category="water" data-sys="W03" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W03</h3>
+                                <p data-i18n="systems_w03" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-XSC3 and WSAT-XSC3 series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'W03')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-w04.html" onclick="trackUsage('W04')" data-category="water" data-sys="W04" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W04</h3>
+                                <p data-i18n="systems_w04" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-XEM and WSAT-XEM series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'W04')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-w05.html" onclick="trackUsage('W05')" data-category="water" data-sys="W05" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W05</h3>
+                                <p data-i18n="systems_w05" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAT-YSC4 and WSAN-YSC4 series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'W05')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-w00.html" onclick="trackUsage('W00')" data-category="water" data-sys="W00" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W00</h3>
+                                <p data-i18n="systems_w00" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for various Chiller and Heat Pump units.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'W00')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-w0i.html" onclick="trackUsage('W0i')" data-category="water" data-sys="W0i" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W0i</h3>
+                                <p data-i18n="systems_w0i" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WDAT-iL3, WDAT-iZ4, WDAT-iK4, and WDH-iK4 series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'W0i')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-w0imf.html" onclick="trackUsage('W0i_MF')" data-category="water" data-sys="W0i_MF" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens W0i MF</h3>
+                                <p data-i18n="systems_w0imf" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WDAN-iK4 series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'W0i_MF')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-wi2.html" onclick="trackUsage('Wi2')" data-category="water" data-sys="Wi2" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens Wi2</h3>
+                                <p data-i18n="systems_wi2" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WiSAN-YEE1 PL (polyvalent) series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'Wi2')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                        <a href="siemens-wk2.html" onclick="trackUsage('WK2')" data-category="water" data-sys="WK2" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
+                            </div>
+                            <div class="text-wrapper flex-grow pr-6">
+                                <h3 class="text-base font-bold text-slate-900 dark:text-white">Siemens WK2</h3>
+                                <p data-i18n="systems_wk2" class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">Analyze raw AlarmSnapshot.txt files for WSAN-YSC4 PL (polyvalent) series.</p>
+                            </div>
+                            <button onclick="openInfoModal(event, 'WK2')" class="info-btn hit-44 absolute top-2 right-2 p-1.5 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/30 transition-colors focus:outline-none" title="Supported Units" data-i18n-title="modal_infoTitle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                            </button>
+                        </a>
+
+                    </div>
+                    <!-- Pulsante Show All (nascosto di default) -->
+                    <div id="group-water-show-all" class="hidden mt-4 flex justify-center no-print">
+                        <button onclick="expandGroupCards('group-water')" class="hit-44 flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition-all duration-200 focus:outline-none active:scale-95 shadow-sm">
+                            <span class="show-all-text">Show all</span>
+                            <svg aria-hidden="true" class="w-4 h-4 text-slate-500 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- MESSAGGIO NESSUN RISULTATO -->
+            <div id="no-results" class="hidden py-16 text-center text-slate-500 dark:text-slate-400">
+                <svg aria-hidden="true" class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
+                <p data-i18n="systems_noResults" class="text-sm font-medium">No systems found matching your search.</p>
+            </div>
+            
+        </div>
+
+    </main>
+
+    <!-- Floating Scroll-to-Top Control -->
+    <button id="scroll-to-top-btn" onclick="scrollToTop()" title="Scroll to Top" data-i18n-title="ui_scrollTop" aria-label="Scroll to Top" data-i18n-aria="ui_scrollTop" class="fixed bottom-6 right-4 sm:bottom-8 sm:right-[max(2rem,calc(50vw-800px-2rem))] z-50 p-3.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-[0_8px_16px_rgba(37,99,235,0.25)] opacity-0 pointer-events-none transition-all duration-300 transform translate-y-4 focus:outline-none focus:ring-4 focus:ring-blue-500/50 active:scale-90 no-print">
+        <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+    </button>
+
+    <!-- MODALE INFO (Dedicata - Stile Apple HIG Table) -->
+    <div id="info-modal" class="hidden fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300 opacity-0" id="info-modal-bg" onclick="closeInfoModal()"></div>
+        
+        <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl w-full sm:max-w-lg max-h-[calc(100dvh-0.5rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col rounded-t-[2rem] sm:rounded-2xl shadow-2xl relative z-10 transform transition-all duration-500 translate-y-10 scale-95 opacity-0 border border-slate-200/80 dark:border-slate-700/80 spring-anim overflow-hidden" id="info-modal-content" role="dialog" aria-modal="true" aria-labelledby="info-modal-title" style="padding-bottom: env(safe-area-inset-bottom);">
+            
+            <header class="select-none flex items-start gap-3 px-4 sm:px-6 pt-4 sm:pt-5 pb-4 flex-shrink-0 border-b border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/60 rounded-t-[2rem] sm:rounded-t-2xl">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0 ring-1 ring-blue-500/10">
+                    <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
+                </div>
+                <div class="min-w-0 flex-1 pt-0.5">
+                    <h3 id="info-modal-title" class="text-base font-semibold text-slate-900 dark:text-white leading-tight">Supported Units</h3>
+                    <p id="info-modal-subtitle" class="mt-1 text-xs sm:text-sm text-slate-500 dark:text-slate-400 leading-snug font-mono break-all"></p>
+                </div>
+                <button type="button" onclick="closeInfoModal()" aria-label="Close panel" data-i18n-aria="ui_closePanel" class="hit-44 -mr-2 -mt-1 p-2 rounded-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors focus:outline-none active:scale-90 flex-shrink-0">
+                    <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </header>
+            
+            <div class="overflow-y-auto custom-scrollbar flex-grow bg-slate-50/50 dark:bg-slate-900/20 min-h-0">
+                <ul id="info-modal-list" class="flex flex-col p-1 sm:p-2">
+                    <!-- Contenuto iniettato via JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+			
+    <!-- MODALE MENU PRINCIPALE -->
+    <div id="menu-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300 opacity-0" id="menu-modal-bg" onclick="closeMenuModal()"></div>
+        
+        <div class="bg-white dark:bg-slate-800 w-full max-w-4xl h-full sm:h-[80vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 relative z-10 transform translate-y-10 scale-95 opacity-0 transition-all duration-500 spring-anim" id="menu-modal-content" role="dialog" aria-modal="true" aria-labelledby="menu-modal-title">
+            
+            <!-- Header Modal -->
+            <div class="select-none flex justify-between items-center px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
+                <div class="flex items-center space-x-3">
+                    <svg aria-hidden="true" class="w-6 h-6 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <h2 id="menu-modal-title" data-i18n="modal_menuTitle" class="text-lg font-bold text-slate-800 dark:text-white">Menu</h2>
+                </div>
+                <button onclick="closeMenuModal()" aria-label="Close panel" data-i18n-aria="ui_closePanel" class="hit-44 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all duration-200 p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full focus:outline-none active:scale-90">
+                    <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Wrapper Elastico Interno -->
+            <div class="flex flex-col md:flex-row flex-grow min-h-0 overflow-hidden">
+                <!-- Tab-Bar Mobile / Sidebar Desktop -->
+                <div class="select-none w-full md:w-64 lg:w-[280px] bg-slate-50 dark:bg-slate-800/30 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-3 md:p-4 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto space-x-2 md:space-x-0 md:space-y-2 flex-shrink-0 custom-scrollbar">
+                    
+                    <div class="hidden md:block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-1 pb-1" data-i18n="modal_settings_app">Appearance & Lang</div>
+                    
+                    <button id="tab-btn-lang" onclick="switchSettingsTab('lang')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 focus:outline-none active:scale-[0.98]">
+                        <svg aria-hidden="true" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+                        <span data-i18n="modal_lang" class="flex-1 min-w-0 truncate text-left">Language</span>
+                    </button>
+                    
+                    <button id="tab-btn-theme" onclick="switchSettingsTab('theme')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700 focus:outline-none active:scale-[0.98]">
+                        <svg aria-hidden="true" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <span data-i18n="modal_theme" class="flex-1 min-w-0 truncate text-left">Appearance</span>
+                    </button>
+
+                    <div class="hidden md:block my-2 border-t border-slate-200 dark:border-slate-700/60"></div>
+                    <div class="block md:hidden w-px h-8 bg-slate-300 dark:bg-slate-600 flex-shrink-0 mx-1.5 self-center rounded-full"></div>
+
+                    <button id="tab-btn-about" onclick="switchSettingsTab('about')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700 focus:outline-none active:scale-[0.98]">
+                        <svg aria-hidden="true" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span data-i18n="modal_about" class="flex-1 min-w-0 truncate text-left">About / Info</span>
+                    </button>
+                </div>
+                
+                <!-- Content Area -->
+                <div class="w-full flex-1 min-w-0 p-4 md:p-6 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800 flex-grow min-h-0">
+                    <!-- Tab Lingua -->
+                    <div id="tab-content-lang" class="settings-pane block select-none">
+                        <h3 data-i18n="misc_fav" class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Favorites</h3>
+                        <div id="fav-lang-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-8"></div>
+                        <h3 data-i18n="misc_allLangs" class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">All Languages</h3>
+                        <div id="all-lang-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+                    </div>
+
+                    <!-- Tab Tema -->
+                    <div id="tab-content-theme" class="settings-pane hidden select-none">
+                        <p data-i18n="modal_themeDesc" class="text-sm text-slate-500 dark:text-slate-400 mb-6">Choose the appearance of the application.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <button id="theme-card-light" onclick="setTheme('light')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 focus:outline-none active:scale-95">
+                                <svg aria-hidden="true" class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                <span data-i18n="theme_light" class="font-bold text-slate-700 dark:text-slate-300">Light</span>
+                            </button>
+                            <button id="theme-card-dark" onclick="setTheme('dark')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 focus:outline-none active:scale-95">
+                                <svg aria-hidden="true" class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                                <span data-i18n="theme_dark" class="font-bold text-slate-700 dark:text-slate-300">Dark</span>
+                            </button>
+                            <button id="theme-card-system" onclick="setTheme('system')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 focus:outline-none active:scale-95">
+                                <svg aria-hidden="true" class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <span data-i18n="theme_sys" class="font-bold text-slate-700 dark:text-slate-300">System</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab About -->
+                    <div id="tab-content-about" class="settings-pane hidden text-slate-600 dark:text-slate-300 space-y-6">
+                        <div class="flex items-center space-x-4 pb-4 border-b border-slate-200 dark:border-slate-700 select-none">
+                            <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                <svg aria-hidden="true" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z" fill="#949494"/>
+                                    <path d="M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z" fill="#949494"/>
+                                    <path d="M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z" fill="#007CB1"/>
+                                    <path d="M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z" fill="#007CB1"/>
+                                    <path d="M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z" fill="#007CB1"/>
+                                    <path d="M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z" fill="#007CB1"/>
+                                    <path d="M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z" fill="#007CB1"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 data-i18n="app_title" class="text-xl font-bold text-slate-900 dark:text-white">Clivet Diagnostic Suite</h2>
+                                <p data-i18n="app_subtitle" class="text-sm font-medium">Alarm Snapshot Analyzer Hub</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 text-sm mt-4 mb-3">
+                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <span data-i18n="misc_version" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 select-none">Version</span>
+                                <span class="font-mono text-slate-800 dark:text-slate-200 app-version cursor-text select-text"></span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <span data-i18n="misc_release" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 select-none">Release Date</span>
+                                <span class="font-mono text-slate-800 dark:text-slate-200 app-date cursor-text select-text"></span>
+                            </div>
+                        </div>
+
+                        <!-- Bottone Esportazione Metadati per Supporto IT -->
+                        <div class="flex justify-end mb-4">
+                            <button id="btn-copy-sysinfo" onclick="copySystemInfo('btn-copy-sysinfo')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-md bg-blue-50 dark:bg-blue-900/30 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors focus:outline-none active:scale-95">
+								<svg aria-hidden="true" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"></path></svg>
+								<span data-i18n="ui_copySysInfo">Copy Info for Support</span>
+							</button>
+                        </div>
+
+                        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-lg">
+                            <h3 class="select-none font-bold text-amber-800 dark:text-amber-400 mb-2 flex items-center space-x-2">
+                                <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span data-i18n="misc_disclaimerTitle">Disclaimer</span>
+                            </h3>
+                            <p data-i18n="misc_disclaimerText" class="text-sm text-amber-700 dark:text-amber-300 leading-relaxed select-text cursor-text"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	<script>
+        // 1. GESTIONE VERSIONE
+        const APP_META = {
+            version: "v1.0.0",
+            date: "2026-10"
+        };
+
+        // 2. MOTORE i18n INLINED (Zero-Dependency & Flat Keys Ready)
+        const ClivetI18n = (() => {
+            const DEFAULT_LANG = 'en';
+            let savedLang = null;
+            try { savedLang = localStorage.getItem('clivet_lang'); } catch (e) {}
+            let currentLang = savedLang || DEFAULT_LANG;
+            let dictionaries = {};
+
+            const detectSystemLang = () => {
+                const prefs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ''];
+                for (const tag of prefs) {
+                    const base = String(tag).toLowerCase().split(/[-_]/)[0];
+                    if (dictionaries[base]) return base;
+                }
+                return DEFAULT_LANG;
+            };
+
+            const init = (dicts) => {
+                dictionaries = dicts;
+                if (!savedLang || !dictionaries[currentLang]) currentLang = detectSystemLang();
+                document.documentElement.lang = currentLang;
+                translateDOM();
+                document.documentElement.classList.add('i18n-ready');
+            };
+
+            const setLanguage = (langCode) => {
+                if (dictionaries[langCode] || dictionaries[DEFAULT_LANG]) {
+                    currentLang = langCode;
+                    localStorage.setItem('clivet_lang', currentLang);
+                    document.documentElement.lang = currentLang;
+                    translateDOM();
+                    window.dispatchEvent(new CustomEvent('clivet:langChanged', { detail: { lang: currentLang } }));
+                }
+            };
+
+            const getTranslation = (key) => {
+                const flatKey = key.replace(/\./g, '_');
+                const nestedKeys = key.split('.');
+                const resolveNested = (obj, path) => path.reduce((acc, part) => acc && acc[part], obj);
+
+                let text = (dictionaries[currentLang] && dictionaries[currentLang][flatKey]) || 
+                           (dictionaries[currentLang] ? resolveNested(dictionaries[currentLang], nestedKeys) : undefined);
+                
+                if (text === undefined && currentLang !== DEFAULT_LANG) {
+                    text = (dictionaries[DEFAULT_LANG] && dictionaries[DEFAULT_LANG][flatKey]) || 
+                           (dictionaries[DEFAULT_LANG] ? resolveNested(dictionaries[DEFAULT_LANG], nestedKeys) : undefined);
+                }
+
+                if (text === undefined) {
+                    console.error(`[i18n] CRITICAL: Key '${key}' missing entirely!`);
+                    return null;
+                }
+                return text;
+            };
+
+            const isTouchOnly = () => document.documentElement.classList.contains('is-touch');
+            const translateDOM = () => {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = (isTouchOnly() && el.getAttribute('data-i18n-touch')) || el.getAttribute('data-i18n');
+                    const translation = getTranslation(key);
+                    if (translation !== null) el.innerHTML = translation;
+                });
+
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    const translation = getTranslation(key);
+                    if (translation !== null) el.placeholder = translation;
+                });
+
+                document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-title');
+                    const translation = getTranslation(key);
+                    if (translation !== null) el.title = translation;
+                });
+
+                document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+                    const translation = getTranslation(el.getAttribute('data-i18n-aria'));
+                    if (translation !== null) el.setAttribute('aria-label', translation);
+                });
+            };
+
+            return { init, setLanguage, get: getTranslation, getCurrentLang: () => currentLang, translateDOM };
+        })();
+
+        // 3. DIZIONARIO HUB ANALIZZATORI (16 Lingue Reali - Flat Keys)
+        const hubDictionaries = {
+            en: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Alarm Snapshot Analyzer Hub",
+                nav_menu: "Menu", nav_backToTools: "Back to Tools", nav_tools: "Tools",
+                systems_select: "Select the Control System", systems_search: "Search Control System...", systems_all: "All Systems", systems_air: "AIR", systems_water: "WATER",
+                systems_air_title: "Air Units", systems_water_title: "Water Units",
+                systems_ar1: "Analyze raw AlarmSnapshot.txt files for CSRN-Y Rooftop units CLIVETPack3 series.",
+                systems_az1: "Analyze raw AlarmSnapshot.txt for CPAN-iY units ZEPHIR4 series.",
+                systems_a00: "Analyze raw AlarmSnapshot.txt files for CLIVETPack2 series Rooftop units.",
+                systems_a01: "Analyze raw AlarmSnapshot.txt files for CPAN-XHE3 units ZEPHIR3 series.",
+                systems_w02: "Analyze raw AlarmSnapshot.txt files for WSAN-XIN and WSAT-XIN series.",
+                systems_w01: "Analyze raw AlarmSnapshot.txt files for WSHN-XEE2, WSH-XEE2, and WSHH-LEE1 series.",
+                systems_w03: "Analyze raw AlarmSnapshot.txt files for WSAN-XSC3 and WSAT-XSC3 series.",
+                systems_w04: "Analyze raw AlarmSnapshot.txt files for WSAN-XEM and WSAT-XEM series.",
+                systems_w05: "Analyze raw AlarmSnapshot.txt files for WSAT-YSC4 and WSAN-YSC4 series.",
+                systems_w00: "Analyze raw AlarmSnapshot.txt files for various Chiller and Heat Pump units.",
+                systems_w0i: "Analyze raw AlarmSnapshot.txt files for WDAT-iL3, WDAT-iZ4, WDAT-iK4, and WDH-iK4 series.",
+                systems_w0imf: "Analyze raw AlarmSnapshot.txt files for WDAN-iK4 series.",
+                systems_wi2: "Analyze raw AlarmSnapshot.txt files for WiSAN-YEE1 PL (polyvalent) series.",
+                systems_wk2: "Analyze raw AlarmSnapshot.txt files for WSAN-YSC4 PL (polyvalent) series.",
+                systems_noResults: "No systems found matching your search.",
+                modal_menuTitle: "Menu", modal_lang: "Language", modal_theme: "Appearance", modal_about: "About / Info", modal_themeDesc: "Choose the appearance of the application.", modal_settings_app: "Appearance & Lang",
+                modal_infoTitle: "Supported Units", modal_series: "Series", modal_model: "Model", modal_sizes: "Sizes",
+                theme_light: "Light", theme_dark: "Dark", theme_sys: "System",
+                misc_fav: "Favorites", misc_allLangs: "All Languages", misc_version: "Version", misc_release: "Release Date", misc_disclaimerTitle: "Disclaimer", misc_disclaimerText: "This diagnostic tool is intended exclusively for qualified technical personnel. It is provided 'as-is' without official warranties. Any modification to system parameters or configurations is performed at the user's sole risk and responsibility.", misc_offlineText: "The first time you open this tool, an internet connection is recommended so the interface styles can load. After that, it works completely offline.",
+                ui_closePanel: "Close panel", ui_copySysInfo: "Copy Info for Support", ui_collapseGroup: "Collapse Group", ui_expandGroup: "Expand Group", ui_scrollTop: "Scroll to Top", ui_viewGrid: "Grid View", ui_viewList: "List View", ui_moreInfo: "More information", ui_collapseAll: "Collapse All",
+                search_info_title: "Search Capabilities", search_info_desc: "You can search for systems using various parameters:", search_info_sys: "Control System", search_info_sys_desc: "e.g., A00, W02, AR1", search_info_series: "Series", search_info_series_desc: "e.g., CSRN-Y, WDAT-iL3", search_info_model: "Model", search_info_model_desc: "e.g., CLIVETPack, ZEPHIR", search_info_size: "Size", search_info_size_desc: "e.g., 102, 240.4",
+                ui_showAllCards: "Show all {n} Apps", ui_showTopCards: "Show less"
+            },
+            it: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Hub Analizzatori Allarmi",
+                nav_menu: "Menu", nav_backToTools: "Torna agli Strumenti", nav_tools: "Strumenti",
+                systems_select: "Seleziona il Sistema di Controllo", systems_search: "Cerca Sistema di Controllo...", systems_all: "Tutti i Sistemi", systems_air: "ARIA", systems_water: "ACQUA",
+                systems_air_title: "Unità Aria", systems_water_title: "Unità Acqua",
+                systems_ar1: "Analizza i file AlarmSnapshot.txt per le unità Rooftop CSRN-Y serie CLIVETPack3.",
+                systems_az1: "Analizza i file AlarmSnapshot.txt per le unità CPAN-iY serie ZEPHIR4.",
+                systems_a00: "Analizza i file AlarmSnapshot.txt per le unità Rooftop serie CLIVETPack2.",
+                systems_a01: "Analizza i file AlarmSnapshot.txt per le unità CPAN-XHE3 serie ZEPHIR3.",
+                systems_w02: "Analizza i file AlarmSnapshot.txt per le serie WSAN-XIN e WSAT-XIN.",
+                systems_w01: "Analizza i file AlarmSnapshot.txt per le serie WSHN-XEE2, WSH-XEE2 e WSHH-LEE1.",
+                systems_w03: "Analizza i file AlarmSnapshot.txt per le serie WSAN-XSC3 e WSAT-XSC3.",
+                systems_w04: "Analizza i file AlarmSnapshot.txt per le serie WSAN-XEM e WSAT-XEM.",
+                systems_w05: "Analizza i file AlarmSnapshot.txt per le serie WSAT-YSC4 e WSAN-YSC4.",
+                systems_w00: "Analizza i file AlarmSnapshot.txt per vari Chiller e Pompe di Calore.",
+                systems_w0i: "Analizza i file AlarmSnapshot.txt per le serie WDAT-iL3, WDAT-iZ4, WDAT-iK4 e WDH-iK4.",
+                systems_w0imf: "Analizza i file AlarmSnapshot.txt per la serie WDAN-iK4.",
+                systems_wi2: "Analizza i file AlarmSnapshot.txt per la serie WiSAN-YEE1 PL (polivalente).",
+                systems_wk2: "Analizza i file AlarmSnapshot.txt per la serie WSAN-YSC4 PL (polivalente).",
+                systems_noResults: "Nessun sistema corrispondente alla ricerca.",
+                modal_menuTitle: "Menu", modal_lang: "Lingua", modal_theme: "Aspetto", modal_about: "Informazioni", modal_themeDesc: "Scegli il tema dell'applicazione.", modal_settings_app: "Aspetto e Lingua",
+                modal_infoTitle: "Unità Supportate", modal_series: "Serie", modal_model: "Modello", modal_sizes: "Taglie",
+                theme_light: "Chiaro", theme_dark: "Scuro", theme_sys: "Sistema",
+                misc_fav: "Preferiti", misc_allLangs: "Tutte le Lingue", misc_version: "Versione", misc_release: "Data di Rilascio", misc_disclaimerTitle: "Avvertenza", misc_disclaimerText: "Questo strumento diagnostico è destinato esclusivamente a personale tecnico qualificato. Viene fornito 'così com'è' senza garanzie ufficiali. Qualsiasi modifica ai parametri o alle configurazioni di sistema è eseguita a rischio e responsabilità esclusiva dell'utente.", misc_offlineText: "Al primo avvio è consigliata una connessione a Internet per caricare gli stili dell'interfaccia. In seguito lo strumento funziona completamente offline.",
+                ui_closePanel: "Chiudi pannello", ui_copySysInfo: "Copia Info per il Supporto", ui_collapseGroup: "Comprimi Gruppo", ui_expandGroup: "Espandi Gruppo", ui_scrollTop: "Torna in Alto", ui_viewGrid: "Vista a Griglia", ui_viewList: "Vista a Lista", ui_moreInfo: "Maggiori informazioni", ui_collapseAll: "Comprimi Tutto",
+                search_info_title: "Funzionalità di Ricerca", search_info_desc: "Puoi cercare i sistemi utilizzando vari parametri:", search_info_sys: "Sistema di Controllo", search_info_sys_desc: "es. A00, W02, AR1", search_info_series: "Serie", search_info_series_desc: "es. CSRN-Y, WDAT-iL3", search_info_model: "Modello", search_info_model_desc: "es. CLIVETPack, ZEPHIR", search_info_size: "Taglia", search_info_size_desc: "es. 102, 240.4",
+                ui_showAllCards: "Mostra tutte le {n} App", ui_showTopCards: "Mostra meno"
+            },
+            de: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Alarm-Analysator Hub",
+                nav_menu: "Menü", nav_backToTools: "Zurück zu den Werkzeugen", nav_tools: "Werkzeuge",
+                systems_select: "Wählen Sie das Steuerungssystem", systems_search: "Steuerungssystem suchen...", systems_all: "Alle Systeme", systems_air: "LUFT", systems_water: "WASSER",
+                systems_air_title: "Luft-Einheiten", systems_water_title: "Wasser-Einheiten",
+                systems_ar1: "Analysieren Sie AlarmSnapshot.txt-Dateien für CSRN-Y Rooftop-Einheiten der CLIVETPack3-Serie.",
+                systems_az1: "Analysieren Sie AlarmSnapshot.txt für CPAN-iY-Einheiten der ZEPHIR4-Serie.",
+                systems_a00: "Analysieren Sie AlarmSnapshot.txt-Dateien für Rooftop-Einheiten der CLIVETPack2-Serie.",
+                systems_a01: "Analysieren Sie AlarmSnapshot.txt-Dateien für CPAN-XHE3-Einheiten der ZEPHIR3-Serie.",
+                systems_w02: "Analysieren Sie AlarmSnapshot.txt-Dateien für die Serien WSAN-XIN und WSAT-XIN.",
+                systems_w01: "Analysieren Sie AlarmSnapshot.txt-Dateien für die Serien WSHN-XEE2, WSH-XEE2 und WSHH-LEE1.",
+                systems_w03: "Analysieren Sie AlarmSnapshot.txt-Dateien für die Serien WSAN-XSC3 und WSAT-XSC3.",
+                systems_w04: "Analysieren Sie AlarmSnapshot.txt-Dateien für die Serien WSAN-XEM und WSAT-XEM.",
+                systems_w05: "Analysieren Sie AlarmSnapshot.txt-Dateien für die Serien WSAT-YSC4 und WSAN-YSC4.",
+                systems_w00: "Analysieren Sie AlarmSnapshot.txt-Dateien für verschiedene Kaltwassersätze und Wärmepumpen.",
+                systems_w0i: "Analysieren Sie AlarmSnapshot.txt-Dateien für die Serien WDAT-iL3, WDAT-iZ4, WDAT-iK4 und WDH-iK4.",
+                systems_w0imf: "Analysieren Sie AlarmSnapshot.txt-Dateien für die Serie WDAN-iK4.",
+                systems_wi2: "Analysieren Sie AlarmSnapshot.txt-Dateien für die Serie WiSAN-YEE1 PL (polyvalent).",
+                systems_wk2: "Analysieren Sie AlarmSnapshot.txt-Dateien für die Serie WSAN-YSC4 PL (polyvalent).",
+                systems_noResults: "Keine Systeme gefunden.",
+                modal_menuTitle: "Menü", modal_lang: "Sprache", modal_theme: "Darstellung", modal_about: "Info", modal_themeDesc: "Wählen Sie das Design der Anwendung.", modal_settings_app: "Darstellung & Sprache",
+                modal_infoTitle: "Unterstützte Einheiten", modal_series: "Serie", modal_model: "Modell", modal_sizes: "Größen",
+                theme_light: "Hell", theme_dark: "Dunkel", theme_sys: "System",
+                misc_fav: "Favoriten", misc_allLangs: "Alle Sprachen", misc_version: "Version", misc_release: "Veröffentlichungsdatum", misc_disclaimerTitle: "Haftungsausschluss", misc_disclaimerText: "Dieses Diagnosetool ist ausschließlich für qualifiziertes technisches Personal bestimmt. Es wird 'wie besehen' ohne offizielle Garantien zur Verfügung gestellt. Jede Änderung von Systemparametern oder Konfigurationen erfolgt auf alleiniges Risiko und in alleiniger Verantwortung des Benutzers.", misc_offlineText: "Beim ersten Öffnen wird eine Internetverbindung empfohlen, damit die Oberflächenstile geladen werden. Danach funktioniert das Tool vollständig offline.",
+                ui_closePanel: "Bereich schließen", ui_copySysInfo: "Infos für den Support kopieren", ui_collapseGroup: "Gruppe einklappen", ui_expandGroup: "Gruppe ausklappen", ui_scrollTop: "Nach oben", ui_viewGrid: "Rasteransicht", ui_viewList: "Listenansicht", ui_moreInfo: "Weitere Informationen", ui_collapseAll: "Alle einklappen",
+                search_info_title: "Suchfunktionen", search_info_desc: "Sie können Systeme anhand verschiedener Parameter suchen:", search_info_sys: "Steuerungssystem", search_info_sys_desc: "z. B. A00, W02, AR1", search_info_series: "Serie", search_info_series_desc: "z. B. CSRN-Y, WDAT-iL3", search_info_model: "Modell", search_info_model_desc: "z. B. CLIVETPack, ZEPHIR", search_info_size: "Größe", search_info_size_desc: "z. B. 102, 240.4",
+                ui_showAllCards: "Alle {n} Apps anzeigen", ui_showTopCards: "Weniger anzeigen"
+            },
+            fr: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Hub d'Analyse d'Alarmes",
+                nav_menu: "Menu", nav_backToTools: "Retour aux Outils", nav_tools: "Outils",
+                systems_select: "Sélectionnez le Système de Contrôle", systems_search: "Rechercher un Système...", systems_all: "Tous les Systèmes", systems_air: "AIR", systems_water: "EAU",
+                systems_air_title: "Unités à Air", systems_water_title: "Unités à Eau",
+                systems_ar1: "Analysez les fichiers AlarmSnapshot.txt pour les unités Rooftop CSRN-Y de la série CLIVETPack3.",
+                systems_az1: "Analysez les fichiers AlarmSnapshot.txt pour les unités CPAN-iY de la série ZEPHIR4.",
+                systems_a00: "Analysez les fichiers AlarmSnapshot.txt pour les unités Rooftop de la série CLIVETPack2.",
+                systems_a01: "Analysez les fichiers AlarmSnapshot.txt pour les unités CPAN-XHE3 de la série ZEPHIR3.",
+                systems_w02: "Analysez les fichiers AlarmSnapshot.txt pour les séries WSAN-XIN et WSAT-XIN.",
+                systems_w01: "Analysez les fichiers AlarmSnapshot.txt pour les séries WSHN-XEE2, WSH-XEE2 et WSHH-LEE1.",
+                systems_w03: "Analysez les fichiers AlarmSnapshot.txt pour les séries WSAN-XSC3 et WSAT-XSC3.",
+                systems_w04: "Analysez les fichiers AlarmSnapshot.txt pour les séries WSAN-XEM et WSAT-XEM.",
+                systems_w05: "Analysez les fichiers AlarmSnapshot.txt pour les séries WSAT-YSC4 et WSAN-YSC4.",
+                systems_w00: "Analysez les fichiers AlarmSnapshot.txt pour divers refroidisseurs et pompes à chaleur.",
+                systems_w0i: "Analysez les fichiers AlarmSnapshot.txt pour les séries WDAT-iL3, WDAT-iZ4, WDAT-iK4 et WDH-iK4.",
+                systems_w0imf: "Analysez les fichiers AlarmSnapshot.txt pour la série WDAN-iK4.",
+                systems_wi2: "Analysez les fichiers AlarmSnapshot.txt pour la série WiSAN-YEE1 PL (polyvalente).",
+                systems_wk2: "Analysez les fichiers AlarmSnapshot.txt pour la série WSAN-YSC4 PL (polyvalente).",
+                systems_noResults: "Aucun système trouvé.",
+                modal_menuTitle: "Menu", modal_lang: "Langue", modal_theme: "Apparence", modal_about: "À Propos", modal_themeDesc: "Choisissez le thème de l'application.", modal_settings_app: "Apparence et Langue",
+                modal_infoTitle: "Unités Supportées", modal_series: "Série", modal_model: "Modèle", modal_sizes: "Tailles",
+                theme_light: "Clair", theme_dark: "Sombre", theme_sys: "Système",
+                misc_fav: "Favoris", misc_allLangs: "Toutes les Langues", misc_version: "Version", misc_release: "Date de Sortie", misc_disclaimerTitle: "Avertissement", misc_disclaimerText: "Cet outil de diagnostic est destiné exclusivement au personnel technique qualifié. Il est fourni 'tel quel' sans garanties officielles. Toute modification des paramètres ou des configurations du système est effectuée aux risques et sous la seule responsabilité de l'utilisateur.", misc_offlineText: "Lors de la première ouverture, une connexion Internet est recommandée pour charger les styles de l'interface. L'outil fonctionne ensuite entièrement hors ligne.",
+                ui_closePanel: "Fermer le panneau", ui_copySysInfo: "Copier les Infos pour le Support", ui_collapseGroup: "Réduire le Groupe", ui_expandGroup: "Développer le Groupe", ui_scrollTop: "Revenir en Haut", ui_viewGrid: "Vue en Grille", ui_viewList: "Vue en Liste", ui_moreInfo: "Plus d'informations", ui_collapseAll: "Tout Réduire",
+                search_info_title: "Fonctionnalités de Recherche", search_info_desc: "Vous pouvez rechercher des systèmes à l'aide de divers paramètres :", search_info_sys: "Système de Contrôle", search_info_sys_desc: "ex. A00, W02, AR1", search_info_series: "Série", search_info_series_desc: "ex. CSRN-Y, WDAT-iL3", search_info_model: "Modèle", search_info_model_desc: "ex. CLIVETPack, ZEPHIR", search_info_size: "Taille", search_info_size_desc: "ex. 102, 240.4",
+                ui_showAllCards: "Afficher les {n} Apps", ui_showTopCards: "Afficher moins"
+            },
+            es: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Hub de Análisis de Alarmas",
+                nav_menu: "Menú", nav_backToTools: "Volver a Herramientas", nav_tools: "Herramientas",
+                systems_select: "Seleccione el Sistema de Control", systems_search: "Buscar Sistema de Control...", systems_all: "Todos los Sistemas", systems_air: "AIRE", systems_water: "AGUA",
+                systems_air_title: "Unidades de Aire", systems_water_title: "Unidades de Agua",
+                systems_ar1: "Analice los archivos AlarmSnapshot.txt para las unidades Rooftop CSRN-Y de la serie CLIVETPack3.",
+                systems_az1: "Analice AlarmSnapshot.txt para las unidades CPAN-iY de la serie ZEPHIR4.",
+                systems_a00: "Analice los archivos AlarmSnapshot.txt para las unidades Rooftop de la serie CLIVETPack2.",
+                systems_a01: "Analice los archivos AlarmSnapshot.txt para las unidades CPAN-XHE3 de la serie ZEPHIR3.",
+                systems_w02: "Analice los archivos AlarmSnapshot.txt para las series WSAN-XIN y WSAT-XIN.",
+                systems_w01: "Analice los archivos AlarmSnapshot.txt para las series WSHN-XEE2, WSH-XEE2 y WSHH-LEE1.",
+                systems_w03: "Analice los archivos AlarmSnapshot.txt para las series WSAN-XSC3 y WSAT-XSC3.",
+                systems_w04: "Analice los archivos AlarmSnapshot.txt para las series WSAN-XEM y WSAT-XEM.",
+                systems_w05: "Analice los archivos AlarmSnapshot.txt para las series WSAT-YSC4 y WSAN-YSC4.",
+                systems_w00: "Analice los archivos AlarmSnapshot.txt para varias enfriadoras y bombas de calor.",
+                systems_w0i: "Analice los archivos AlarmSnapshot.txt para las series WDAT-iL3, WDAT-iZ4, WDAT-iK4 y WDH-iK4.",
+                systems_w0imf: "Analice los archivos AlarmSnapshot.txt para la serie WDAN-iK4.",
+                systems_wi2: "Analice los archivos AlarmSnapshot.txt para la serie WiSAN-YEE1 PL (polivalente).",
+                systems_wk2: "Analice los archivos AlarmSnapshot.txt para la serie WSAN-YSC4 PL (polivalente).",
+                systems_noResults: "No se encontraron sistemas.",
+                modal_menuTitle: "Menú", modal_lang: "Idioma", modal_theme: "Apariencia", modal_about: "Acerca de", modal_themeDesc: "Elija el tema de la aplicación.", modal_settings_app: "Apariencia e Idioma",
+                modal_infoTitle: "Unidades Soportadas", modal_series: "Serie", modal_model: "Modelo", modal_sizes: "Tamaños",
+                theme_light: "Claro", theme_dark: "Oscuro", theme_sys: "Sistema",
+                misc_fav: "Favoritos", misc_allLangs: "Todos los Idiomas", misc_version: "Versión", misc_release: "Fecha de Lanzamiento", misc_disclaimerTitle: "Descargo de Responsabilidad", misc_disclaimerText: "Esta herramienta de diagnóstico está destinada exclusivamente a personal técnico qualificado. Se proporciona 'tal cual', sin garantías oficiales. Cualquier modificación en los parámetros o configuraciones del sistema se realiza bajo el propio riesgo y responsabilidad del usuario.", misc_offlineText: "La primera vez que abras la herramienta, se recomienda una conexión a Internet para cargar los estilos de la interfaz. Después funciona totalmente sin conexión.",
+                ui_closePanel: "Cerrar panel", ui_copySysInfo: "Copiar Información para Soporte", ui_collapseGroup: "Contraer Grupo", ui_expandGroup: "Expandir Grupo", ui_scrollTop: "Volver Arriba", ui_viewGrid: "Vista de Cuadrícula", ui_viewList: "Vista de Lista", ui_moreInfo: "Más información", ui_collapseAll: "Contraer Todo",
+                search_info_title: "Capacidades de Búsqueda", search_info_desc: "Puede buscar sistemas utilizando varios parámetros:", search_info_sys: "Sistema de Control", search_info_sys_desc: "ej. A00, W02, AR1", search_info_series: "Serie", search_info_series_desc: "ej. CSRN-Y, WDAT-iL3", search_info_model: "Modelo", search_info_model_desc: "ej. CLIVETPack, ZEPHIR", search_info_size: "Tamaño", search_info_size_desc: "ej. 102, 240.4",
+                ui_showAllCards: "Mostrar todas las {n} Apps", ui_showTopCards: "Mostrar menos"
+            },
+            zh: {
+                app_title: "Clivet 诊断套件", app_subtitle: "警报快照分析中心",
+                nav_menu: "菜单", nav_backToTools: "返回工具", nav_tools: "工具",
+                systems_select: "选择控制系统", systems_search: "搜索控制系统...", systems_all: "所有系统", systems_air: "空气", systems_water: "水",
+                systems_air_title: "空气机组", systems_water_title: "水机组",
+                systems_ar1: "分析 CLIVETPack3 系列 CSRN-Y 气冷式屋顶空调机的原始 AlarmSnapshot.txt 文件。",
+                systems_az1: "分析 ZEPHIR4 系列 CPAN-iY 机组的原始 AlarmSnapshot.txt 文件。",
+                systems_a00: "分析 CLIVETPack2 系列气冷式屋顶空调机的原始 AlarmSnapshot.txt 文件。",
+                systems_a01: "分析 ZEPHIR3 系列 CPAN-XHE3 机组的原始 AlarmSnapshot.txt 文件。",
+                systems_w02: "分析 WSAN-XIN 和 WSAT-XIN 系列的原始 AlarmSnapshot.txt 文件。",
+                systems_w01: "分析 WSHN-XEE2、WSH-XEE2 和 WSHH-LEE1 系列的原始 AlarmSnapshot.txt 文件。",
+                systems_w03: "分析 WSAN-XSC3 和 WSAT-XSC3 系列的原始 AlarmSnapshot.txt 文件。",
+                systems_w04: "分析 WSAN-XEM 和 WSAT-XEM 系列的原始 AlarmSnapshot.txt 文件。",
+                systems_w05: "分析 WSAT-YSC4 和 WSAN-YSC4 系列的原始 AlarmSnapshot.txt 文件。",
+                systems_w00: "分析各种冷水机组和热泵机组的原始 AlarmSnapshot.txt 文件。",
+                systems_w0i: "分析 WDAT-iL3、WDAT-iZ4、WDAT-iK4 和 WDH-iK4 系列的原始 AlarmSnapshot.txt 文件。",
+                systems_w0imf: "分析 WDAN-iK4 系列的原始 AlarmSnapshot.txt 文件。",
+                systems_wi2: "分析 WiSAN-YEE1 PL（多功能）系列的原始 AlarmSnapshot.txt 文件。",
+                systems_wk2: "分析 WSAN-YSC4 PL（多功能）系列的原始 AlarmSnapshot.txt 文件。",
+                systems_noResults: "未找到匹配的系统。",
+                modal_menuTitle: "菜单", modal_lang: "语言", modal_theme: "外观", modal_about: "关于", modal_themeDesc: "选择应用程序外观。", modal_settings_app: "外观与语言",
+                modal_infoTitle: "支持的机组", modal_series: "系列", modal_model: "型号", modal_sizes: "尺寸",
+                theme_light: "浅色", theme_dark: "深色", theme_sys: "系统",
+                misc_fav: "最爱", misc_allLangs: "所有语言", misc_version: "版本", misc_release: "发布日期", misc_disclaimerTitle: "免责声明", misc_disclaimerText: "此诊断工具专供合格的技术人员使用。本工具按“原样”提供，不包含任何官方保证。对系统参数或配置的任何修改均由用户自行承担风险和责任。", misc_offlineText: "首次打开本工具时，建议连接互联网以加载界面样式。之后即可完全离线使用。",
+                ui_closePanel: "关闭面板", ui_copySysInfo: "复制支持信息", ui_collapseGroup: "折叠组", ui_expandGroup: "展开组", ui_scrollTop: "回到顶部", ui_viewGrid: "网格视图", ui_viewList: "列表视图", ui_moreInfo: "更多信息", ui_collapseAll: "全部折叠",
+                search_info_title: "搜索功能", search_info_desc: "您可以使用各种参数搜索系统：", search_info_sys: "控制系统", search_info_sys_desc: "例如 A00, W02, AR1", search_info_series: "系列", search_info_series_desc: "例如 CSRN-Y, WDAT-iL3", search_info_model: "型号", search_info_model_desc: "例如 CLIVETPack, ZEPHIR", search_info_size: "尺寸", search_info_size_desc: "例如 102, 240.4",
+                ui_showAllCards: "显示全部 {n} 个应用", ui_showTopCards: "收起"
+            },
+            pt: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Hub de Análise de Alarmes",
+                nav_menu: "Menu", nav_backToTools: "Voltar às Ferramentas", nav_tools: "Ferramentas",
+                systems_select: "Selecione o Sistema de Controlo", systems_search: "Pesquisar Sistema...", systems_all: "Todos os Sistemas", systems_air: "AR", systems_water: "ÁGUA",
+                systems_air_title: "Unidades de Ar", systems_water_title: "Unidades de Água",
+                systems_ar1: "Analisar ficheiros AlarmSnapshot.txt das unidades Rooftop CSRN-Y série CLIVETPack3.",
+                systems_az1: "Analisar ficheiros AlarmSnapshot.txt das unidades CPAN-iY série ZEPHIR4.",
+                systems_a00: "Analisar ficheiros AlarmSnapshot.txt das unidades Rooftop série CLIVETPack2.",
+                systems_a01: "Analisar ficheiros AlarmSnapshot.txt das unidades CPAN-XHE3 série ZEPHIR3.",
+                systems_w02: "Analisar ficheiros AlarmSnapshot.txt das séries WSAN-XIN e WSAT-XIN.",
+                systems_w01: "Analisar ficheiros AlarmSnapshot.txt das séries WSHN-XEE2, WSH-XEE2 e WSHH-LEE1.",
+                systems_w03: "Analisar ficheiros AlarmSnapshot.txt das séries WSAN-XSC3 e WSAT-XSC3.",
+                systems_w04: "Analisar ficheiros AlarmSnapshot.txt das séries WSAN-XEM e WSAT-XEM.",
+                systems_w05: "Analisar ficheiros AlarmSnapshot.txt das séries WSAT-YSC4 e WSAN-YSC4.",
+                systems_w00: "Analisar ficheiros AlarmSnapshot.txt de vários Chillers e Bombas de Calor.",
+                systems_w0i: "Analisar ficheiros AlarmSnapshot.txt das séries WDAT-iL3, WDAT-iZ4, WDAT-iK4 e WDH-iK4.",
+                systems_w0imf: "Analisar ficheiros AlarmSnapshot.txt da série WDAN-iK4.",
+                systems_wi2: "Analisar ficheiros AlarmSnapshot.txt da série WiSAN-YEE1 PL (polivalente).",
+                systems_wk2: "Analisar ficheiros AlarmSnapshot.txt da série WSAN-YSC4 PL (polivalente).",
+                systems_noResults: "Nenhum sistema encontrado.",
+                modal_menuTitle: "Menu", modal_lang: "Idioma", modal_theme: "Aparência", modal_about: "Sobre", modal_themeDesc: "Escolha o tema da aplicação.", modal_settings_app: "Aparência e Idioma",
+                modal_infoTitle: "Unidades Suportadas", modal_series: "Série", modal_model: "Modelo", modal_sizes: "Tamanhos",
+                theme_light: "Claro", theme_dark: "Escuro", theme_sys: "Sistema",
+                misc_fav: "Favoritos", misc_allLangs: "Todos os Idiomas", misc_version: "Versão", misc_release: "Data de Lançamento", misc_disclaimerTitle: "Aviso", misc_disclaimerText: "Esta ferramenta de diagnóstico destina-se exclusivamente a pessoal técnico qualificado. É fornecida 'tal como está', sem garantias oficiais. Qualquer modificação aos parâmetros ou configurações do sistema é efetuada por conta e risco e sob a responsabilidade exclusiva do utilizador.", misc_offlineText: "Na primeira utilização, recomenda-se uma ligação à Internet para carregar os estilos da interface. Depois disso, a ferramenta funciona totalmente offline.",
+                ui_closePanel: "Fechar painel", ui_copySysInfo: "Copiar Informações para o Suporte", ui_collapseGroup: "Recolher Grupo", ui_expandGroup: "Expandir Grupo", ui_scrollTop: "Voltar ao Topo", ui_viewGrid: "Vista de Grelha", ui_viewList: "Vista de Lista", ui_moreInfo: "Mais informações", ui_collapseAll: "Recolher Tudo",
+                search_info_title: "Capacidades de Pesquisa", search_info_desc: "Pode pesquisar sistemas utilizando vários parâmetros:", search_info_sys: "Sistema de Controlo", search_info_sys_desc: "ex. A00, W02, AR1", search_info_series: "Série", search_info_series_desc: "ex. CSRN-Y, WDAT-iL3", search_info_model: "Modelo", search_info_model_desc: "ex. CLIVETPack, ZEPHIR", search_info_size: "Tamanho", search_info_size_desc: "ex. 102, 240.4",
+                ui_showAllCards: "Mostrar todos os {n} Apps", ui_showTopCards: "Mostrar menos"
+            },
+            ru: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Центр анализа снимков аварий",
+                nav_menu: "Меню", nav_backToTools: "Назад к инструментам", nav_tools: "Инструменты",
+                systems_select: "Выберите систему управления", systems_search: "Поиск системы...", systems_all: "Все системы", systems_air: "ВОЗДУХ", systems_water: "ВОДА",
+                systems_air_title: "Воздушные агрегаты", systems_water_title: "Водяные агрегаты",
+                systems_ar1: "Анализ файлов AlarmSnapshot.txt для руфтопов CSRN-Y серии CLIVETPack3.",
+                systems_az1: "Анализ файлов AlarmSnapshot.txt для агрегатов CPAN-iY серии ZEPHIR4.",
+                systems_a00: "Анализ файлов AlarmSnapshot.txt для руфтопов серии CLIVETPack2.",
+                systems_a01: "Анализ файлов AlarmSnapshot.txt для агрегатов CPAN-XHE3 серии ZEPHIR3.",
+                systems_w02: "Анализ файлов AlarmSnapshot.txt для серий WSAN-XIN и WSAT-XIN.",
+                systems_w01: "Анализ файлов AlarmSnapshot.txt для серий WSHN-XEE2, WSH-XEE2 и WSHH-LEE1.",
+                systems_w03: "Анализ файлов AlarmSnapshot.txt для серий WSAN-XSC3 и WSAT-XSC3.",
+                systems_w04: "Анализ файлов AlarmSnapshot.txt для серий WSAN-XEM и WSAT-XEM.",
+                systems_w05: "Анализ файлов AlarmSnapshot.txt для серий WSAT-YSC4 и WSAN-YSC4.",
+                systems_w00: "Анализ файлов AlarmSnapshot.txt для различных чиллеров и тепловых насосов.",
+                systems_w0i: "Анализ файлов AlarmSnapshot.txt для серий WDAT-iL3, WDAT-iZ4, WDAT-iK4 и WDH-iK4.",
+                systems_w0imf: "Анализ файлов AlarmSnapshot.txt для серии WDAN-iK4.",
+                systems_wi2: "Анализ файлов AlarmSnapshot.txt для серии WiSAN-YEE1 PL (многоцелевые).",
+                systems_wk2: "Анализ файлов AlarmSnapshot.txt для серии WSAN-YSC4 PL (многоцелевые).",
+                systems_noResults: "Системы не найдены.",
+                modal_menuTitle: "Меню", modal_lang: "Язык", modal_theme: "Оформление", modal_about: "О программе", modal_themeDesc: "Выберите тему приложения.", modal_settings_app: "Оформление и язык",
+                modal_infoTitle: "Поддерживаемые агрегаты", modal_series: "Серия", modal_model: "Модель", modal_sizes: "Размеры",
+                theme_light: "Светлая", theme_dark: "Темная", theme_sys: "Система",
+                misc_fav: "Избранное", misc_allLangs: "Все языки", misc_version: "Версия", misc_release: "Дата выпуска", misc_disclaimerTitle: "Отказ от ответственности", misc_disclaimerText: "Этот диагностический инструмент предназначен исключительно для квалифицированного технического персонала. Он предоставляется «как есть» без официальных гарантий. Любое изменение системных параметров или конфигураций осуществляется исключительно на страх и риск и под ответственность пользователя.", misc_offlineText: "При первом запуске рекомендуется подключение к Интернету для загрузки стилей интерфейса. После этого инструмент работает полностью автономно.",
+                ui_closePanel: "Закрыть панель", ui_copySysInfo: "Копировать сведения для поддержки", ui_collapseGroup: "Свернуть группу", ui_expandGroup: "Развернуть группу", ui_scrollTop: "Наверх", ui_viewGrid: "Вид сеткой", ui_viewList: "Вид списком", ui_moreInfo: "Подробнее", ui_collapseAll: "Свернуть все",
+                search_info_title: "Возможности поиска", search_info_desc: "Вы можете искать системы по различным параметрам:", search_info_sys: "Система управления", search_info_sys_desc: "напр. A00, W02, AR1", search_info_series: "Серия", search_info_series_desc: "напр. CSRN-Y, WDAT-iL3", search_info_model: "Модель", search_info_model_desc: "напр. CLIVETPack, ZEPHIR", search_info_size: "Размер", search_info_size_desc: "напр. 102, 240.4",
+                ui_showAllCards: "Показать все {n} приложений", ui_showTopCards: "Свернуть"
+            },
+            ja: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "アラームスナップショット アナライザー ハブ",
+                nav_menu: "メニュー", nav_backToTools: "ツールに戻る", nav_tools: "ツール",
+                systems_select: "制御システムを選択", systems_search: "システム検索...", systems_all: "すべてのシステム", systems_air: "空気", systems_water: "水",
+                systems_air_title: "空調ユニット", systems_water_title: "水冷ユニット",
+                systems_ar1: "CLIVETPack3 シリーズ CSRN-Y ルーフトップユニットの AlarmSnapshot.txt を分析します。",
+                systems_az1: "ZEPHIR4 シリーズ CPAN-iY ユニットの AlarmSnapshot.txt を分析します。",
+                systems_a00: "CLIVETPack2 シリーズ ルーフトップユニットの AlarmSnapshot.txt を分析します。",
+                systems_a01: "ZEPHIR3 シリーズ CPAN-XHE3 ユニットの AlarmSnapshot.txt を分析します。",
+                systems_w02: "WSAN-XIN および WSAT-XIN シリーズの AlarmSnapshot.txt を分析します。",
+                systems_w01: "WSHN-XEE2、WSH-XEE2、WSHH-LEE1 シリーズの AlarmSnapshot.txt を分析します。",
+                systems_w03: "WSAN-XSC3 および WSAT-XSC3 シリーズの AlarmSnapshot.txt を分析します。",
+                systems_w04: "WSAN-XEM および WSAT-XEM シリーズの AlarmSnapshot.txt を分析します。",
+                systems_w05: "WSAT-YSC4 および WSAN-YSC4 シリーズの AlarmSnapshot.txt を分析します。",
+                systems_w00: "各種チラーおよびヒートポンプユニットの AlarmSnapshot.txt を分析します。",
+                systems_w0i: "WDAT-iL3、WDAT-iZ4、WDAT-iK4、WDH-iK4 シリーズの AlarmSnapshot.txt を分析します。",
+                systems_w0imf: "WDAN-iK4 シリーズの AlarmSnapshot.txt を分析します。",
+                systems_wi2: "WiSAN-YEE1 PL（多目的）シリーズの AlarmSnapshot.txt を分析します。",
+                systems_wk2: "WSAN-YSC4 PL（多目的）シリーズの AlarmSnapshot.txt を分析します。",
+                systems_noResults: "システムが見つかりません。",
+                modal_menuTitle: "メニュー", modal_lang: "言語", modal_theme: "外観", modal_about: "このアプリについて", modal_themeDesc: "アプリケーションのテーマを選択します。", modal_settings_app: "外観と言語",
+                modal_infoTitle: "対応機種", modal_series: "シリーズ", modal_model: "モデル", modal_sizes: "サイズ",
+                theme_light: "ライト", theme_dark: "ダーク", theme_sys: "システム",
+                misc_fav: "お気に入り", misc_allLangs: "すべての言語", misc_version: "バージョン", misc_release: "リリース日", misc_disclaimerTitle: "免責事項", misc_disclaimerText: "この診断ツールは、資格を持つ技術スタッフ専用です。公式な保証なしで「現状有姿」で提供されます。システムパラメータまたは設定の変更は、ユーザー自身の単独の責任とリスクにおいて実行されます。", misc_offlineText: "初回起動時は、画面のスタイルを読み込むためにインターネット接続をおすすめします。その後は完全にオフラインで動作します。",
+                ui_closePanel: "パネルを閉じる", ui_copySysInfo: "サポート用の情報をコピー", ui_collapseGroup: "グループを折りたたむ", ui_expandGroup: "グループを展開", ui_scrollTop: "先頭へ戻る", ui_viewGrid: "グリッド表示", ui_viewList: "リスト表示", ui_moreInfo: "詳細情報", ui_collapseAll: "すべて折りたたむ",
+                search_info_title: "検索機能", search_info_desc: "さまざまなパラメータを使用してシステムを検索できます：", search_info_sys: "制御システム", search_info_sys_desc: "例：A00, W02, AR1", search_info_series: "シリーズ", search_info_series_desc: "例：CSRN-Y, WDAT-iL3", search_info_model: "モデル", search_info_model_desc: "例：CLIVETPack, ZEPHIR", search_info_size: "サイズ", search_info_size_desc: "例：102, 240.4",
+                ui_showAllCards: "すべての {n} アプリを表示", ui_showTopCards: "表示を減らす"
+            },
+            ko: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "알람 스냅샷 분석기 허브",
+                nav_menu: "메뉴", nav_backToTools: "도구로 돌아가기", nav_tools: "도구",
+                systems_select: "제어 시스템 선택", systems_search: "시스템 검색...", systems_all: "모든 시스템", systems_air: "공기", systems_water: "물",
+                systems_air_title: "공기 유닛", systems_water_title: "수냉식 유닛",
+                systems_ar1: "CLIVETPack3 시리즈 CSRN-Y 루프탑 유닛의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_az1: "ZEPHIR4 시리즈 CPAN-iY 유닛의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_a00: "CLIVETPack2 시리즈 루프탑 유닛의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_a01: "ZEPHIR3 시리즈 CPAN-XHE3 유닛의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_w02: "WSAN-XIN 및 WSAT-XIN 시리즈의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_w01: "WSHN-XEE2, WSH-XEE2, WSHH-LEE1 시리즈의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_w03: "WSAN-XSC3 및 WSAT-XSC3 시리즈의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_w04: "WSAN-XEM 및 WSAT-XEM 시리즈의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_w05: "WSAT-YSC4 및 WSAN-YSC4 시리즈의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_w00: "다양한 칠러 및 히트펌프 유닛의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_w0i: "WDAT-iL3, WDAT-iZ4, WDAT-iK4, WDH-iK4 시리즈의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_w0imf: "WDAN-iK4 시리즈의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_wi2: "WiSAN-YEE1 PL(다목적) 시리즈의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_wk2: "WSAN-YSC4 PL(다목적) 시리즈의 AlarmSnapshot.txt 파일을 분석합니다.",
+                systems_noResults: "시스템을 찾을 수 없습니다.",
+                modal_menuTitle: "메뉴", modal_lang: "언어", modal_theme: "화면 모드", modal_about: "정보", modal_themeDesc: "응용 프로그램 테마 선택.", modal_settings_app: "화면 및 언어",
+                modal_infoTitle: "지원 모델", modal_series: "시리즈", modal_model: "모델", modal_sizes: "크기",
+                theme_light: "라이트", theme_dark: "다크", theme_sys: "시스템",
+                misc_fav: "즐겨찾기", misc_allLangs: "모든 언어", misc_version: "버전", misc_release: "출시일", misc_disclaimerTitle: "면책 조항", misc_disclaimerText: "이 진단 도구는 자격을 갖춘 기술자만 사용할 수 있도록 제작되었습니다. 공식적인 보증 없이 '있는 그대로' 제공됩니다. 시스템 매개변수나 구성의 모든 수정은 전적으로 사용자의 위험과 책임하에 수행됩니다.", misc_offlineText: "처음 열 때는 화면 스타일을 불러오기 위해 인터넷 연결을 권장합니다. 이후에는 완전히 오프라인으로 작동합니다.",
+                ui_closePanel: "패널 닫기", ui_copySysInfo: "지원용 정보 복사", ui_collapseGroup: "그룹 접기", ui_expandGroup: "그룹 펼치기", ui_scrollTop: "맨 위로", ui_viewGrid: "그리드 보기", ui_viewList: "목록 보기", ui_moreInfo: "추가 정보", ui_collapseAll: "모두 접기",
+                search_info_title: "검색 기능", search_info_desc: "다양한 매개변수를 사용하여 시스템을 검색할 수 있습니다:", search_info_sys: "제어 시스템", search_info_sys_desc: "예: A00, W02, AR1", search_info_series: "시리즈", search_info_series_desc: "예: CSRN-Y, WDAT-iL3", search_info_model: "모델", search_info_model_desc: "예: CLIVETPack, ZEPHIR", search_info_size: "크기", search_info_size_desc: "예: 102, 240.4",
+                ui_showAllCards: "모든 {n}개 앱 보기", ui_showTopCards: "간략히 보기"
+            },
+            tr: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Alarm Anlık Görüntü Analizörü Merkezi",
+                nav_menu: "Menü", nav_backToTools: "Araçlara Dön", nav_tools: "Araçlar",
+                systems_select: "Kontrol Sistemini Seçin", systems_search: "Sistem Ara...", systems_all: "Tüm Sistemler", systems_air: "HAVA", systems_water: "SU",
+                systems_air_title: "Hava Üniteleri", systems_water_title: "Su Üniteleri",
+                systems_ar1: "CLIVETPack3 serisi CSRN-Y Rooftop üniteleri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_az1: "ZEPHIR4 serisi CPAN-iY üniteleri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_a00: "CLIVETPack2 serisi Rooftop üniteleri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_a01: "ZEPHIR3 serisi CPAN-XHE3 üniteleri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_w02: "WSAN-XIN ve WSAT-XIN serileri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_w01: "WSHN-XEE2, WSH-XEE2 ve WSHH-LEE1 serileri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_w03: "WSAN-XSC3 ve WSAT-XSC3 serileri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_w04: "WSAN-XEM ve WSAT-XEM serileri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_w05: "WSAT-YSC4 ve WSAN-YSC4 serileri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_w00: "Çeşitli Chiller ve Isı Pompası üniteleri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_w0i: "WDAT-iL3, WDAT-iZ4, WDAT-iK4 ve WDH-iK4 serileri için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_w0imf: "WDAN-iK4 serisi için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_wi2: "WiSAN-YEE1 PL (çok amaçlı) serisi için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_wk2: "WSAN-YSC4 PL (çok amaçlı) serisi için AlarmSnapshot.txt dosyalarını analiz edin.",
+                systems_noResults: "Sistem bulunamadı.",
+                modal_menuTitle: "Menü", modal_lang: "Dil", modal_theme: "Görünüm", modal_about: "Hakkında", modal_themeDesc: "Uygulama temasını seçin.", modal_settings_app: "Görünüm ve Dil",
+                modal_infoTitle: "Desteklenen Modeller", modal_series: "Seri", modal_model: "Model", modal_sizes: "Boyutlar",
+                theme_light: "Açık", theme_dark: "Koyu", theme_sys: "Sistem",
+                misc_fav: "Favoriler", misc_allLangs: "Tüm Diller", misc_version: "Sürüm", misc_release: "Yayın Tarihi", misc_disclaimerTitle: "Sorumluluk Reddi", misc_disclaimerText: "Bu tanılama aracı yalnızca kalifiye teknik personel için tasarlanmıştır. Herhangi bir resmi garanti olmaksızın 'olduğu gibi' sağlanmaktadır. Sistem parametrelerinde veya yapılandırmalarında yapılacak herhangi bir değişiklik, tamamen kullanıcının kendi riski ve sorumluluğu altındadır.", misc_offlineText: "Aracı ilk kez açarken arayüz stillerinin yüklenmesi için internet bağlantısı önerilir. Sonrasında tamamen çevrimdışı çalışır.",
+                ui_closePanel: "Paneli kapat", ui_copySysInfo: "Destek İçin Bilgileri Kopyala", ui_collapseGroup: "Grubu Daralt", ui_expandGroup: "Grubu Genişlet", ui_scrollTop: "Başa Dön", ui_viewGrid: "Izgara Görünümü", ui_viewList: "Liste Görünümü", ui_moreInfo: "Daha fazla bilgi", ui_collapseAll: "Tümünü Daralt",
+                search_info_title: "Arama Özellikleri", search_info_desc: "Sistemleri çeşitli parametreleri kullanarak arayabilirsiniz:", search_info_sys: "Kontrol Sistemi", search_info_sys_desc: "örn. A00, W02, AR1", search_info_series: "Seri", search_info_series_desc: "örn. CSRN-Y, WDAT-iL3", search_info_model: "Model", search_info_model_desc: "örn. CLIVETPack, ZEPHIR", search_info_size: "Boyut", search_info_size_desc: "örn. 102, 240.4",
+                ui_showAllCards: "Tüm {n} uygulamayı göster", ui_showTopCards: "Daha az göster"
+            },
+            pl: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Centrum Analizatorów Zrzutów Alarmów",
+                nav_menu: "Menu", nav_backToTools: "Wróć do Narzędzi", nav_tools: "Narzędzia",
+                systems_select: "Wybierz system sterowania", systems_search: "Szukaj systemu...", systems_all: "Wszystkie systemy", systems_air: "POWIETRZE", systems_water: "WODA",
+                systems_air_title: "Jednostki Powietrzne", systems_water_title: "Jednostki Wodne",
+                systems_ar1: "Analizuj pliki AlarmSnapshot.txt dla jednostek Rooftop CSRN-Y serii CLIVETPack3.",
+                systems_az1: "Analizuj pliki AlarmSnapshot.txt dla jednostek CPAN-iY serii ZEPHIR4.",
+                systems_a00: "Analizuj pliki AlarmSnapshot.txt dla jednostek Rooftop serii CLIVETPack2.",
+                systems_a01: "Analizuj pliki AlarmSnapshot.txt dla jednostek CPAN-XHE3 serii ZEPHIR3.",
+                systems_w02: "Analizuj pliki AlarmSnapshot.txt dla serii WSAN-XIN i WSAT-XIN.",
+                systems_w01: "Analizuj pliki AlarmSnapshot.txt dla serii WSHN-XEE2, WSH-XEE2 i WSHH-LEE1.",
+                systems_w03: "Analizuj pliki AlarmSnapshot.txt dla serii WSAN-XSC3 i WSAT-XSC3.",
+                systems_w04: "Analizuj pliki AlarmSnapshot.txt dla serii WSAN-XEM i WSAT-XEM.",
+                systems_w05: "Analizuj pliki AlarmSnapshot.txt dla serii WSAT-YSC4 i WSAN-YSC4.",
+                systems_w00: "Analizuj pliki AlarmSnapshot.txt dla różnych agregatów chłodniczych i pomp ciepła.",
+                systems_w0i: "Analizuj pliki AlarmSnapshot.txt dla serii WDAT-iL3, WDAT-iZ4, WDAT-iK4 i WDH-iK4.",
+                systems_w0imf: "Analizuj pliki AlarmSnapshot.txt dla serii WDAN-iK4.",
+                systems_wi2: "Analizuj pliki AlarmSnapshot.txt dla serii WiSAN-YEE1 PL (wielofunkcyjnej).",
+                systems_wk2: "Analizuj pliki AlarmSnapshot.txt dla serii WSAN-YSC4 PL (wielofunkcyjnej).",
+                systems_noResults: "Nie znaleziono systemów.",
+                modal_menuTitle: "Menu", modal_lang: "Język", modal_theme: "Wygląd", modal_about: "O Programie", modal_themeDesc: "Wybierz motyw aplikacji.", modal_settings_app: "Wygląd i Język",
+                modal_infoTitle: "Obsługiwane Jednostki", modal_series: "Seria", modal_model: "Model", modal_sizes: "Rozmiary",
+                theme_light: "Jasny", theme_dark: "Ciemny", theme_sys: "System",
+                misc_fav: "Ulubione", misc_allLangs: "Wszystkie Języki", misc_version: "Wersja", misc_release: "Data Wydania", misc_disclaimerTitle: "Zastrzeżenie", misc_disclaimerText: "To narzędzie diagnostyczne jest przeznaczone wyłącznie dla wykwalifikowanego personelu technicznego. Jest dostarczane w stanie „takim, w jakim jest”, bez żadnych oficjalnych gwarancji. Wszelkie modyfikacje parametrów lub konfiguracji systemu są dokonywane wyłącznie na własne ryzyko i odpowiedzialność użytkownika.", misc_offlineText: "Przy pierwszym uruchomieniu zalecane jest połączenie z Internetem, aby wczytać style interfejsu. Później narzędzie działa całkowicie offline.",
+                ui_closePanel: "Zamknij panel", ui_copySysInfo: "Kopiuj Informacje dla Pomocy Technicznej", ui_collapseGroup: "Zwiń Grupę", ui_expandGroup: "Rozwiń Grupę", ui_scrollTop: "Przewiń na Górę", ui_viewGrid: "Widok Siatki", ui_viewList: "Widok Listy", ui_moreInfo: "Więcej informacji", ui_collapseAll: "Zwiń Wszystko",
+                search_info_title: "Możliwości Wyszukiwania", search_info_desc: "Możesz wyszukiwać systemy za pomocą różnych parametrów:", search_info_sys: "System Sterowania", search_info_sys_desc: "np. A00, W02, AR1", search_info_series: "Seria", search_info_series_desc: "np. CSRN-Y, WDAT-iL3", search_info_model: "Model", search_info_model_desc: "np. CLIVETPack, ZEPHIR", search_info_size: "Rozmiar", search_info_size_desc: "np. 102, 240.4",
+                ui_showAllCards: "Pokaż wszystkie {n} aplikacje", ui_showTopCards: "Pokaż mniej"
+            },
+            nl: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Hub voor Alarmsnapshots",
+                nav_menu: "Menu", nav_backToTools: "Terug naar Tools", nav_tools: "Tools",
+                systems_select: "Selecteer besturingssysteem", systems_search: "Zoek Systeem...", systems_all: "Alle systemen", systems_air: "LUCHT", systems_water: "WATER",
+                systems_air_title: "Luchtunits", systems_water_title: "Waterunits",
+                systems_ar1: "Analyseer AlarmSnapshot.txt bestanden voor CSRN-Y Rooftop eenheden CLIVETPack3 serie.",
+                systems_az1: "Analyseer AlarmSnapshot.txt bestanden voor CPAN-iY eenheden ZEPHIR4 serie.",
+                systems_a00: "Analyseer AlarmSnapshot.txt bestanden voor Rooftop eenheden CLIVETPack2 serie.",
+                systems_a01: "Analyseer AlarmSnapshot.txt bestanden voor CPAN-XHE3 eenheden ZEPHIR3 serie.",
+                systems_w02: "Analyseer AlarmSnapshot.txt bestanden voor de series WSAN-XIN en WSAT-XIN.",
+                systems_w01: "Analyseer AlarmSnapshot.txt bestanden voor de series WSHN-XEE2, WSH-XEE2 en WSHH-LEE1.",
+                systems_w03: "Analyseer AlarmSnapshot.txt bestanden voor de series WSAN-XSC3 en WSAT-XSC3.",
+                systems_w04: "Analyseer AlarmSnapshot.txt bestanden voor de series WSAN-XEM en WSAT-XEM.",
+                systems_w05: "Analyseer AlarmSnapshot.txt bestanden voor de series WSAT-YSC4 en WSAN-YSC4.",
+                systems_w00: "Analyseer AlarmSnapshot.txt bestanden voor diverse koelmachines en warmtepompen.",
+                systems_w0i: "Analyseer AlarmSnapshot.txt bestanden voor de series WDAT-iL3, WDAT-iZ4, WDAT-iK4 en WDH-iK4.",
+                systems_w0imf: "Analyseer AlarmSnapshot.txt bestanden voor de serie WDAN-iK4.",
+                systems_wi2: "Analyseer AlarmSnapshot.txt bestanden voor de serie WiSAN-YEE1 PL (polyvalent).",
+                systems_wk2: "Analyseer AlarmSnapshot.txt bestanden voor de serie WSAN-YSC4 PL (polyvalent).",
+                systems_noResults: "Geen systemen gevonden.",
+                modal_menuTitle: "Menu", modal_lang: "Taal", modal_theme: "Weergave", modal_about: "Over", modal_themeDesc: "Kies het thema van de applicatie.", modal_settings_app: "Weergave en Taal",
+                modal_infoTitle: "Ondersteunde Eenheden", modal_series: "Serie", modal_model: "Model", modal_sizes: "Maten",
+                theme_light: "Licht", theme_dark: "Donker", theme_sys: "Systeem",
+                misc_fav: "Favorieten", misc_allLangs: "Alle Talen", misc_version: "Versie", misc_release: "Releasedatum", misc_disclaimerTitle: "Vrijwaring", misc_disclaimerText: "Dit diagnostische hulpmiddel is uitsluitend bedoeld voor gekwalificeerd technisch personeel. Het wordt 'as-is' geleverd zonder officiële garanties. Elke wijziging van systeemparameters of configuraties wordt uitgevoerd op eigen risico en verantwoordelijkheid van de gebruiker.", misc_offlineText: "De eerste keer dat je de tool opent, wordt een internetverbinding aanbevolen om de interfacestijlen te laden. Daarna werkt hij volledig offline.",
+                ui_closePanel: "Paneel sluiten", ui_copySysInfo: "Info Kopiëren voor Support", ui_collapseGroup: "Groep Invouwen", ui_expandGroup: "Groep Uitvouwen", ui_scrollTop: "Naar Boven", ui_viewGrid: "Rasterweergave", ui_viewList: "Lijstweergave", ui_moreInfo: "Meer informatie", ui_collapseAll: "Alles Invouwen",
+                search_info_title: "Zoekmogelijkheden", search_info_desc: "Je kunt systemen zoeken met behulp van verschillende parameters:", search_info_sys: "Besturingssysteem", search_info_sys_desc: "bijv. A00, W02, AR1", search_info_series: "Serie", search_info_series_desc: "bijv. CSRN-Y, WDAT-iL3", search_info_model: "Model", search_info_model_desc: "bijv. CLIVETPack, ZEPHIR", search_info_size: "Grootte", search_info_size_desc: "bijv. 102, 240.4",
+                ui_showAllCards: "Toon alle {n} apps", ui_showTopCards: "Minder tonen"
+            },
+            sv: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Hubb för Larmögonblicksbilder",
+                nav_menu: "Meny", nav_backToTools: "Tillbaka till Verktyg", nav_tools: "Verktyg",
+                systems_select: "Välj styrsystem", systems_search: "Sök system...", systems_all: "Alla system", systems_air: "LUFT", systems_water: "VATTEN",
+                systems_air_title: "Luftenheter", systems_water_title: "Vattenenheter",
+                systems_ar1: "Analysera AlarmSnapshot.txt-filer för CSRN-Y Rooftop-enheter CLIVETPack3-serien.",
+                systems_az1: "Analysera AlarmSnapshot.txt-filer för CPAN-iY-enheter ZEPHIR4-serien.",
+                systems_a00: "Analysera AlarmSnapshot.txt-filer för Rooftop-enheter CLIVETPack2-serien.",
+                systems_a01: "Analysera AlarmSnapshot.txt-filer för CPAN-XHE3-enheter ZEPHIR3-serien.",
+                systems_w02: "Analysera AlarmSnapshot.txt-filer för serierna WSAN-XIN och WSAT-XIN.",
+                systems_w01: "Analysera AlarmSnapshot.txt-filer för serierna WSHN-XEE2, WSH-XEE2 och WSHH-LEE1.",
+                systems_w03: "Analysera AlarmSnapshot.txt-filer för serierna WSAN-XSC3 och WSAT-XSC3.",
+                systems_w04: "Analysera AlarmSnapshot.txt-filer för serierna WSAN-XEM och WSAT-XEM.",
+                systems_w05: "Analysera AlarmSnapshot.txt-filer för serierna WSAT-YSC4 och WSAN-YSC4.",
+                systems_w00: "Analysera AlarmSnapshot.txt-filer för olika kylmaskiner och värmepumpar.",
+                systems_w0i: "Analysera AlarmSnapshot.txt-filer för serierna WDAT-iL3, WDAT-iZ4, WDAT-iK4 och WDH-iK4.",
+                systems_w0imf: "Analysera AlarmSnapshot.txt-filer för serien WDAN-iK4.",
+                systems_wi2: "Analysera AlarmSnapshot.txt-filer för serien WiSAN-YEE1 PL (polyvalent).",
+                systems_wk2: "Analysera AlarmSnapshot.txt-filer för serien WSAN-YSC4 PL (polyvalent).",
+                systems_noResults: "Inga system hittades.",
+                modal_menuTitle: "Meny", modal_lang: "Språk", modal_theme: "Utseende", modal_about: "Om", modal_themeDesc: "Välj tema för applikationen.", modal_settings_app: "Utseende och Språk",
+                modal_infoTitle: "Enheter som stöds", modal_series: "Serie", modal_model: "Modell", modal_sizes: "Storlekar",
+                theme_light: "Ljus", theme_dark: "Mörk", theme_sys: "System",
+                misc_fav: "Favoriter", misc_allLangs: "Alla Språk", misc_version: "Version", misc_release: "Utgivningsdatum", misc_disclaimerTitle: "Ansvarsfriskrivning", misc_disclaimerText: "Detta diagnostikverktyg är uteslutande avsett för kvalificerad teknisk personal. Det tillhandahålls 'i befintligt skick' utan officiella garantier. All modifiering av systemparametrar eller konfigurationer utförs helt på användarens egen risk och under dennes ansvar.", misc_offlineText: "Första gången du öppnar verktyget rekommenderas en internetanslutning så att gränssnittets stilar kan läsas in. Därefter fungerar det helt offline.",
+                ui_closePanel: "Stäng panelen", ui_copySysInfo: "Kopiera Info för Support", ui_collapseGroup: "Fäll Ihop Grupp", ui_expandGroup: "Fäll Ut Grupp", ui_scrollTop: "Till Toppen", ui_viewGrid: "Rutnätsvy", ui_viewList: "Listvy", ui_moreInfo: "Mer information", ui_collapseAll: "Fäll Ihop Alla",
+                search_info_title: "Sökfunktioner", search_info_desc: "Du kan söka efter system med hjälp av olika parametrar:", search_info_sys: "Styrsystem", search_info_sys_desc: "t.ex. A00, W02, AR1", search_info_series: "Serie", search_info_series_desc: "t.ex. CSRN-Y, WDAT-iL3", search_info_model: "Modell", search_info_model_desc: "t.ex. CLIVETPack, ZEPHIR", search_info_size: "Storlek", search_info_size_desc: "t.ex. 102, 240.4",
+                ui_showAllCards: "Visa alla {n} appar", ui_showTopCards: "Visa färre"
+            },
+            da: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Hub for Alarmøjebliksbilleder",
+                nav_menu: "Menu", nav_backToTools: "Tilbage til Værktøjer", nav_tools: "Værktøjer",
+                systems_select: "Vælg styresystem", systems_search: "Søg system...", systems_all: "Alle systemer", systems_air: "LUFT", systems_water: "VAND",
+                systems_air_title: "Luftenheder", systems_water_title: "Vandenheder",
+                systems_ar1: "Analyser AlarmSnapshot.txt-filer for CSRN-Y Rooftop-enheder CLIVETPack3-serien.",
+                systems_az1: "Analyser AlarmSnapshot.txt-filer for CPAN-iY-enheder ZEPHIR4-serien.",
+                systems_a00: "Analyser AlarmSnapshot.txt-filer for Rooftop-enheder CLIVETPack2-serien.",
+                systems_a01: "Analyser AlarmSnapshot.txt-filer for CPAN-XHE3-enheder ZEPHIR3-serien.",
+                systems_w02: "Analyser AlarmSnapshot.txt-filer for serierne WSAN-XIN og WSAT-XIN.",
+                systems_w01: "Analyser AlarmSnapshot.txt-filer for serierne WSHN-XEE2, WSH-XEE2 og WSHH-LEE1.",
+                systems_w03: "Analyser AlarmSnapshot.txt-filer for serierne WSAN-XSC3 og WSAT-XSC3.",
+                systems_w04: "Analyser AlarmSnapshot.txt-filer for serierne WSAN-XEM og WSAT-XEM.",
+                systems_w05: "Analyser AlarmSnapshot.txt-filer for serierne WSAT-YSC4 og WSAN-YSC4.",
+                systems_w00: "Analyser AlarmSnapshot.txt-filer for forskellige kølemaskiner og varmepumper.",
+                systems_w0i: "Analyser AlarmSnapshot.txt-filer for serierne WDAT-iL3, WDAT-iZ4, WDAT-iK4 og WDH-iK4.",
+                systems_w0imf: "Analyser AlarmSnapshot.txt-filer for serien WDAN-iK4.",
+                systems_wi2: "Analyser AlarmSnapshot.txt-filer for serien WiSAN-YEE1 PL (polyvalent).",
+                systems_wk2: "Analyser AlarmSnapshot.txt-filer for serien WSAN-YSC4 PL (polyvalent).",
+                systems_noResults: "Ingen systemer fundet.",
+                modal_menuTitle: "Menu", modal_lang: "Sprog", modal_theme: "Udseende", modal_about: "Om", modal_themeDesc: "Vælg tema for applikationen.", modal_settings_app: "Udseende og Sprog",
+                modal_infoTitle: "Understøttede Enheder", modal_series: "Serie", modal_model: "Model", modal_sizes: "Størrelser",
+                theme_light: "Lys", theme_dark: "Mørk", theme_sys: "System",
+                misc_fav: "Foretrukne", misc_allLangs: "Alle Sprog", misc_version: "Version", misc_release: "Udgivelsesdato", misc_disclaimerTitle: "Ansvarsfraskrivelse", misc_disclaimerText: "Dette diagnostiske værktøj er udelukkende beregnet til kvalificeret teknisk personale. Det leveres 'som det er' og uden officielle garantier. Enhver ændring af systemparametre eller konfigurationer udføres udelukkende på brugerens eget ansvar og risiko.", misc_offlineText: "Første gang du åbner værktøjet, anbefales en internetforbindelse, så grænsefladens typografier kan indlæses. Derefter fungerer det helt offline.",
+                ui_closePanel: "Luk panel", ui_copySysInfo: "Kopiér Info til Support", ui_collapseGroup: "Fold Gruppe Sammen", ui_expandGroup: "Fold Gruppe Ud", ui_scrollTop: "Til Toppen", ui_viewGrid: "Gittervisning", ui_viewList: "Listevisning", ui_moreInfo: "Flere oplysninger", ui_collapseAll: "Fold Alle Sammen",
+                search_info_title: "Søgefunktioner", search_info_desc: "Du kan søge efter systemer ved hjælp af forskellige parametre:", search_info_sys: "Styresystem", search_info_sys_desc: "f.eks. A00, W02, AR1", search_info_series: "Serie", search_info_series_desc: "f.eks. CSRN-Y, WDAT-iL3", search_info_model: "Model", search_info_model_desc: "f.eks. CLIVETPack, ZEPHIR", search_info_size: "Størrelse", search_info_size_desc: "f.eks. 102, 240.4",
+                ui_showAllCards: "Vis alle {n} apps", ui_showTopCards: "Vis færre"
+            },
+            fi: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "Hälytystilannekuvien Keskus",
+                nav_menu: "Valikko", nav_backToTools: "Takaisin Työkaluihin", nav_tools: "Työkalut",
+                systems_select: "Valitse ohjausjärjestelmä", systems_search: "Etsi järjestelmä...", systems_all: "Kaikki järjestelmät", systems_air: "ILMA", systems_water: "VESI",
+                systems_air_title: "Ilmayksiköt", systems_water_title: "Vesiyksiköt",
+                systems_ar1: "Analysoi AlarmSnapshot.txt-tiedostot CSRN-Y Rooftop -yksiköille CLIVETPack3-sarja.",
+                systems_az1: "Analysoi AlarmSnapshot.txt-tiedostot CPAN-iY-yksiköille ZEPHIR4-sarja.",
+                systems_a00: "Analysoi AlarmSnapshot.txt-tiedostot Rooftop-yksiköille CLIVETPack2-sarja.",
+                systems_a01: "Analysoi AlarmSnapshot.txt-tiedostot CPAN-XHE3-yksiköille ZEPHIR3-sarja.",
+                systems_w02: "Analysoi AlarmSnapshot.txt-tiedostot sarjoille WSAN-XIN ja WSAT-XIN.",
+                systems_w01: "Analysoi AlarmSnapshot.txt-tiedostot sarjoille WSHN-XEE2, WSH-XEE2 ja WSHH-LEE1.",
+                systems_w03: "Analysoi AlarmSnapshot.txt-tiedostot sarjoille WSAN-XSC3 ja WSAT-XSC3.",
+                systems_w04: "Analysoi AlarmSnapshot.txt-tiedostot sarjoille WSAN-XEM ja WSAT-XEM.",
+                systems_w05: "Analysoi AlarmSnapshot.txt-tiedostot sarjoille WSAT-YSC4 ja WSAN-YSC4.",
+                systems_w00: "Analysoi AlarmSnapshot.txt-tiedostot erilaisille jäähdyttimille ja lämpöpumpuille.",
+                systems_w0i: "Analysoi AlarmSnapshot.txt-tiedostot sarjoille WDAT-iL3, WDAT-iZ4, WDAT-iK4 ja WDH-iK4.",
+                systems_w0imf: "Analysoi AlarmSnapshot.txt-tiedostot sarjalle WDAN-iK4.",
+                systems_wi2: "Analysoi AlarmSnapshot.txt-tiedostot sarjalle WiSAN-YEE1 PL (monikäyttöinen).",
+                systems_wk2: "Analysoi AlarmSnapshot.txt-tiedostot sarjalle WSAN-YSC4 PL (monikäyttöinen).",
+                systems_noResults: "Järjestelmiä ei löytynyt.",
+                modal_menuTitle: "Valikko", modal_lang: "Kieli", modal_theme: "Ulkoasu", modal_about: "Tietoja", modal_themeDesc: "Valitse sovelluksen teema.", modal_settings_app: "Ulkoasu ja Kieli",
+                modal_infoTitle: "Tuetut Yksiköt", modal_series: "Sarja", modal_model: "Malli", modal_sizes: "Koot",
+                theme_light: "Vaalea", theme_dark: "Tumma", theme_sys: "Järjestelmä",
+                misc_fav: "Suosikit", misc_allLangs: "Kaikki Kielet", misc_version: "Versio", misc_release: "Julkaisupäivä", misc_disclaimerTitle: "Vastuuvapauslauseke", misc_disclaimerText: "Tämä diagnostiikkatyökalu on tarkoitettu yksinomaan pätevälle tekniselle henkilöstölle. Se toimitetaan 'sellaisenaan' ilman virallisia takuita. Kaikki järjestelmäparametrien tai konfiguraatioiden muutokset tehdään yksinomaan käyttäjän omalla vastuulla ja riskillä.", misc_offlineText: "Kun avaat työkalun ensimmäisen kerran, suosittelemme internetyhteyttä käyttöliittymän tyylien lataamiseksi. Sen jälkeen työkalu toimii täysin offline-tilassa.",
+                ui_closePanel: "Sulje paneeli", ui_copySysInfo: "Kopioi Tiedot Tukea Varten", ui_collapseGroup: "Kutista Ryhmä", ui_expandGroup: "Laajenna Ryhmä", ui_scrollTop: "Takaisin Ylös", ui_viewGrid: "Ruudukkonäkymä", ui_viewList: "Luettelonäkymä", ui_moreInfo: "Lisätietoja", ui_collapseAll: "Kutista Kaikki",
+                search_info_title: "Hakuominaisuudet", search_info_desc: "Voit etsiä järjestelmiä eri parametreilla:", search_info_sys: "Ohjausjärjestelmä", search_info_sys_desc: "esim. A00, W02, AR1", search_info_series: "Sarja", search_info_series_desc: "esim. CSRN-Y, WDAT-iL3", search_info_model: "Malli", search_info_model_desc: "esim. CLIVETPack, ZEPHIR", search_info_size: "Koko", search_info_size_desc: "esim. 102, 240.4",
+                ui_showAllCards: "Näytä kaikki {n} sovellusta", ui_showTopCards: "Näytä vähemmän"
+            }
+        };
+
+        const supportedUnits = {
+            "A00": [
+                { series: "AA6S", model: "CRH-XHE", sizes: "102 - 302" },
+                { series: "AB6S", model: "CRH-XHE", sizes: "122 - 262" },
+                { series: "AA7W", model: "CRH-XHE2", sizes: "49.4 - 110.4" },
+                { series: "AB6T", model: "CSNX-XHE", sizes: "82 - 402" },
+                { series: "AA6U", model: "CSNX-XHE-H", sizes: "82" },
+                { series: "AB7X", model: "CSNX-XHE2", sizes: "12.3 - 44.4" },
+                { series: "AB6R", model: "CSRN-XHE", sizes: "82 - 302" },
+                { series: "AA7V", model: "CSRN-XHE2", sizes: "49.4 - 110.4" },
+                { series: "AA8F", model: "CSRN-XHE2", sizes: "15.2 - 44.4" },
+                { series: "AA6Q", model: "CSRT-XHE", sizes: "82 - 302" },
+                { series: "AA7U", model: "CSRT-XHE2", sizes: "49.4 - 110.4" }
+            ],
+            "A01": [
+                { series: "AA5G", model: "CPAN-XHE3 Zephir3", sizes: "1 - 6" }
+            ],
+            "AR1": [
+                { series: "AA9V", model: "CSRN-Y", sizes: "60.4 - 120.4" }
+            ],
+            "AZ1": [
+                { series: "AA5O", model: "CPAN-iY", sizes: "1 (S1) - 4 (S4)" }
+            ],
+            "W02": [
+                { series: "AAM1, ABM1, ACM1", model: "WSAN-XIN", sizes: "18.2 - 45.2" },
+                { series: "AAM2, ABM2, ACM2", model: "WSAT-XIN", sizes: "18.2 - 45.2" }
+            ],
+            "W01": [
+                { series: "AA8U, AB8U", model: "WSHN-XEE2", sizes: "10.2 - 120.2" },
+                { series: "AA8P, AB8P", model: "WSH-XEE2", sizes: "10.2 - 120.2" },
+                { series: "AAHT", model: "WSHH-LEE1", sizes: "19.2 - 80.2" }
+            ],
+            "W03": [
+                { series: "AA8N, AB8N", model: "WSAN-XSC3", sizes: "90.4 - 240.4" },
+                { series: "AA8T, AB8T", model: "WSAT-XSC3", sizes: "90.4 - 240.4" }
+            ],
+            "W04": [
+                { series: "AAL1", model: "WSAN-XEM", sizes: "50.4 - 120.4" },
+                { series: "AAL2", model: "WSAT-XEM", sizes: "50.4 - 120.4" },
+                { series: "AAL5", model: "WSAN-XEM HW", sizes: "35.4 - 70.4" }
+            ],
+            "W05": [
+                { series: "AAT4", model: "WSAT-YSC4", sizes: "80.3 - 240.6" },
+                { series: "AAN4 (Single Box)", model: "WSAN-YSC4", sizes: "80.3 - 240.6" },
+                { series: "AAN4 (Double Box)", model: "WSAN-YSC4", sizes: "260.8 - 450.12" }
+            ],
+            "W00": [
+                { series: "AA4Z", model: "WDAT-iL3", sizes: "250.2 - 580.2" },
+                { series: "AA4J", model: "MDE-SL3", sizes: "120.1 - 580.2" },
+                { series: "AA8D", model: "WDAT-SL2", sizes: "2.160 - 2.600" },
+                { series: "AA8E", model: "WDAT-SL3", sizes: "200.2 - 580.2" },
+                { series: "AA7M", model: "WDAT-XTR", sizes: "2.240 - 2.600" },
+                { series: "AA1M", model: "WDH-SL3", sizes: "120.1 - 580.2" },
+                { series: "AA1Y", model: "WDH-SL2", sizes: "1.120 - 2.600" },
+                { series: "AB9I", model: "WSAN-XEE", sizes: "352 - 802" },
+                { series: "AB9H", model: "WSAT-XEE", sizes: "352 - 802" },
+                { series: "AB9O", model: "WSAT-XEE", sizes: "432 - 602" },
+                { series: "AB1K", model: "WSAT-XSC2", sizes: "80D - 240F" },
+                { series: "AA1Z", model: "WSA-XSC2", sizes: "432 - 120D" },
+                { series: "AA2T", model: "WSN-XEE", sizes: "122 - 402" }
+            ],
+            "W0i": [
+                { series: "AA4Z", model: "WDAT-iL3", sizes: "250.2 - 580.2" },
+                { series: "AA5Z", model: "WDAT-iZ4", sizes: "120.1 - 580.2" },
+                { series: "AAF5", model: "WDAT-iK4", sizes: "120.1 - 580.2" },
+                { series: "AAF1", model: "WDH-iK4", sizes: "120.1 - 580.2" }
+            ],
+            "W0i_MF": [
+                { series: "AA2A", model: "WDAN-iK4", sizes: "220.2 - 420.2" }
+            ],
+            "Wi2": [
+                { series: "AAV4", model: "WiSAN-YEE1 PL", sizes: "20.2 - 85.4" }
+            ],
+            "WK2": [
+                { series: "AAY4", model: "WSAN-YSC4 PL", sizes: "90.4 - 265.6" },
+                { series: "AAY6", model: "WSAN-YSC4 PL", sizes: "90.4 - 175.4" }
+            ]
+        };
+
+        const flags = {
+            en: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#012169" d="M0 0h64v48H0z"/><path stroke="#FFF" stroke-width="10" d="M0 0l64 48m0-48L0 48"/><path stroke="#C8102E" stroke-width="6" d="M0 0l64 48m0-48L0 48"/><path fill="#FFF" d="M24 0h16v48H24zM0 16h64v16H0z"/><path fill="#C8102E" d="M28 0h8v48h-8zM0 20h64v8H0z"/></svg>`,
+            it: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#009246" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#CE2B37" d="M42.7 0H64v48H42.7z"/></svg>`,
+            de: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#000" d="M0 0h64v16H0z"/><path fill="#DD0000" d="M0 16h64v16H0z"/><path fill="#FFCE00" d="M0 32h64v16H0z"/></svg>`,
+            fr: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#002395" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#ED2939" d="M42.7 0H64v48H42.7z"/></svg>`,
+            es: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#AA151B" d="M0 0h64v12H0zm0 36h64v12H0z"/><path fill="#F1BF00" d="M0 12h64v24H0z"/></svg>`,
+            zh: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#EE1C25" d="M0 0h64v48H0z"/><path fill="#FF0" d="M10.5 6a4.5 4.5 0 100 9 4.5 4.5 0 000-9zm11.5 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm2 4.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-1 5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-4.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>`,
+            pt: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#006600" d="M0 0h25.6v48H0z"/><path fill="#FF0000" d="M25.6 0H64v48H25.6z"/><circle cx="25.6" cy="24" r="8" fill="#FF0"/></svg>`,
+            ru: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v16H0z"/><path fill="#0039A6" d="M0 16h64v16H0z"/><path fill="#D52B1E" d="M0 32h64v16H0z"/></svg>`,
+            ja: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="14" fill="#BC002D"/></svg>`,
+            ko: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="12" fill="#CD2E3A"/><path d="M20 24a12 12 0 0024 0 6 6 0 01-12 0 6 6 0 00-12 0z" fill="#0F64CD"/></svg>`,
+            tr: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#E30A17" d="M0 0h64v48H0z"/><circle cx="24" cy="24" r="12" fill="#FFF"/><circle cx="28" cy="24" r="10" fill="#E30A17"/><path fill="#FFF" d="M36 19l2 5h5l-4 3 1 5-4-3-4 3 1-5-4-3h5z"/></svg>`,
+            pl: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v24H0z"/><path fill="#DC143C" d="M0 24h64v24H0z"/></svg>`,
+            nl: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#AE1C28" d="M0 0h64v16H0z"/><path fill="#FFF" d="M0 16h64v16H0z"/><path fill="#21468B" d="M0 32h64v16H0z"/></svg>`,
+            sv: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#006AA7" d="M0 0h64v48H0z"/><path fill="#FECC00" d="M18 0h8v48h-8zM0 18h64v8H0z"/></svg>`,
+            da: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#C60C30" d="M0 0h64v48H0z"/><path fill="#FFF" d="M18 0h6v48h-6zM0 20h64v6H0z"/></svg>`,
+            fi: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><path fill="#002F6C" d="M18 0h10v48H18zM0 18h64v12H0z"/></svg>`
+        };
+
+        const langNames = { en: "English", it: "Italiano", de: "Deutsch", fr: "Français", es: "Español", zh: "中文", pt: "Português", ru: "Русский", ja: "日本語", ko: "한국어", tr: "Türkçe", pl: "Polski", nl: "Nederlands", sv: "Svenska", da: "Dansk", fi: "Suomi" };
+        const DEFAULT_FAVORITES = ['en', 'it', 'de', 'fr', 'es', 'zh'];
+
+        // --- DYNAMIC LANGUAGE CACHE (LRU) ---
+        function getDynamicFavorites() {
+            try {
+                const cached = localStorage.getItem('clivet_lang_favs');
+                if (cached) {
+                    const parsed = JSON.parse(cached);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                }
+            } catch(e) { console.warn('Failed to parse language favorites cache', e); }
+            return [...DEFAULT_FAVORITES];
+        }
+
+        function recordLanguageUsage(langCode) {
+            let favs = getDynamicFavorites();
+            favs = favs.filter(k => k !== langCode);
+            favs.unshift(langCode);
+            if (favs.length > 6) favs = favs.slice(0, 6);
+            
+            try {
+                localStorage.setItem('clivet_lang_favs', JSON.stringify(favs));
+            } catch(e) { console.warn('Failed to save language favorites', e); }
+            
+            renderLanguageGrids();
+        }
+
+        function updateLanguageUI(activeLang) {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.getAttribute('data-lang-btn') === activeLang) {
+                    btn.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                    btn.classList.remove('border-slate-200', 'dark:border-slate-700');
+                } else {
+                    btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                    btn.classList.add('border-slate-200', 'dark:border-slate-700');
+                }
+            });
+        }
+
+        function selectLanguage(langCode) {
+            ClivetI18n.setLanguage(langCode);
+            recordLanguageUsage(langCode); 
+            updateGroupButtonsText(); // Aggiorna i testi dei bottoni "Show all"
+        }
+
+        function renderLanguageGrids() {
+            const favGrid = document.getElementById('fav-lang-grid');
+            const allGrid = document.getElementById('all-lang-grid');
+            if(!favGrid || !allGrid) return;
+
+            favGrid.innerHTML = '';
+            allGrid.innerHTML = '';
+            
+            const currentFavs = getDynamicFavorites();
+
+            let favHtml = '', allHtml = '';
+            Object.keys(langNames).forEach(k => {
+                const btnHtml = `<button onclick="selectLanguage('${k}')" data-lang-btn="${k}" class="lang-btn flex items-center space-x-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition focus:outline-none w-full text-left active:scale-95">${flags[k]} <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">${langNames[k]}</span></button>`;
+                
+                if (currentFavs.includes(k)) favHtml += btnHtml;
+                allHtml += btnHtml;
+            });
+            favGrid.innerHTML = favHtml;
+            allGrid.innerHTML = allHtml;
+
+            updateLanguageUI(ClivetI18n.getCurrentLang());
+        }
+
+        // --- SYSTEM CARDS SORTING & TOP 4 LOGIC (MRU + Alphabetical) ---
+        function trackUsage(sysCode) {
+            try {
+                const usage = JSON.parse(localStorage.getItem('clivet_sys_usage') || '{}');
+                usage[sysCode] = (usage[sysCode] || 0) + 1;
+                localStorage.setItem('clivet_sys_usage', JSON.stringify(usage));
+            } catch (e) { console.warn('Failed to save system usage', e); }
+        }
+
+        function sortSystemCards() {
+            let usage = {};
+            try { usage = JSON.parse(localStorage.getItem('clivet_sys_usage') || '{}'); } catch (e) {}
+
+            ['group-air', 'group-water'].forEach(groupId => {
+                const group = document.getElementById(groupId);
+                if (!group) return;
+                
+                const grid = group.querySelector('.system-grid');
+                if (!grid) return;
+
+                const cards = Array.from(grid.querySelectorAll('.system-card'));
+                
+                // Ordinamento: prima per utilizzo (decrescente), poi alfabetico
+                cards.sort((a, b) => {
+                    const sysA = a.getAttribute('data-sys');
+                    const sysB = b.getAttribute('data-sys');
+                    const countA = usage[sysA] || 0;
+                    const countB = usage[sysB] || 0;
+                    
+                    if (countA !== countB) {
+                        return countB - countA; 
+                    }
+                    return sysA.localeCompare(sysB); 
+                });
+                
+                // Riappende le card ordinate
+                cards.forEach(card => grid.appendChild(card));
+                
+                // Logica Top 4
+                applyTop4Logic(groupId, cards);
+            });
+        }
+
+        function applyTop4Logic(groupId, cards) {
+            const group = document.getElementById(groupId);
+            const showAllBtnContainer = document.getElementById(`${groupId}-show-all`);
+            if (!group || !showAllBtnContainer) return;
+
+            const isSearching = document.getElementById('searchInput').value.trim().length > 0;
+
+            if (cards.length > 4 && !isSearching) {
+                // Nascondi le card oltre la quarta
+                cards.forEach((card, index) => {
+                    if (index >= 4) {
+                        card.classList.add('hidden');
+                        card.dataset.hiddenByTop4 = "true";
+                    } else {
+                        card.classList.remove('hidden');
+                        card.dataset.hiddenByTop4 = "false";
+                    }
+                });
+                
+                // Mostra il bottone "Show all"
+                showAllBtnContainer.classList.remove('hidden');
+                showAllBtnContainer.classList.add('flex');
+                
+                // Imposta il testo corretto
+                const btnText = showAllBtnContainer.querySelector('.show-all-text');
+                const icon = showAllBtnContainer.querySelector('svg');
+                if (btnText) {
+                    const template = ClivetI18n.get('ui_showAllCards') || "Show all {n} units";
+                    btnText.textContent = template.replace('{n}', cards.length);
+                }
+                if (icon) icon.classList.remove('rotate-180');
+                showAllBtnContainer.dataset.expanded = "false";
+
+            } else {
+                // Se ci sono <= 4 card o stiamo cercando, mostra tutto e nascondi il bottone
+                cards.forEach(card => {
+                    card.dataset.hiddenByTop4 = "false";
+                    // Non rimuovere 'hidden' se è nascosta dalla ricerca
+                    if (!isSearching) card.classList.remove('hidden');
+                });
+                showAllBtnContainer.classList.add('hidden');
+                showAllBtnContainer.classList.remove('flex');
+            }
+        }
+
+        function expandGroupCards(groupId) {
+            const group = document.getElementById(groupId);
+            const showAllBtnContainer = document.getElementById(`${groupId}-show-all`);
+            if (!group || !showAllBtnContainer) return;
+
+            const grid = group.querySelector('.system-grid');
+            const cards = Array.from(grid.querySelectorAll('.system-card'));
+            const isExpanded = showAllBtnContainer.dataset.expanded === "true";
+            
+            const btnText = showAllBtnContainer.querySelector('.show-all-text');
+            const icon = showAllBtnContainer.querySelector('svg');
+
+            if (isExpanded) {
+                // Collassa (torna a Top 4)
+                cards.forEach((card, index) => {
+                    if (index >= 4) {
+                        card.classList.add('hidden');
+                        card.dataset.hiddenByTop4 = "true";
+                    }
+                });
+                
+                const template = ClivetI18n.get('ui_showAllCards') || "Show all {n} units";
+                if (btnText) btnText.textContent = template.replace('{n}', cards.length);
+                if (icon) icon.classList.remove('rotate-180');
+                showAllBtnContainer.dataset.expanded = "false";
+                
+                // Scrolla leggermente su per mantenere il contesto
+                group.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } else {
+                // Espandi (mostra tutte)
+                cards.forEach(card => {
+                    card.classList.remove('hidden');
+                    card.dataset.hiddenByTop4 = "false";
+                    // Aggiungi animazione di ingresso per le nuove card
+                    card.classList.add('animate-entrance');
+                    setTimeout(() => card.classList.remove('animate-entrance'), 600);
+                });
+                
+                if (btnText) btnText.textContent = ClivetI18n.get('ui_showTopCards') || "Show less";
+                if (icon) icon.classList.add('rotate-180');
+                showAllBtnContainer.dataset.expanded = "true";
+            }
+        }
+
+        function updateGroupButtonsText() {
+            ['group-air', 'group-water'].forEach(groupId => {
+                const showAllBtnContainer = document.getElementById(`${groupId}-show-all`);
+                if (!showAllBtnContainer) return;
+                
+                const isExpanded = showAllBtnContainer.dataset.expanded === "true";
+                const btnText = showAllBtnContainer.querySelector('.show-all-text');
+                const grid = document.getElementById(groupId).querySelector('.system-grid');
+                const cardsCount = grid.querySelectorAll('.system-card').length;
+
+                if (btnText) {
+                    if (isExpanded) {
+                        btnText.textContent = ClivetI18n.get('ui_showTopCards') || "Show less";
+                    } else {
+                        const template = ClivetI18n.get('ui_showAllCards') || "Show all {n} units";
+                        btnText.textContent = template.replace('{n}', cardsCount);
+                    }
+                }
+            });
+        }
+
+        // --- GROUP COLLAPSE (GPU Accordion) ---
+        function toggleGroup(gridId, btn) {
+            const gridWrapper = document.getElementById(gridId);
+            const icon = btn.querySelector('svg');
+            if (!gridWrapper || !icon) return;
+
+            const isCollapsed = gridWrapper.style.maxHeight === '0px';
+
+            if (isCollapsed) {
+                // Expand
+                gridWrapper.style.maxHeight = gridWrapper.scrollHeight + 'px';
+                icon.classList.add('rotate-180');
+                btn.setAttribute('aria-label', ClivetI18n.get('ui_collapseGroup') || 'Collapse Group');
+                
+                const onEnd = (e) => {
+                    if (e.target !== gridWrapper) return;
+                    gridWrapper.removeEventListener('transitionend', onEnd);
+                    gridWrapper.style.maxHeight = '2000px'; 
+                };
+                gridWrapper.addEventListener('transitionend', onEnd);
+            } else {
+                // Collapse
+                gridWrapper.style.maxHeight = gridWrapper.scrollHeight + 'px'; 
+                
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        gridWrapper.style.maxHeight = '0px';
+                        icon.classList.remove('rotate-180');
+                        btn.setAttribute('aria-label', ClivetI18n.get('ui_expandGroup') || 'Expand Group');
+                    });
+                });
+            }
+        }
+
+
+
+        // --- SCROLL TO TOP ---
+        function scrollToTop() {
+            const main = document.getElementById('main-scroll-area');
+            if (main) {
+                const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                main.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+            }
+        }
+
+        function initPassiveScrollListeners() {
+            const main = document.getElementById('main-scroll-area');
+            const btn = document.getElementById('scroll-to-top-btn');
+            if (!main || !btn) return;
+
+            let scrollRafTicking = false;
+            main.addEventListener('scroll', () => {
+                if (!scrollRafTicking) {
+                    scrollRafTicking = true;
+                    requestAnimationFrame(() => {
+                        if (main.scrollTop > 250) {
+                            btn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+                            btn.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+                        } else {
+                            btn.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+                            btn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+                        }
+                        scrollRafTicking = false;
+                    });
+                }
+            }, { passive: true });
+        }
+
+        // LOGICA DI FILTRAGGIO E RICERCA
+        let currentCategory = 'all';
+
+        function filterSystems() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const isSearching = query.length > 0;
+            const cards = document.querySelectorAll('.system-card');
+            const clearBtn = document.getElementById('searchClearBtn');
+            let visibleCount = 0;
+
+            // Gestione bottone Clear
+            if (clearBtn) {
+                if (isSearching) {
+                    clearBtn.classList.remove('opacity-0', 'pointer-events-none', 'scale-90');
+                    clearBtn.classList.add('opacity-100', 'pointer-events-auto', 'scale-100');
+                } else {
+                    clearBtn.classList.remove('opacity-100', 'pointer-events-auto', 'scale-100');
+                    clearBtn.classList.add('opacity-0', 'pointer-events-none', 'scale-90');
+                }
+            }
+
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                const category = card.getAttribute('data-category');
+                const sysCode = card.getAttribute('data-sys');
+                
+                // Cerca anche all'interno dei modelli supportati (UX potenziata)
+                let modelsText = "";
+                if (sysCode && supportedUnits[sysCode]) {
+                    modelsText = supportedUnits[sysCode].map(u => `${u.series} ${u.model} ${u.sizes}`).join(" ").toLowerCase();
+                }
+
+                const matchesSearch = text.includes(query) || modelsText.includes(query);
+                const matchesCategory = currentCategory === 'all' || category === currentCategory;
+
+                if (matchesSearch && matchesCategory) {
+                    // Se stiamo cercando, ignora la logica Top 4
+                    if (isSearching) {
+                        card.classList.remove('hidden');
+                    } else {
+                        // Se non stiamo cercando, rispetta lo stato Top 4
+                        if (card.dataset.hiddenByTop4 === "true") {
+                            card.classList.add('hidden');
+                        } else {
+                            card.classList.remove('hidden');
+                        }
+                    }
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Gestione visibilità dei gruppi e auto-espansione
+            ['group-air', 'group-water'].forEach(groupId => {
+                const group = document.getElementById(groupId);
+                if (!group) return;
+                
+                const gridWrapper = document.getElementById(`${groupId}-grid`);
+                const btn = group.querySelector('.group-toggle-btn');
+                const icon = btn.querySelector('svg');
+                const showAllBtnContainer = document.getElementById(`${groupId}-show-all`);
+                
+                // Conta le card visibili in questo gruppo
+                const visibleCardsInGroup = Array.from(gridWrapper.querySelectorAll('.system-card')).filter(card => !card.classList.contains('hidden')).length;
+                
+                if (visibleCardsInGroup > 0) {
+                    group.classList.remove('hidden');
+                    
+                    // Se stiamo cercando, forza l'espansione del gruppo e nascondi il bottone "Show all"
+                    if (isSearching) {
+                        if (gridWrapper.style.maxHeight === '0px') {
+                            gridWrapper.style.maxHeight = gridWrapper.scrollHeight + 'px';
+                            if(icon) icon.classList.add('rotate-180');
+                            if(btn) btn.setAttribute('aria-label', ClivetI18n.get('ui_collapseGroup') || 'Collapse Group');
+                            
+                            const onEnd = (e) => {
+                                if (e.target !== gridWrapper) return;
+                                gridWrapper.removeEventListener('transitionend', onEnd);
+                                gridWrapper.style.maxHeight = '2000px';
+                            };
+                            gridWrapper.addEventListener('transitionend', onEnd);
+                        }
+                        if (showAllBtnContainer) {
+                            showAllBtnContainer.classList.add('hidden');
+                            showAllBtnContainer.classList.remove('flex');
+                        }
+                    } else {
+                        // Ripristina la logica Top 4 se non stiamo cercando
+                        const allCardsInGroup = Array.from(gridWrapper.querySelectorAll('.system-card'));
+                        applyTop4Logic(groupId, allCardsInGroup);
+                    }
+                } else {
+                    group.classList.add('hidden');
+                }
+            });
+
+            const noResults = document.getElementById('no-results');
+            if (noResults) {
+                if (visibleCount === 0) {
+                    noResults.classList.remove('hidden');
+                } else {
+                    noResults.classList.add('hidden');
+                }
+            }
+        }
+
+        function clearSearchInput() {
+            const input = document.getElementById('searchInput');
+            if (input) {
+                input.value = '';
+                filterSystems();
+                input.focus();
+            }
+        }
+
+        function setCategory(cat) {
+            currentCategory = cat;
+            
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = "cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
+            });
+            const activeBtn = document.getElementById('btn-cat-' + cat);
+            if (activeBtn) {
+                activeBtn.className = "cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm transition-all";
+            }
+            
+            filterSystems();
+        }
+
+        function setTheme(themeMode) {
+            localStorage.setItem('clivet_theme', themeMode);
+            const isDark = themeMode === 'dark' || (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+            
+            ['light', 'dark', 'system'].forEach(t => {
+                const btn = document.getElementById(`theme-card-${t}`);
+                if (btn) {
+                    if (t === themeMode) {
+                        btn.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                        btn.classList.remove('border-slate-200', 'dark:border-slate-700');
+                        const svg = btn.querySelector('svg');
+                        if(svg) svg.classList.replace('text-slate-400', 'text-blue-500');
+                    } else {
+                        btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                        btn.classList.add('border-slate-200', 'dark:border-slate-700');
+                        const svg = btn.querySelector('svg');
+                        if(svg) svg.classList.replace('text-blue-500', 'text-slate-400');
+                    }
+                }
+            });
+        }
+
+        // [Clipboard Engine] API asincrona con fallback sincrono
+        function copyText(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text).catch(() => legacyCopy(text));
+            }
+            return legacyCopy(text);
+        }
+
+        function legacyCopy(text) {
+            return new Promise((resolve, reject) => {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.setAttribute('readonly', '');
+                ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+                document.body.appendChild(ta);
+                ta.select();
+                let ok = false;
+                try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+                document.body.removeChild(ta);
+                ok ? resolve() : reject(new Error('Clipboard unavailable'));
+            });
+        }
+
+        function copyWithFeedback(text, btnId, duration = 2000) {
+            const btn = document.getElementById(btnId);
+            if (!btn || btn.dataset.copyState) return;
+            copyText(text).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.dataset.copyState = 'done';
+                btn.classList.add('copy-out');
+                setTimeout(() => {
+                    btn.classList.remove('copy-out');
+                    btn.classList.add('copy-success');
+                    btn.innerHTML = `<svg class="copy-check w-4 h-4 text-green-600 dark:text-green-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg>`;
+                }, 110);
+                setTimeout(() => {
+                    btn.classList.remove('copy-success');
+                    btn.innerHTML = originalHtml;
+                    btn.classList.add('copy-in');
+                    setTimeout(() => { btn.classList.remove('copy-in'); delete btn.dataset.copyState; }, 260);
+                }, duration);
+            }).catch(err => console.warn('[Clipboard] Copy failed:', err));
+        }
+
+        function copySystemInfo(btnId) {
+            const enDict = hubDictionaries['en'];
+            copyWithFeedback(`${enDict.app_title}\n${enDict.app_subtitle}\n${APP_META.version} | ${APP_META.date}`, btnId, 1500);
+        }
+
+        // --- TOOLTIP ENGINE (Apple/Google Standard) ---
+        const HoverTip = (() => {
+            let el = null, current = null, showTimer = 0;
+            const ensure = () => {
+                if (el) return el;
+                el = document.createElement('div');
+                el.id = 'hover-tip'; el.setAttribute('role', 'tooltip');
+                el.innerHTML = '<div class="tip-body"><span class="tip-title"></span><span class="tip-sub"></span></div><span class="tip-arrow"></span>';
+                document.body.appendChild(el);
+                return el;
+            };
+            const place = (target) => {
+                const r = target.getBoundingClientRect(), tip = ensure(), m = 8, gap = 8;
+                const w = tip.offsetWidth, h = tip.offsetHeight;
+                let left = r.left + r.width / 2 - w / 2;
+                left = Math.max(m, Math.min(left, window.innerWidth - w - m));
+                let top = r.top - h - gap, side = 'top';
+                if (top < m) { top = r.bottom + gap; side = 'bottom'; }
+                top = Math.max(m, Math.min(top, window.innerHeight - h - m));
+                tip.dataset.side = side;
+                tip.style.left = Math.round(left) + 'px';
+                tip.style.top = Math.round(top) + 'px';
+                const arrowX = Math.max(10, Math.min(w - 10, r.left + r.width / 2 - left));
+                tip.style.setProperty('--arrow-x', arrowX + 'px');
+            };
+            const show = (target) => {
+                const tip = ensure();
+                tip.querySelector('.tip-title').textContent = target.dataset.tipTitle || '';
+                const sub = tip.querySelector('.tip-sub');
+                sub.textContent = target.dataset.tipSub || '';
+                sub.style.display = target.dataset.tipSub ? '' : 'none';
+                current = target;
+                place(target);
+                tip.classList.add('is-visible');
+            };
+            const hide = () => { clearTimeout(showTimer); current = null; if (el) el.classList.remove('is-visible'); };
+            const enter = (target) => {
+                if (current === target) return;
+                clearTimeout(showTimer);
+                const delay = Number(target.dataset.tipDelay || 0);
+                if (delay && !(el && el.classList.contains('is-visible'))) showTimer = setTimeout(() => show(target), delay);
+                else show(target);
+            };
+            document.addEventListener('pointerover', (e) => {
+                if (e.pointerType === 'touch') return;
+                const t = e.target.closest && e.target.closest('[data-tip-title]');
+                if (t) enter(t); else if (current) hide();
+            }, { passive: true });
+            document.addEventListener('pointerleave', hide, { passive: true });
+            document.addEventListener('focusin', (e) => { const t = e.target.closest && e.target.closest('[data-tip-title]'); if (t) enter(t); });
+            document.addEventListener('focusout', hide);
+            document.addEventListener('scroll', hide, { capture: true, passive: true });
+            document.addEventListener('pointerdown', hide, { passive: true });
+            window.addEventListener('blur', hide);
+            return { hide };
+        })();
+
+        // --- SMART FLOATING TOOLTIP (GPU Anchored & Dynamic Procedural Content) ---
+        function escapeHTML(str) {
+            return String(str == null ? '' : str).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+        }
+
+        function renderInfoCard(key, data) {
+            if (!Array.isArray(data) || data.length < 2) return '';
+            // Icona di ricerca standard
+            const icon = 'M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z';
+            const [title, intro, ...items] = data;
+            const lis = items.map(([label, text]) => `<li class="flex items-start gap-1.5"><span class="text-blue-500 mt-0.5" aria-hidden="true">•</span><span><b class="text-slate-700 dark:text-slate-200">${escapeHTML(label)}</b> ${escapeHTML(text)}</span></li>`).join('');
+            return `<div class="flex flex-col gap-2.5"><div class="flex items-center gap-2.5 border-b border-slate-200 dark:border-slate-700 pb-2.5"><div class="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400"><svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${icon}"></path></svg></div><h4 class="font-bold text-sm text-slate-900 dark:text-white">${escapeHTML(title)}</h4></div><p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHTML(intro)}</p><ul class="space-y-1.5 mt-1 text-[12px] text-slate-500 dark:text-slate-400">${lis}</ul></div>`;
+        }
+
+        function toggleInfo(e, key) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const tooltip = document.getElementById('global-tooltip');
+            if (!tooltip) return;
+
+            const isCollapsed = tooltip.classList.contains('hidden') || tooltip.dataset.currentKey !== key;
+
+            if (isCollapsed) {
+                let htmlContent = '';
+                
+                if (key === 'infoSearch') {
+                    const data = [
+                        ClivetI18n.get('search_info_title') || 'Search Capabilities',
+                        ClivetI18n.get('search_info_desc') || 'You can search for systems using various parameters:',
+                        [ClivetI18n.get('search_info_sys') || 'Control System:', ClivetI18n.get('search_info_sys_desc') || 'e.g., A00, W02, AR1'],
+                        [ClivetI18n.get('search_info_series') || 'Series:', ClivetI18n.get('search_info_series_desc') || 'e.g., CSRN-Y, WDAT-iL3'],
+                        [ClivetI18n.get('search_info_model') || 'Model:', ClivetI18n.get('search_info_model_desc') || 'e.g., CLIVETPack, ZEPHIR'],
+                        [ClivetI18n.get('search_info_size') || 'Size:', ClivetI18n.get('search_info_size_desc') || 'e.g., 102, 240.4']
+                    ];
+                    htmlContent = renderInfoCard(key, data);
+                }
+
+                if (!htmlContent) {
+                    htmlContent = `<div class="p-3 font-bold text-slate-800 dark:text-slate-200">Information not available.</div>`;
+                }
+                
+                tooltip.innerHTML = htmlContent;
+                tooltip.dataset.currentKey = key;
+                
+                tooltip.classList.remove('hidden', 'scale-100', 'opacity-100');
+                tooltip.style.display = 'block';
+                tooltip.classList.add('scale-95', 'opacity-0');
+                tooltip.style.willChange = 'transform, opacity';
+                
+                const trigger = e.currentTarget || e.target;
+                tooltip._anchor = trigger;
+                positionInfoPopover(tooltip, trigger);
+
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        positionInfoPopover(tooltip, trigger);
+                        tooltip.classList.remove('scale-95', 'opacity-0');
+                        tooltip.classList.add('scale-100', 'opacity-100');
+                    });
+                });
+            } else {
+                closeInfoPopover();
+            }
+        }
+
+        function positionInfoPopover(tooltip, trigger, keepSide = false) {
+            const rect = trigger.getBoundingClientRect();
+            const margin = 10, gap = 10;
+            const tooltipWidth = tooltip.offsetWidth || (window.innerWidth < 640 ? 320 : 360);
+            const tooltipHeight = tooltip.offsetHeight;
+            let leftPos = rect.left + rect.width / 2 - tooltipWidth / 2;
+            leftPos = Math.max(margin, Math.min(leftPos, window.innerWidth - tooltipWidth - margin));
+            let side = keepSide && tooltip._side ? tooltip._side : (rect.bottom + gap + tooltipHeight <= window.innerHeight - margin ? 'bottom' : (rect.top - gap - tooltipHeight >= margin ? 'top' : 'center'));
+            let topPos, origin;
+            if (side === 'bottom') { topPos = rect.bottom + gap; origin = 'origin-top'; }
+            else if (side === 'top') { topPos = rect.top - tooltipHeight - gap; origin = 'origin-bottom'; }
+            else { topPos = Math.max(margin, window.innerHeight - tooltipHeight - margin); origin = 'origin-center'; }
+            tooltip._side = side;
+            tooltip.classList.remove('origin-top', 'origin-bottom', 'origin-center');
+            tooltip.classList.add(origin);
+            tooltip.style.left = `${Math.round(leftPos)}px`;
+            tooltip.style.top = `${Math.round(topPos)}px`;
+        }
+
+        function closeInfoPopover() {
+            const tooltip = document.getElementById('global-tooltip');
+            if (!tooltip || tooltip.classList.contains('hidden')) return false;
+            tooltip.classList.remove('scale-100', 'opacity-100');
+            tooltip.classList.add('scale-95', 'opacity-0');
+            tooltip._anchor = null;
+            clearTimeout(tooltip._hideTimer);
+            tooltip._hideTimer = setTimeout(() => {
+                if (tooltip.classList.contains('opacity-100')) return;
+                tooltip.classList.add('hidden');
+                tooltip.style.display = 'none';
+                tooltip.style.willChange = 'auto';
+                tooltip.dataset.currentKey = '';
+            }, 220);
+            return true;
+        }
+
+        let popoverRaf = 0;
+        const followPopoverAnchor = () => {
+            if (popoverRaf) return;
+            popoverRaf = requestAnimationFrame(() => {
+                popoverRaf = 0;
+                const tooltip = document.getElementById('global-tooltip');
+                const anchor = tooltip && tooltip._anchor;
+                if (!anchor || tooltip.classList.contains('hidden')) return;
+                const r = anchor.getBoundingClientRect();
+                const scroller = anchor.closest('.overflow-y-auto');
+                const box = scroller ? scroller.getBoundingClientRect() : { top: 0, bottom: window.innerHeight };
+                if (!document.contains(anchor) || r.height === 0 || r.bottom < Math.max(0, box.top) || r.top > Math.min(window.innerHeight, box.bottom)) { closeInfoPopover(); return; }
+                positionInfoPopover(tooltip, anchor, true);
+            });
+        };
+        document.addEventListener('scroll', (e) => {
+            const tooltip = document.getElementById('global-tooltip');
+            if (tooltip && tooltip.contains(e.target)) return;
+            followPopoverAnchor();
+        }, { capture: true, passive: true });
+        window.addEventListener('resize', followPopoverAnchor, { passive: true });
+
+        document.addEventListener('click', (e) => {
+            const tooltip = document.getElementById('global-tooltip');
+            if (tooltip && !tooltip.classList.contains('hidden') && !tooltip.contains(e.target)) closeInfoPopover();
+        });
+
+        function animateCardsIn() {
+            const cards = document.querySelectorAll('.system-card');
+            cards.forEach((card, index) => {
+                // Staggered entrance animation
+                card.classList.add('animate-entrance');
+                card.style.animationDelay = `${index * 0.04}s`;
+            });
+        }
+
+        function initApp() {
+            ClivetI18n.init(hubDictionaries);
+
+            document.querySelectorAll('.app-version').forEach(el => el.innerText = APP_META.version);
+            document.querySelectorAll('.app-date').forEach(el => el.innerText = APP_META.date);
+
+            renderLanguageGrids();
+            sortSystemCards();
+            
+            setTheme(localStorage.getItem('clivet_theme') || 'system');
+            initPassiveScrollListeners();
+            
+            // Trigger entrance animation
+            animateCardsIn();
+        }
+
+        // --- MODALS (Apple HIG / Material 3 Standard) ---
+        let lastFocusedTrigger = null;
+        function rememberFocus() { lastFocusedTrigger = document.activeElement; }
+        function restoreFocus() {
+            if (lastFocusedTrigger && typeof lastFocusedTrigger.focus === 'function' && document.contains(lastFocusedTrigger)) {
+                lastFocusedTrigger.focus({ preventScroll: true });
+            }
+            lastFocusedTrigger = null;
+        }
+
+        function openMenuModal() { 
+            const m = document.getElementById('menu-modal'); 
+            const bg = document.getElementById('menu-modal-bg');
+            const c = document.getElementById('menu-modal-content');
+            if (!m) return; 
+            if (c) clearTimeout(c._closeFallback);
+            rememberFocus();
+
+            m.classList.remove('hidden'); 
+            m.style.display = 'flex';
+            switchSettingsTab('lang');
+            const firstTab = document.getElementById('tab-btn-lang');
+            if (firstTab) setTimeout(() => firstTab.focus({ preventScroll: true }), 80);
+
+            if (c) c.style.willChange = 'transform, opacity';
+            if (bg) bg.style.willChange = 'opacity';
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (bg) bg.classList.remove('opacity-0');
+                    if (c) {
+                        c.classList.remove('translate-y-10', 'scale-95', 'opacity-0');
+                        c.classList.add('translate-y-0', 'scale-100', 'opacity-100');
+                    }
+                });
+            });
+        }
+
+        function closeMenuModal() { 
+            const m = document.getElementById('menu-modal'); 
+            const bg = document.getElementById('menu-modal-bg');
+            const c = document.getElementById('menu-modal-content');
+            if (!m || m.classList.contains('hidden')) return;
+            restoreFocus();
+
+            if (bg) bg.classList.add('opacity-0');
+            if (c) {
+                c.classList.remove('translate-y-0', 'scale-100', 'opacity-100');
+                c.classList.add('translate-y-10', 'scale-95', 'opacity-0');
+            }
+
+            const onModalClosed = (e) => {
+                if (e && (e.target !== c || (e.propertyName !== 'transform' && e.propertyName !== 'opacity'))) return;
+                c.removeEventListener('transitionend', onModalClosed);
+                clearTimeout(c._closeFallback);
+                if (m.classList.contains('hidden') || c.classList.contains('opacity-100')) return;
+                m.classList.add('hidden');
+                m.style.display = 'none';
+                if (c) c.style.willChange = 'auto';
+                if (bg) bg.style.willChange = 'auto';
+            };
+            c.addEventListener('transitionend', onModalClosed);
+            clearTimeout(c._closeFallback);
+            c._closeFallback = setTimeout(() => onModalClosed(null), 600);
+        }
+
+        function openInfoModal(event, sysCode) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const m = document.getElementById('info-modal'); 
+            const bg = document.getElementById('info-modal-bg');
+            const c = document.getElementById('info-modal-content');
+            const title = document.getElementById('info-modal-title');
+            const subtitle = document.getElementById('info-modal-subtitle');
+            const list = document.getElementById('info-modal-list');
+            
+            if (!m || !c) return;
+            if (c) clearTimeout(c._closeFallback);
+            rememberFocus();
+
+            const infoTitle = ClivetI18n.get('modal_infoTitle') || "Supported Units";
+            title.innerText = infoTitle;
+            
+            // Formattazione speciale per i nomi con spazi (es. W0i MF)
+            const displaySysCode = sysCode.replace('_', ' ');
+            subtitle.innerText = `Siemens ${displaySysCode}`;
+            
+            list.innerHTML = '';
+            if(supportedUnits[sysCode]) {
+                supportedUnits[sysCode].forEach(unit => {
+                    // List View Auto-Descrittiva (Apple Settings Pattern) a prova di resize
+                    list.innerHTML += `
+                    <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                        <div class="flex flex-col min-w-0 flex-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">${ClivetI18n.get('modal_series') || 'Series'}</span>
+                            <span class="text-sm font-semibold text-slate-900 dark:text-white break-words">${unit.series}</span>
+                        </div>
+                        <div class="flex flex-col min-w-0 flex-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">${ClivetI18n.get('modal_model') || 'Model'}</span>
+                            <span class="text-sm font-medium text-slate-700 dark:text-slate-300 break-words">${unit.model}</span>
+                        </div>
+                        <div class="flex flex-col min-w-0 flex-1 sm:text-right">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">${ClivetI18n.get('modal_sizes') || 'Sizes'}</span>
+                            <span class="text-sm font-mono text-slate-500 dark:text-slate-400 break-words">${unit.sizes}</span>
+                        </div>
+                    </li>`;
+                });
+            }
+
+            m.classList.remove('hidden'); 
+            m.style.display = 'flex';
+
+            if (c) c.style.willChange = 'transform, opacity';
+            if (bg) bg.style.willChange = 'opacity';
+
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (bg) bg.classList.remove('opacity-0');
+                    if (c) {
+                        c.classList.remove('translate-y-10', 'scale-95', 'opacity-0');
+                        c.classList.add('translate-y-0', 'scale-100', 'opacity-100');
+                    }
+                });
+            });
+        }
+
+        function closeInfoModal() {
+            const m = document.getElementById('info-modal'); 
+            const bg = document.getElementById('info-modal-bg');
+            const c = document.getElementById('info-modal-content');
+            if (!m || m.classList.contains('hidden')) return;
+            restoreFocus();
+
+            if (bg) bg.classList.add('opacity-0');
+            if (c) {
+                c.classList.remove('translate-y-0', 'scale-100', 'opacity-100');
+                c.classList.add('translate-y-10', 'scale-95', 'opacity-0');
+            }
+
+            const onModalClosed = (e) => {
+                if (e && (e.target !== c || (e.propertyName !== 'transform' && e.propertyName !== 'opacity'))) return;
+                c.removeEventListener('transitionend', onModalClosed);
+                clearTimeout(c._closeFallback);
+                if (m.classList.contains('hidden') || c.classList.contains('opacity-100')) return;
+                m.classList.add('hidden');
+                m.style.display = 'none';
+                if (c) c.style.willChange = 'auto';
+                if (bg) bg.style.willChange = 'auto';
+            };
+            c.addEventListener('transitionend', onModalClosed);
+            clearTimeout(c._closeFallback);
+            c._closeFallback = setTimeout(() => onModalClosed(null), 600);
+        }
+
+        function switchSettingsTab(tabId) {
+            document.querySelectorAll('.settings-pane').forEach(el => el.classList.add('hidden'));
+            const c = document.getElementById('tab-content-' + tabId);
+            if(c) c.classList.remove('hidden');
+            
+            ['lang', 'theme', 'about'].forEach(id => {
+                const b = document.getElementById('tab-btn-' + id);
+                if(b) {
+                    if (id === tabId) {
+                        b.className = "flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-all duration-200 bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 focus:outline-none active:scale-[0.98]";
+                    } else {
+                        b.className = "flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700 focus:outline-none active:scale-[0.98]";
+                    }
+                }
+            });
+        }
+
+        // 6. KEYBOARD SHORTCUTS (Accessibilità)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeMenuModal();
+                closeInfoModal();
+                if (typeof closeInfoPopover === 'function') closeInfoPopover();
+            }
+        });
+
+        document.addEventListener("DOMContentLoaded", initApp);
+    </script>
+</body>
+</html>

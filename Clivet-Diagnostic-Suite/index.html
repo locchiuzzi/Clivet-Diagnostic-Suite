@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clivet Diagnostic Suite</title>
+    
+    <link rel="icon" href="data:image/svg+xml,%3Csvg width='37' height='36' viewBox='0 0 37 36' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z' fill='%23949494'/%3E%3Cpath d='M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z' fill='%23949494'/%3E%3Cpath d='M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z' fill='%23007CB1'/%3E%3Cpath d='M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z' fill='%23007CB1'/%3E%3Cpath d='M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z' fill='%23007CB1'/%3E%3Cpath d='M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z' fill='%23007CB1'/%3E%3Cpath d='M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z' fill='%23007CB1'/%3E%3C/svg%3E">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: {} } }
+        let theme = localStorage.getItem('clivet_theme') || 'system';
+        if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <style id="clivet-core-styles">
+        html, body { height: 100%; margin: 0; overflow-x: hidden; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #475569; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #64748b; }
+        .tool-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+	
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex flex-col relative min-h-full">
+
+    <!-- GLOBAL HEADER (1600px Alignment & Stroke 1.5) -->
+    <header class="w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm z-40 sticky top-0 flex-none h-16">
+        <div class="max-w-[1600px] mx-auto w-full px-4 md:px-6 h-full flex items-center justify-between">
+            
+            <!-- Left Side: Logo + Title -->
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-8 h-8 flex-shrink-0" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z" fill="#949494"/><path d="M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z" fill="#949494"/><path d="M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z" fill="#007CB1"/><path d="M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z" fill="#007CB1"/><path d="M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z" fill="#007CB1"/><path d="M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z" fill="#007CB1"/><path d="M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z" fill="#007CB1"/>
+                    </svg>
+                    <div class="flex flex-col justify-center">
+                        <h1 data-i18n="app.title" class="text-lg font-bold text-slate-900 dark:text-white leading-none">Clivet Diagnostic Suite</h1>
+                        <p data-i18n="app.subtitle" class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-1 leading-none">FIELD SERVICE HUB</p>
+                    </div>
+                </div>
+                <span class="hidden sm:flex items-center px-2 py-0.5 rounded text-[10px] font-bold tracking-wider bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 uppercase border border-slate-200 dark:border-slate-600 app-version"></span>
+            </div>
+            
+            <!-- Right Side: Navigation Icons -->
+            <div class="flex items-center space-x-1 sm:space-x-2">
+                <button onclick="openMenuModal()" class="flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition focus:outline-none border border-transparent">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <span data-i18n="nav.menu" class="hidden sm:inline font-bold text-sm">Menu</span>
+                </button>
+            </div>
+        </div>
+    </header>
+	
+	
+<!-- MAIN APP WRAPPER (1600px Alignment) -->
+    <main class="flex-grow max-w-[1600px] mx-auto w-full px-4 md:px-6 py-8 flex flex-col relative">
+
+        <!-- OFFLINE BANNER -->
+        <div id="offline-banner" class="hidden w-full mb-6 bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900/40 dark:to-amber-800/40 border border-amber-200 dark:border-amber-700/50 rounded-xl p-4 flex items-center justify-between shadow-sm transition-all duration-500">
+            <div class="flex items-center space-x-3">
+                <svg class="w-6 h-6 text-amber-500 dark:text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p data-i18n="misc.offlineText" class="text-sm text-amber-800 dark:text-amber-200 font-medium leading-snug"></p>
+            </div>
+            <button onclick="document.getElementById('offline-banner').classList.add('hidden')" class="p-1.5 bg-amber-200 dark:bg-amber-800/50 hover:bg-amber-300 dark:hover:bg-amber-700/50 text-amber-700 dark:text-amber-300 rounded-md transition focus:outline-none">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        </div>
+
+        <!-- TOOLS DASHBOARD -->
+        <div class="w-full">
+            <div class="mb-8">
+                <h2 data-i18n="dashboard.selectTool" class="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-2">Select a Tool</h2>
+                <p data-i18n="dashboard.toolDesc" class="text-sm text-slate-500 dark:text-slate-400">Choose a diagnostic application from the suite below.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <!-- TOOL 1: AlarmSnapshot Analyzer Hub -->
+                <a href="tools/analyzers/alarm-analyzer-hub.html" class="tool-card group cursor-pointer bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-blue-400 dark:hover:border-blue-500 hover:-translate-y-1.5 flex flex-col overflow-hidden relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent dark:from-slate-700 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="p-6 relative z-10 flex flex-col h-full">
+                        <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        </div>
+                        <h3 data-i18n="tools.analyzer.title" class="text-lg font-bold text-slate-900 dark:text-white mb-2">AlarmSnapshot Analyzer</h3>
+                        <p data-i18n="tools.analyzer.desc" class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4 flex-grow">Analyze raw alarm logs and extract insights for various control systems.</p>
+                        <div class="mt-auto flex items-center text-sm font-bold text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
+                            <span data-i18n="tools.analyzer.launch">Launch Tool</span>
+                            <svg class="w-4 h-4 ml-1 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- TOOL 2: Modbus XML Editor -->
+                <a href="tools/editors/xml-parameter-editor.html" class="tool-card group cursor-pointer bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-blue-400 dark:hover:border-blue-500 hover:-translate-y-1.5 flex flex-col overflow-hidden relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent dark:from-slate-700 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="p-6 relative z-10 flex flex-col h-full">
+                        <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        </div>
+                        <h3 data-i18n="tools.xmlEditor.title" class="text-lg font-bold text-slate-900 dark:text-white mb-2">Parameter List XML Editor</h3>
+                        <p data-i18n="tools.xmlEditor.desc" class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4 flex-grow">Visually open, modify, and safely export structured parameter sets in XML format.</p>
+                        <div class="mt-auto flex items-center text-sm font-bold text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
+                            <span data-i18n="tools.xmlEditor.launch">Launch Tool</span>
+                            <svg class="w-4 h-4 ml-1 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- TOOL 3: Modbus RTU Flasher -->
+                <a href="tools/flashers/swrbc-flasher.html" class="tool-card group cursor-pointer bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-xl hover:border-blue-400 dark:hover:border-blue-500 hover:-translate-y-1.5 flex flex-col overflow-hidden relative">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent dark:from-slate-700 dark:to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div class="p-6 relative z-10 flex flex-col h-full">
+                        <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h3 data-i18n="tools.flasher.title" class="text-lg font-bold text-slate-900 dark:text-white mb-2">Clivet SwRBC 2.0</h3>
+                        <p data-i18n="tools.flasher.desc" class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4 flex-grow">Directly upload parameter configurations to field units via RS-485 connection.</p>
+                        <div class="mt-auto flex items-center text-sm font-bold text-blue-600 dark:text-blue-400 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300">
+                            <span data-i18n="tools.flasher.launch">Launch Tool</span>
+                            <svg class="w-4 h-4 ml-1 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- BOOKMARK ONBOARDING MODAL -->
+    <div id="bookmark-modal" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-4">
+        <div id="bm-backdrop" class="absolute inset-0 bg-slate-900/50 dark:bg-slate-900/80 backdrop-blur-md transition-opacity duration-300 opacity-0" onclick="closeBookmarkModal()"></div>
+        <div id="bm-dialog" class="relative bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl w-full max-w-[320px] rounded-[2rem] shadow-2xl flex flex-col items-center border border-white/60 dark:border-slate-600/50 p-6 pt-10 mt-6 transform scale-95 opacity-0 transition-all duration-300">
+            
+            <div class="absolute -top-7 drop-shadow-md z-10 pointer-events-none">
+                <svg class="w-14 h-14" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="starGrad" x1="10%" y1="0%" x2="90%" y2="100%">
+                            <stop offset="0%" stop-color="#FDE68A" />
+                            <stop offset="50%" stop-color="#F59E0B" />
+                            <stop offset="100%" stop-color="#D97706" />
+                        </linearGradient>
+                        <linearGradient id="starInner" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+                            <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M60 12l12.8 36.4h39.2l-31.2 23.4 12.4 37L60 86.4l-33.2 22.4 12.4-37L8 48.4h39.2L60 12z" fill="url(#starGrad)" stroke="url(#starInner)" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>
+            </div>
+
+            <h2 data-i18n="bm.title" class="text-xl font-extrabold text-slate-900 dark:text-white mt-1 tracking-tight text-center">Add to Favorites!</h2>
+            <p data-i18n="bm.desc" class="text-slate-500 dark:text-slate-400 text-xs mt-2 mb-6 text-center leading-relaxed px-2">
+                Keep the Clivet Diagnostic Suite always at your fingertips. Add this Hub to your browser's bookmarks.
+            </p>
+            
+            <span data-i18n="bm.press" class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-3 text-center w-full">Press</span>
+            
+            <div id="os-keys-container" class="flex items-start justify-center space-x-3 mb-8 select-none w-full h-[60px] relative">
+                <!-- Injected via JS based on OS -->
+            </div>
+
+            <div class="flex flex-col space-y-4 w-full">
+                <button onclick="closeBookmarkModal()" class="w-full h-11 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-full shadow-[0_4px_12px_0_rgba(37,99,235,0.3)] transition-all focus:outline-none flex items-center justify-center">
+                    <span data-i18n="bm.btn" class="text-sm">Got it, thanks!</span>
+                </button>
+
+                <label class="flex items-center justify-center space-x-2 cursor-pointer group w-max mx-auto">
+                    <input type="checkbox" id="chk-no-show-bm" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700 bg-slate-100 cursor-pointer transition-colors">
+                    <span data-i18n="bm.dontShow" class="text-[11px] font-medium text-slate-500 dark:text-slate-400 group-hover:text-slate-800 dark:group-hover:text-slate-200 transition-colors select-none">
+                        Do not show this message again
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+            
+    <!-- MODALE MENU PRINCIPALE -->
+    <div id="menu-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity" onclick="closeMenuModal()"></div>
+        <div class="bg-white dark:bg-slate-800 w-full max-w-4xl h-full sm:h-[80vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 relative z-10">
+            <!-- Header Modal -->
+            <div class="flex justify-between items-center px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <h2 data-i18n="modal.menuTitle" class="text-lg font-bold text-slate-800 dark:text-white">Menu</h2>
+                </div>
+                <button onclick="closeMenuModal()" class="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Wrapper Elastico Interno -->
+            <div class="flex flex-col md:flex-row flex-grow min-h-0 overflow-hidden">
+                <!-- Tab-Bar Mobile / Sidebar Desktop -->
+                <div class="w-full md:w-1/3 lg:w-1/4 bg-slate-50 dark:bg-slate-800/30 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-3 md:p-4 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto space-x-2 md:space-x-0 md:space-y-2 flex-shrink-0 custom-scrollbar">
+                    <button id="tab-btn-lang" onclick="switchSettingsTab('lang')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path></svg>
+                        <span data-i18n="modal.lang">Language</span>
+                    </button>
+                    <button id="tab-btn-theme" onclick="switchSettingsTab('theme')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <span data-i18n="modal.theme">Appearance</span>
+                    </button>
+                    <button id="tab-btn-about" onclick="switchSettingsTab('about')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span data-i18n="modal.about">About / Info</span>
+                    </button>
+                </div>
+                
+                <!-- Content Area -->
+                <div class="w-full md:w-2/3 lg:w-3/4 p-4 md:p-6 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800 flex-grow min-h-0">
+                    <!-- Tab Lingua -->
+                    <div id="tab-content-lang" class="settings-pane block">
+                        <h3 data-i18n="misc.fav" class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Favorites</h3>
+                        <div id="fav-lang-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-8"></div>
+                        <h3 data-i18n="misc.allLangs" class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">All Languages</h3>
+                        <div id="all-lang-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+                    </div>
+
+                    <!-- Tab Tema -->
+                    <div id="tab-content-theme" class="settings-pane hidden">
+                        <p data-i18n="modal.themeDesc" class="text-sm text-slate-500 dark:text-slate-400 mb-6">Choose the appearance of the application.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <button id="theme-card-light" onclick="setTheme('light')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition focus:outline-none">
+                                <svg class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                <span data-i18n="theme.light" class="font-bold text-slate-700 dark:text-slate-300">Light</span>
+                            </button>
+                            <button id="theme-card-dark" onclick="setTheme('dark')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition focus:outline-none">
+                                <svg class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                                <span data-i18n="theme.dark" class="font-bold text-slate-700 dark:text-slate-300">Dark</span>
+                            </button>
+                            <button id="theme-card-system" onclick="setTheme('system')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition focus:outline-none">
+                                <svg class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                <span data-i18n="theme.sys" class="font-bold text-slate-700 dark:text-slate-300">System</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tab About -->
+                    <div id="tab-content-about" class="settings-pane hidden text-slate-600 dark:text-slate-300 space-y-6">
+                        <div class="flex items-center space-x-4 pb-4 border-b border-slate-200 dark:border-slate-700">
+                            <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                                <svg viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z" fill="#949494"/>
+                                    <path d="M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z" fill="#949494"/>
+                                    <path d="M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z" fill="#007CB1"/>
+                                    <path d="M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z" fill="#007CB1"/>
+                                    <path d="M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z" fill="#007CB1"/>
+                                    <path d="M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z" fill="#007CB1"/>
+                                    <path d="M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z" fill="#007CB1"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 data-i18n="app.title" class="text-xl font-bold text-slate-900 dark:text-white">Clivet Diagnostic Suite</h2>
+                                <p data-i18n="app.subtitle" class="text-sm font-medium">Field Service Hub</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-sm mt-4 mb-4">
+                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <span data-i18n="misc.version" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Version</span>
+                                <span class="font-mono text-slate-800 dark:text-slate-200 app-version"></span>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <span data-i18n="misc.release" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Release Date</span>
+                                <span class="font-mono text-slate-800 dark:text-slate-200 app-date"></span>
+                            </div>
+                        </div>
+                        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-lg">
+                            <h3 class="font-bold text-amber-800 dark:text-amber-400 mb-2 flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                <span data-i18n="misc.disclaimerTitle">Disclaimer</span>
+                            </h3>
+                            <p data-i18n="misc.disclaimerText" class="text-sm text-amber-700 dark:text-amber-300 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+	
+	<script>
+        const APP_VERSION = "v1.0.0";
+        const APP_DATE = "October 2026";
+        document.querySelectorAll('.app-version').forEach(el => el.innerText = APP_VERSION);
+        document.querySelectorAll('.app-date').forEach(el => el.innerText = APP_DATE);
+
+        const flags = {
+            en: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#012169" d="M0 0h64v48H0z"/><path stroke="#FFF" stroke-width="10" d="M0 0l64 48m0-48L0 48"/><path stroke="#C8102E" stroke-width="6" d="M0 0l64 48m0-48L0 48"/><path fill="#FFF" d="M24 0h16v48H24zM0 16h64v16H0z"/><path fill="#C8102E" d="M28 0h8v48h-8zM0 20h64v8H0z"/></svg>`,
+            it: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#009246" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#CE2B37" d="M42.7 0H64v48H42.7z"/></svg>`,
+            de: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#000" d="M0 0h64v16H0z"/><path fill="#DD0000" d="M0 16h64v16H0z"/><path fill="#FFCE00" d="M0 32h64v16H0z"/></svg>`,
+            fr: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#002395" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#ED2939" d="M42.7 0H64v48H42.7z"/></svg>`,
+            es: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#AA151B" d="M0 0h64v12H0zm0 36h64v12H0z"/><path fill="#F1BF00" d="M0 12h64v24H0z"/></svg>`,
+            zh: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#EE1C25" d="M0 0h64v48H0z"/><path fill="#FF0" d="M10.5 6a4.5 4.5 0 100 9 4.5 4.5 0 000-9zm11.5 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm2 4.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-1 5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-4.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>`,
+            pt: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#006600" d="M0 0h25.6v48H0z"/><path fill="#FF0000" d="M25.6 0H64v48H25.6z"/><circle cx="25.6" cy="24" r="8" fill="#FF0"/></svg>`,
+            ru: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v16H0z"/><path fill="#0039A6" d="M0 16h64v16H0z"/><path fill="#D52B1E" d="M0 32h64v16H0z"/></svg>`,
+            ja: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="14" fill="#BC002D"/></svg>`,
+            ko: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="12" fill="#CD2E3A"/><path d="M20 24a12 12 0 0024 0 6 6 0 01-12 0 6 6 0 00-12 0z" fill="#0F64CD"/></svg>`,
+            tr: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#E30A17" d="M0 0h64v48H0z"/><circle cx="24" cy="24" r="12" fill="#FFF"/><circle cx="28" cy="24" r="10" fill="#E30A17"/><path fill="#FFF" d="M36 19l2 5h5l-4 3 1 5-4-3-4 3 1-5-4-3h5z"/></svg>`,
+            pl: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v24H0z"/><path fill="#DC143C" d="M0 24h64v24H0z"/></svg>`,
+            nl: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#AE1C28" d="M0 0h64v16H0z"/><path fill="#FFF" d="M0 16h64v16H0z"/><path fill="#21468B" d="M0 32h64v16H0z"/></svg>`,
+            sv: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#006AA7" d="M0 0h64v48H0z"/><path fill="#FECC00" d="M18 0h8v48h-8zM0 18h64v8H0z"/></svg>`,
+            da: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#C60C30" d="M0 0h64v48H0z"/><path fill="#FFF" d="M18 0h6v48h-6zM0 20h64v6H0z"/></svg>`,
+            fi: `<svg viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><path fill="#002F6C" d="M18 0h10v48H18zM0 18h64v12H0z"/></svg>`
+        };
+
+        const langNames = { en: "English", it: "Italiano", de: "Deutsch", fr: "Français", es: "Español", zh: "中文", pt: "Português", ru: "Русский", ja: "日本語", ko: "한국어", tr: "Türkçe", pl: "Polski", nl: "Nederlands", sv: "Svenska", da: "Dansk", fi: "Suomi" };
+        const favorites = ['en', 'it', 'de', 'fr', 'es', 'zh'];
+
+        // 3. DIZIONARIO HUB (16 Lingue Reali - Flat Keys)
+        const hubDictionaries = {
+            en: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "FIELD SERVICE HUB",
+                nav_menu: "Menu",
+                dashboard_selectTool: "Select a Tool", dashboard_toolDesc: "Choose a diagnostic application from the suite below.",
+                tools_analyzer_title: "AlarmSnapshot Analyzer", tools_analyzer_desc: "Analyze raw alarm logs and extract insights for various control systems.", tools_analyzer_launch: "Launch Tool",
+                tools_xmlEditor_title: "Parameter List XML Editor", tools_xmlEditor_desc: "Visually open, modify, and safely export structured parameter sets in XML format.", tools_xmlEditor_launch: "Launch Tool",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Directly upload parameter configurations to field units via RS-485 connection.", tools_flasher_launch: "Launch Tool",
+                bm_title: "Add to Favorites!", bm_desc: "Keep the Clivet Diagnostic Suite always at your fingertips. Add this Hub to your browser's bookmarks.", bm_press: "Press", bm_btn: "Got it, thanks!", bm_dontShow: "Do not show this message again",
+                modal_menuTitle: "Menu", modal_lang: "Language", modal_theme: "Appearance", modal_about: "About / Info", modal_themeDesc: "Choose the appearance of the application.",
+                theme_light: "Light", theme_dark: "Dark", theme_sys: "System",
+                misc_fav: "Favorites", misc_allLangs: "All Languages", misc_version: "Version", misc_release: "Release Date", misc_disclaimerTitle: "Disclaimer", misc_disclaimerText: "This diagnostic tool is intended exclusively for qualified technical personnel. It is provided 'as-is' without official warranties. Any modification to system parameters or configurations is performed at the user's sole risk and responsibility.", misc_offlineText: "For an optimal first-time experience, an internet connection is recommended to load interface styles. Once loaded, it will work offline forever."
+            },
+            it: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "HUB ASSISTENZA TECNICA",
+                nav_menu: "Menu",
+                dashboard_selectTool: "Seleziona uno Strumento", dashboard_toolDesc: "Scegli un'applicazione diagnostica dalla suite qui sotto.",
+                tools_analyzer_title: "Analizzatore AlarmSnapshot", tools_analyzer_desc: "Analizza i log crudi degli allarmi ed estrai diagnosi per vari sistemi di controllo.", tools_analyzer_launch: "Apri Strumento",
+                tools_xmlEditor_title: "Editor XML Lista Parametri", tools_xmlEditor_desc: "Apri, modifica visivamente ed esporta in sicurezza file parametri in formato XML.", tools_xmlEditor_launch: "Apri Strumento",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Carica le configurazioni dei parametri direttamente sull'unità via RS-485.", tools_flasher_launch: "Apri Strumento",
+                bm_title: "Aggiungi ai Preferiti!", bm_desc: "Tieni la Clivet Diagnostic Suite sempre a portata di mano. Salva questo Hub nei preferiti del tuo browser.", bm_press: "Premi", bm_btn: "Capito, grazie!", bm_dontShow: "Non mostrare più questo messaggio",
+                modal_menuTitle: "Menu", modal_lang: "Lingua", modal_theme: "Aspetto", modal_about: "Informazioni", modal_themeDesc: "Scegli il tema dell'applicazione.",
+                theme_light: "Chiaro", theme_dark: "Scuro", theme_sys: "Sistema",
+                misc_fav: "Preferiti", misc_allLangs: "Tutte le lingue", misc_version: "Versione", misc_release: "Data di Rilascio", misc_disclaimerTitle: "Avvertenza", misc_disclaimerText: "Questo strumento diagnostico è destinato esclusivamente a personale tecnico qualificato. Viene fornito 'così com'è' senza garanzie ufficiali. Qualsiasi modifica ai parametri o alle configurazioni di sistema è eseguita a rischio e responsabilità esclusiva dell'utente.", misc_offlineText: "Per un'esperienza ottimale al primo avvio, si consiglia una connessione internet per caricare gli stili. Successivamente, funzionerà sempre offline."
+            },
+            de: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "TECHNISCHER SERVICE HUB",
+                nav_menu: "Menü",
+                dashboard_selectTool: "Wählen Sie ein Werkzeug", dashboard_toolDesc: "Wählen Sie eine Diagnoseanwendung aus der Suite.",
+                tools_analyzer_title: "AlarmSnapshot Analysator", tools_analyzer_desc: "Analysieren Sie rohe Alarmprotokolle für verschiedene Steuerungssysteme.", tools_analyzer_launch: "Werkzeug Starten",
+                tools_xmlEditor_title: "XML-Parameterlisten-Editor", tools_xmlEditor_desc: "Öffnen, ändern und exportieren Sie visuell strukturierte Parameter als XML.", tools_xmlEditor_launch: "Werkzeug Starten",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Laden Sie Parameterkonfigurationen direkt über RS-485 auf Feldeinheiten hoch.", tools_flasher_launch: "Werkzeug Starten",
+                bm_title: "Zu Favoriten hinzufügen!", bm_desc: "Behalten Sie die Clivet Diagnostic Suite immer griffbereit. Fügen Sie diesen Hub zu den Lesezeichen Ihres Browsers hinzu.", bm_press: "Drücken Sie", bm_btn: "Verstanden, danke!", bm_dontShow: "Diese Nachricht nicht mehr anzeigen",
+                modal_menuTitle: "Menü", modal_lang: "Sprache", modal_theme: "Erscheinungsbild", modal_about: "Info", modal_themeDesc: "Wählen Sie das Design der Anwendung.",
+                theme_light: "Hell", theme_dark: "Dunkel", theme_sys: "System",
+                misc_fav: "Favoriten", misc_allLangs: "Alle Sprachen", misc_version: "Version", misc_release: "Veröffentlichungsdatum", misc_disclaimerTitle: "Haftungsausschluss", misc_disclaimerText: "Dieses Diagnosetool ist ausschließlich für qualifiziertes technisches Personal bestimmt. Es wird 'wie besehen' ohne offizielle Garantien zur Verfügung gestellt. Jede Änderung von Systemparametern oder Konfigurationen erfolgt auf alleiniges Risiko und in alleiniger Verantwortung des Benutzers.", misc_offlineText: "Für ein optimales Erlebnis beim ersten Start wird eine Internetverbindung empfohlen. Danach funktioniert es offline."
+            },
+            fr: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "HUB D'ASSISTANCE TECHNIQUE",
+                nav_menu: "Menu",
+                dashboard_selectTool: "Sélectionnez un Outil", dashboard_toolDesc: "Choisissez une application de diagnostic.",
+                tools_analyzer_title: "Analyseur AlarmSnapshot", tools_analyzer_desc: "Analysez les journaux d'alarmes bruts pour divers systèmes de contrôle.", tools_analyzer_launch: "Ouvrir l'Outil",
+                tools_xmlEditor_title: "Éditeur XML de Liste de Paramètres", tools_xmlEditor_desc: "Ouvrez, modifiez visuellement et exportez des ensembles de paramètres en XML.", tools_xmlEditor_launch: "Ouvrir l'Outil",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Téléchargez des paramètres directement sur l'unité via la connexion RS-485.", tools_flasher_launch: "Ouvrir l'Outil",
+                bm_title: "Ajouter aux Favoris !", bm_desc: "Gardez la Clivet Diagnostic Suite toujours à portée de main. Ajoutez ce Hub aux favoris de votre navigateur.", bm_press: "Appuyez sur", bm_btn: "Compris, merci !", bm_dontShow: "Ne plus afficher ce message",
+                modal_menuTitle: "Menu", modal_lang: "Langue", modal_theme: "Apparence", modal_about: "À propos / Info", modal_themeDesc: "Choisissez le thème de l'application.",
+                theme_light: "Clair", theme_dark: "Sombre", theme_sys: "Système",
+                misc_fav: "Favoris", misc_allLangs: "Toutes les langues", misc_version: "Version", misc_release: "Date de sortie", misc_disclaimerTitle: "Avertissement", misc_disclaimerText: "Cet outil de diagnostic est destiné exclusivement au personnel technique qualifié. Il est fourni 'tel quel' sans garanties officielles. Toute modification des paramètres ou des configurations du système est effectuée aux risques et sous la seule responsabilité de l'utilisateur.", misc_offlineText: "Pour une expérience optimale au premier lancement, une connexion Internet est recommandée."
+            },
+            es: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "HUB DE ASISTENCIA TÉCNICA",
+                nav_menu: "Menú",
+                dashboard_selectTool: "Seleccione una Herramienta", dashboard_toolDesc: "Elija una aplicación de diagnóstico.",
+                tools_analyzer_title: "Analizador AlarmSnapshot", tools_analyzer_desc: "Analice los registros de alarmas para varios sistemas de control.", tools_analyzer_launch: "Iniciar Herramienta",
+                tools_xmlEditor_title: "Editor XML de Lista de Parámetros", tools_xmlEditor_desc: "Abra, modifique y exporte parámetros estructurados en formato XML.", tools_xmlEditor_launch: "Iniciar Herramienta",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Suba configuraciones de parámetros directamente a las unidades vía RS-485.", tools_flasher_launch: "Iniciar Herramienta",
+                bm_title: "¡Añadir a Favoritos!", bm_desc: "Mantén la Clivet Diagnostic Suite siempre a tu alcance. Añade este Hub a los marcadores de tu navegador.", bm_press: "Presiona", bm_btn: "¡Entendido, gracias!", bm_dontShow: "No volver a mostrar este mensaje",
+                modal_menuTitle: "Menú", modal_lang: "Idioma", modal_theme: "Apariencia", modal_about: "Acerca de / Info", modal_themeDesc: "Elija el tema de la aplicación.",
+                theme_light: "Claro", theme_dark: "Oscuro", theme_sys: "Sistema",
+                misc_fav: "Favoritos", misc_allLangs: "Todos los idiomas", misc_version: "Versión", misc_release: "Fecha de lanzamiento", misc_disclaimerTitle: "Descargo de responsabilidad", misc_disclaimerText: "Esta herramienta de diagnóstico está destinada exclusivamente a personal técnico cualificado. Se proporciona 'tal cual', sin garantías oficiales. Cualquier modificación en los parámetros o configuraciones del sistema se realiza bajo el propio riesgo y responsabilidad del usuario.", misc_offlineText: "Para una experiencia óptima en el primer uso, se recomienda conexión a internet."
+            },
+            zh: {
+                app_title: "Clivet 诊断套件", app_subtitle: "现场服务中心",
+                nav_menu: "菜单",
+                dashboard_selectTool: "选择工具", dashboard_toolDesc: "选择诊断应用程序",
+                tools_analyzer_title: "AlarmSnapshot 分析仪", tools_analyzer_desc: "分析原始警报日志并提取见解。", tools_analyzer_launch: "启动工具",
+                tools_xmlEditor_title: "参数列表 XML 编辑器", tools_xmlEditor_desc: "可视化打开、修改和导出 XML 格式的参数集。", tools_xmlEditor_launch: "启动工具",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "通过 RS-485 直接上传参数配置。", tools_flasher_launch: "启动工具",
+                bm_title: "添加到收藏夹！", bm_desc: "让 Clivet Diagnostic Suite 触手可及。请将此中心添加到您的浏览器书签中。", bm_press: "按", bm_btn: "知道了，谢谢！", bm_dontShow: "不再显示此消息",
+                modal_menuTitle: "菜单", modal_lang: "语言", modal_theme: "外观", modal_about: "关于 / 信息", modal_themeDesc: "选择应用程序外观",
+                theme_light: "浅色", theme_dark: "深色", theme_sys: "系统",
+                misc_fav: "最爱", misc_allLangs: "所有语言", misc_version: "版本", misc_release: "发布日期", misc_disclaimerTitle: "免责声明", misc_disclaimerText: "此诊断工具专供合格的技术人员使用。本工具按“原样”提供，不包含任何官方保证。对系统参数或配置的任何修改均由用户自行承担风险和责任。", misc_offlineText: "为了获得最佳的首次体验，建议连接互联网以加载界面样式。一旦加载完毕，它将永远可以离线工作。"
+            },
+            pt: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "HUB DE ASSISTÊNCIA TÉCNICA",
+                nav_menu: "Menu",
+                dashboard_selectTool: "Selecione uma Ferramenta", dashboard_toolDesc: "Escolha uma aplicação de diagnóstico.",
+                tools_analyzer_title: "Analisador AlarmSnapshot", tools_analyzer_desc: "Analise logs de alarme brutos para vários sistemas de controle.", tools_analyzer_launch: "Iniciar Ferramenta",
+                tools_xmlEditor_title: "Editor XML de Lista de Parâmetros", tools_xmlEditor_desc: "Abra, modifique visualmente e exporte parâmetros em XML.", tools_xmlEditor_launch: "Iniciar Ferramenta",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Envie configurações de parâmetros diretamente via conexão RS-485.", tools_flasher_launch: "Iniciar Ferramenta",
+                bm_title: "Adicionar aos Favoritos!", bm_desc: "Tenha a Clivet Diagnostic Suite sempre à mão. Adicione este Hub aos marcadores do seu navegador.", bm_press: "Pressione", bm_btn: "Entendi, obrigado!", bm_dontShow: "Não mostrar esta mensagem novamente",
+                modal_menuTitle: "Menu", modal_lang: "Idioma", modal_theme: "Aparência", modal_about: "Sobre / Info", modal_themeDesc: "Escolha o tema da aplicação.",
+                theme_light: "Claro", theme_dark: "Escuro", theme_sys: "Sistema",
+                misc_fav: "Favoritos", misc_allLangs: "Todos os idiomas", misc_version: "Versão", misc_release: "Data de Lançamento", misc_disclaimerTitle: "Aviso", misc_disclaimerText: "Esta ferramenta de diagnóstico destina-se exclusivamente a pessoal técnico qualificado. É fornecida 'tal como está', sem garantias oficiais. Qualquer modificação aos parâmetros ou configurações do sistema é efetuada por conta e risco e sob a responsabilidade exclusiva do utilizador.", misc_offlineText: "Para uma experiência ideal na primeira utilização, recomenda-se uma ligação à Internet."
+            },
+            ru: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "ЦЕНТР ТЕХНИЧЕСКОЙ ПОДДЕРЖКИ",
+                nav_menu: "Меню",
+                dashboard_selectTool: "Выберите инструмент", dashboard_toolDesc: "Выберите диагностическое приложение",
+                tools_analyzer_title: "Анализатор AlarmSnapshot", tools_analyzer_desc: "Анализ журналов аварий для различных систем.", tools_analyzer_launch: "Запустить инструмент",
+                tools_xmlEditor_title: "Редактор XML списка параметров", tools_xmlEditor_desc: "Визуальное редактирование и экспорт параметров в XML.", tools_xmlEditor_launch: "Запустить инструмент",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Прямая загрузка параметров в устройство по RS-485.", tools_flasher_launch: "Запустить инструмент",
+                bm_title: "Добавить в избранное!", bm_desc: "Держите Clivet Diagnostic Suite всегда под рукой. Добавьте этот Hub в закладки вашего браузера.", bm_press: "Нажмите", bm_btn: "Понятно, спасибо!", bm_dontShow: "Больше не показывать это сообщение",
+                modal_menuTitle: "Меню", modal_lang: "Язык", modal_theme: "Внешний вид", modal_about: "О программе", modal_themeDesc: "Выберите тему приложения.",
+                theme_light: "Светлая", theme_dark: "Темная", theme_sys: "Система",
+                misc_fav: "Избранное", misc_allLangs: "Все языки", misc_version: "Версия", misc_release: "Дата выпуска", misc_disclaimerTitle: "Отказ от ответственности", misc_disclaimerText: "Этот диагностический инструмент предназначен исключительно для квалифицированного технического персонала. Он предоставляется «как есть» без официальных гарантий. Любое изменение системных параметров или конфигураций осуществляется исключительно на страх и риск и под ответственность пользователя.", misc_offlineText: "Для оптимальной работы при первом запуске рекомендуется подключение к Интернету."
+            },
+            ja: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "テクニカルサポートハブ",
+                nav_menu: "メニュー",
+                dashboard_selectTool: "ツールを選択", dashboard_toolDesc: "診断アプリケーションを選択してください",
+                tools_analyzer_title: "AlarmSnapshot アナライザー", tools_analyzer_desc: "アラームログを分析し、洞察を抽出します。", tools_analyzer_launch: "ツールを起動",
+                tools_xmlEditor_title: "パラメータリスト XML エディター", tools_xmlEditor_desc: "XML形式のパラメータを視覚的に編集およびエクスポートします。", tools_xmlEditor_launch: "ツールを起動",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "RS-485経由でパラメータを直接アップロードします。", tools_flasher_launch: "ツールを起動",
+                bm_title: "お気に入りに追加！", bm_desc: "Clivet Diagnostic Suiteをいつでも使えるように、このハブをブラウザのブックマークに追加してください。", bm_press: "押す:", bm_btn: "了解しました！", bm_dontShow: "今後このメッセージを表示しない",
+                modal_menuTitle: "メニュー", modal_lang: "言語", modal_theme: "外観", modal_about: "情報", modal_themeDesc: "アプリケーションのテーマを選択します。",
+                theme_light: "ライト", theme_dark: "ダーク", theme_sys: "システム",
+                misc_fav: "お気に入り", misc_allLangs: "すべての言語", misc_version: "バージョン", misc_release: "リリース日", misc_disclaimerTitle: "免責事項", misc_disclaimerText: "この診断ツールは、資格を持つ技術スタッフ専用です。公式な保証なしで「現状有姿」で提供されます。システムパラメータまたは設定の変更は、ユーザー自身の単独の責任とリスクにおいて実行されます。", misc_offlineText: "初回起動時はインターネット接続を推奨します。一度読み込めばオフラインで動作します。"
+            },
+            ko: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "기술 지원 허브",
+                nav_menu: "메뉴",
+                dashboard_selectTool: "도구 선택", dashboard_toolDesc: "진단 응용 프로그램 선택",
+                tools_analyzer_title: "AlarmSnapshot 분석기", tools_analyzer_desc: "알람 로그 분석 및 통찰력 추출.", tools_analyzer_launch: "도구 실행",
+                tools_xmlEditor_title: "매개변수 목록 XML 편집기", tools_xmlEditor_desc: "XML 형식 매개변수 시각적 편집 및 내보내기.", tools_xmlEditor_launch: "도구 실행",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "RS-485를 통해 매개변수 직접 업로드.", tools_flasher_launch: "도구 실행",
+                bm_title: "즐겨찾기에 추가!", bm_desc: "Clivet Diagnostic Suite를 항상 손닿는 곳에 두세요. 이 허브를 브라우저 북마크에 추가하세요.", bm_press: "누르기:", bm_btn: "알겠습니다, 감사합니다!", bm_dontShow: "이 메시지를 다시 표시하지 않음",
+                modal_menuTitle: "메뉴", modal_lang: "언어", modal_theme: "외관", modal_about: "정보", modal_themeDesc: "응용 프로그램 테마 선택.",
+                theme_light: "라이트", theme_dark: "다크", theme_sys: "시스템",
+                misc_fav: "즐겨찾기", misc_allLangs: "모든 언어", misc_version: "버전", misc_release: "출시일", misc_disclaimerTitle: "면책 조항", misc_disclaimerText: "이 진단 도구는 자격을 갖춘 기술자만 사용할 수 있도록 제작되었습니다. 공식적인 보증 없이 '있는 그대로' 제공됩니다. 시스템 매개변수나 구성의 모든 수정은 전적으로 사용자의 위험과 책임하에 수행됩니다.", misc_offlineText: "최적의 첫 사용을 위해 인터넷 연결이 권장됩니다."
+            },
+            tr: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "TEKNİK DESTEK MERKEZİ",
+                nav_menu: "Menü",
+                dashboard_selectTool: "Bir Araç Seçin", dashboard_toolDesc: "Tanılama uygulamasını seçin.",
+                tools_analyzer_title: "AlarmSnapshot Analizörü", tools_analyzer_desc: "Alarm günlüklerini analiz edin ve içgörüler çıkarın.", tools_analyzer_launch: "Aracı Başlat",
+                tools_xmlEditor_title: "Parametre Listesi XML Editörü", tools_xmlEditor_desc: "XML parametrelerini görsel olarak düzenleyin ve dışa aktarın.", tools_xmlEditor_launch: "Aracı Başlat",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Parametreleri RS-485 üzerinden doğrudan üniteye yükleyin.", tools_flasher_launch: "Aracı Başlat",
+                bm_title: "Favorilere Ekle!", bm_desc: "Clivet Diagnostic Suite'i her zaman elinizin altında tutun. Bu Hub'ı tarayıcınızın yer imlerine ekleyin.", bm_press: "Basın", bm_btn: "Anladım, teşekkürler!", bm_dontShow: "Bu mesajı tekrar gösterme",
+                modal_menuTitle: "Menü", modal_lang: "Dil", modal_theme: "Görünüm", modal_about: "Hakkında / Bilgi", modal_themeDesc: "Uygulama temasını seçin.",
+                theme_light: "Açık", theme_dark: "Koyu", theme_sys: "Sistem",
+                misc_fav: "Favoriler", misc_allLangs: "Tüm Diller", misc_version: "Sürüm", misc_release: "Yayın Tarihi", misc_disclaimerTitle: "Sorumluluk Reddi", misc_disclaimerText: "Bu tanılama aracı yalnızca kalifiye teknik personel için tasarlanmıştır. Herhangi bir resmi garanti olmaksızın 'olduğu gibi' sağlanmaktadır. Sistem parametrelerinde veya yapılandırmalarında yapılacak herhangi bir değişiklik, tamamen kullanıcının kendi riski ve sorumluluğu altındadır.", misc_offlineText: "Optimum ilk deneyim için internet bağlantısı önerilir."
+            },
+            pl: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "CENTRUM WSPARCIA TECHNICZNEGO",
+                nav_menu: "Menu",
+                dashboard_selectTool: "Wybierz narzędzie", dashboard_toolDesc: "Wybierz aplikację diagnostyczną z zestawu.",
+                tools_analyzer_title: "Analizator AlarmSnapshot", tools_analyzer_desc: "Analizuj dzienniki alarmów dla różnych systemów.", tools_analyzer_launch: "Uruchom narzędzie",
+                tools_xmlEditor_title: "Edytor XML Listy Parametrów", tools_xmlEditor_desc: "Edytuj parametry w formacie XML wizualnie.", tools_xmlEditor_launch: "Uruchom narzędzie",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Przesyłaj parametry bezpośrednio przez RS-485.", tools_flasher_launch: "Uruchom narzędzie",
+                bm_title: "Dodaj do ulubionych!", bm_desc: "Miej Clivet Diagnostic Suite zawsze pod ręką. Dodaj ten Hub do zakładek w swojej przeglądarce.", bm_press: "Naciśnij", bm_btn: "Zrozumiałem, dziękuję!", bm_dontShow: "Nie pokazuj więcej tego komunikatu",
+                modal_menuTitle: "Menu", modal_lang: "Język", modal_theme: "Wygląd", modal_about: "O programie", modal_themeDesc: "Wybierz motyw aplikacji.",
+                theme_light: "Jasny", theme_dark: "Ciemny", theme_sys: "System",
+                misc_fav: "Ulubione", misc_allLangs: "Wszystkie języki", misc_version: "Wersja", misc_release: "Data wydania", misc_disclaimerTitle: "Zastrzeżenie", misc_disclaimerText: "To narzędzie diagnostyczne jest przeznaczone wyłącznie dla wykwalifikowanego personelu technicznego. Jest dostarczane w stanie „takim, w jakim jest”, bez żadnych oficjalnych gwarancji. Wszelkie modyfikacje parametrów lub konfiguracji systemu są dokonywane wyłącznie na własne ryzyko i odpowiedzialność użytkownika.", misc_offlineText: "Dla optymalnego pierwszego wrażenia zalecane jest połączenie z Internetem."
+            },
+            nl: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "TECHNISCHE SERVICE HUB",
+                nav_menu: "Menu",
+                dashboard_selectTool: "Selecteer een tool", dashboard_toolDesc: "Kies een diagnostische applicatie.",
+                tools_analyzer_title: "AlarmSnapshot Analysator", tools_analyzer_desc: "Analyseer alarmlogboeken voor verschillende systemen.", tools_analyzer_launch: "Start Tool",
+                tools_xmlEditor_title: "Parameterlijst XML-editor", tools_xmlEditor_desc: "Bewerk XML-parameters visueel en exporteer veilig.", tools_xmlEditor_launch: "Start Tool",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Upload parameters rechtstreeks via RS-485.", tools_flasher_launch: "Start Tool",
+                bm_title: "Toevoegen aan favorieten!", bm_desc: "Houd de Clivet Diagnostic Suite altijd binnen handbereik. Voeg deze Hub toe aan de bladwijzers van uw browser.", bm_press: "Druk op", bm_btn: "Begrepen, bedankt!", bm_dontShow: "Dit bericht niet meer weergeven",
+                modal_menuTitle: "Menu", modal_lang: "Taal", modal_theme: "Uiterlijk", modal_about: "Over / Info", modal_themeDesc: "Kies het thema van de applicatie.",
+                theme_light: "Licht", theme_dark: "Donker", theme_sys: "Systeem",
+                misc_fav: "Favorieten", misc_allLangs: "Alle talen", misc_version: "Versie", misc_release: "Releasedatum", misc_disclaimerTitle: "Vrijwaring", misc_disclaimerText: "Dit diagnostische hulpmiddel is uitsluitend bedoeld voor gekwalificeerd technisch personeel. Het wordt 'as-is' geleverd zonder officiële garanties. Elke wijziging van systeemparameters of configuraties wordt uitgevoerd op eigen risico en verantwoordelijkheid van de gebruiker.", misc_offlineText: "Voor een optimale eerste ervaring wordt een internetverbinding aanbevolen."
+            },
+            sv: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "TEKNISK SERVICEHUBB",
+                nav_menu: "Meny",
+                dashboard_selectTool: "Välj ett verktyg", dashboard_toolDesc: "Välj ett diagnostiskt program.",
+                tools_analyzer_title: "AlarmSnapshot Analysator", tools_analyzer_desc: "Analysera larmloggar för olika styrsystem.", tools_analyzer_launch: "Starta Verktyg",
+                tools_xmlEditor_title: "Parameterlista XML-redigerare", tools_xmlEditor_desc: "Redigera XML-parametrar visuellt och exportera säkert.", tools_xmlEditor_launch: "Starta Verktyg",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Ladda upp parametrar direkt via RS-485.", tools_flasher_launch: "Starta Verktyg",
+                bm_title: "Lägg till i favoriter!", bm_desc: "Ha alltid Clivet Diagnostic Suite nära till hands. Lägg till den här hubben i din webbläsares bokmärken.", bm_press: "Tryck på", bm_btn: "Fattar, tack!", bm_dontShow: "Visa inte detta meddelande igen",
+                modal_menuTitle: "Meny", modal_lang: "Språk", modal_theme: "Utseende", modal_about: "Om / Info", modal_themeDesc: "Välj tema för applikationen.",
+                theme_light: "Ljus", theme_dark: "Mörk", theme_sys: "System",
+                misc_fav: "Favoriter", misc_allLangs: "Alla språk", misc_version: "Version", misc_release: "Utgivningsdatum", misc_disclaimerTitle: "Ansvarsfriskrivning", misc_disclaimerText: "Detta diagnostikverktyg är uteslutande avsett för kvalificerad teknisk personal. Det tillhandahålls 'i befintligt skick' utan officiella garantier. All modifiering av systemparametrar eller konfigurationer utförs helt på användarens egen risk och under dennes ansvar.", misc_offlineText: "För en optimal första upplevelse rekommenderas en internetanslutning."
+            },
+            da: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "TEKNISK SERVICE HUB",
+                nav_menu: "Menu",
+                dashboard_selectTool: "Vælg et værktøj", dashboard_toolDesc: "Vælg et diagnostisk program.",
+                tools_analyzer_title: "AlarmSnapshot Analysator", tools_analyzer_desc: "Analyser alarmlogfiler for forskellige styresystemer.", tools_analyzer_launch: "Start Værktøj",
+                tools_xmlEditor_title: "Parameterliste XML-editor", tools_xmlEditor_desc: "Rediger XML-parametre visuelt og eksporter sikkert.", tools_analyzer_launch: "Start Værktøj",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Upload parametre direkte via RS-485.", tools_flasher_launch: "Start Værktøj",
+                bm_title: "Føj til favoritter!", bm_desc: "Hav altid Clivet Diagnostic Suite lige ved hånden. Føj denne Hub til dine bogmærker i browseren.", bm_press: "Tryk på", bm_btn: "Forstået, tak!", bm_dontShow: "Vis ikke denne besked igen",
+                modal_menuTitle: "Menu", modal_lang: "Sprog", modal_theme: "Udseende", modal_about: "Om / Info", modal_themeDesc: "Vælg tema for applikationen.",
+                theme_light: "Lys", theme_dark: "Mørk", theme_sys: "System",
+                misc_fav: "Foretrukne", misc_allLangs: "Alle sprog", misc_version: "Version", misc_release: "Udgivelsesdato", misc_disclaimerTitle: "Ansvarsfraskrivelse", misc_disclaimerText: "Dette diagnostiske værktøj er udelukkende beregnet til kvalificeret teknisk personale. Det leveres 'som det er' og uden officielle garantier. Enhver ændring af systemparametre eller konfigurationer udføres udelukkende på brugerens eget ansvar og risiko.", misc_offlineText: "For en optimal første oplevelse anbefales en internetforbindelse."
+            },
+            fi: {
+                app_title: "Clivet Diagnostic Suite", app_subtitle: "TEKNINEN TUKIKESKUS",
+                nav_menu: "Valikko",
+                dashboard_selectTool: "Valitse työkalu", dashboard_toolDesc: "Valitse diagnostiikkasovellus.",
+                tools_analyzer_title: "AlarmSnapshot Analysaattori", tools_analyzer_desc: "Analysoi hälytyslokeja eri ohjausjärjestelmille.", tools_analyzer_launch: "Käynnistä Työkalu",
+                tools_xmlEditor_title: "Parametriluettelo XML-editori", tools_xmlEditor_desc: "Muokkaa XML-parametreja visuaalisesti ja vie turvallisesti.", tools_xmlEditor_launch: "Käynnistä Työkalu",
+                tools_flasher_title: "Clivet SwRBC 2.0", tools_flasher_desc: "Lataa parametrit suoraan RS-485:n kautta.", tools_flasher_launch: "Käynnistä Työkalu",
+                bm_title: "Lisää suosikkeihin!", bm_desc: "Pidä Clivet Diagnostic Suite aina käden ulottuvilla. Lisää tämä Hub selaimesi kirjanmerkkeihin.", bm_press: "Paina", bm_btn: "Selvä, kiitos!", bm_dontShow: "Älä näytä tätä viestiä uudelleen",
+                modal_menuTitle: "Valikko", modal_lang: "Kieli", modal_theme: "Ulkomuoto", modal_about: "Tietoja", modal_themeDesc: "Valitse sovelluksen teema.",
+                theme_light: "Vaalea", theme_dark: "Tumma", theme_sys: "Järjestelmä",
+                misc_fav: "Suosikit", misc_allLangs: "Kaikki kielet", misc_version: "Versio", misc_release: "Julkaisupäivä", misc_disclaimerTitle: "Vastuuvapauslauseke", misc_disclaimerText: "Tämä diagnostiikkatyökalu on tarkoitettu yksinomaan pätevälle tekniselle henkilöstölle. Se toimitetaan 'sellaisenaan' ilman virallisia takuita. Kaikki järjestelmäparametrien tai konfiguraatioiden muutokset tehdään yksinomaan käyttäjän omalla vastuulla ja riskillä.", misc_offlineText: "Optimaalisen ensimmäisen kokemuksen saavuttamiseksi suositellaan internetyhteyttä."
+            }
+        };
+		
+        function setTheme(themeMode) {
+            localStorage.setItem('clivet_theme', themeMode);
+            const isDark = themeMode === 'dark' || (themeMode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            isDark ? document.documentElement.classList.add('dark') : document.documentElement.classList.remove('dark');
+            
+            ['light', 'dark', 'system'].forEach(t => {
+                const btn = document.getElementById(`theme-card-${t}`);
+                if (btn) {
+                    if (t === themeMode) {
+                        btn.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                        btn.classList.remove('border-slate-200', 'dark:border-slate-700');
+                        btn.querySelector('svg').classList.replace('text-slate-400', 'text-blue-500');
+                    } else {
+                        btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
+                        btn.classList.add('border-slate-200', 'dark:border-slate-700');
+                        btn.querySelector('svg').classList.replace('text-blue-500', 'text-slate-400');
+                    }
+                }
+            });
+        }
+
+        function initApp() {
+            const favGrid = document.getElementById('fav-lang-grid');
+            const allGrid = document.getElementById('all-lang-grid');
+            if(favGrid && allGrid) {
+                Object.keys(langNames).forEach(k => {
+                    const btnHtml = `<button onclick="selectLanguage('${k}')" class="flex items-center space-x-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition focus:outline-none w-full text-left">${flags[k]} <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">${langNames[k]}</span></button>`;
+                    if (favorites.includes(k)) favGrid.innerHTML += btnHtml;
+                    allGrid.innerHTML += btnHtml;
+                });
+            }
+
+            if (!localStorage.getItem('clivet_first_run') && !navigator.onLine) {
+                const b = document.getElementById('offline-banner');
+                if(b) b.classList.remove('hidden');
+            }
+            localStorage.setItem('clivet_first_run', 'true');
+
+            setTheme(localStorage.getItem('clivet_theme') || 'system');
+            
+            // Avvia il nuovo motore i18n passandogli il dizionario attuale
+            ClivetI18n.init(hubDictionaries);
+        }
+		
+        function openMenuModal() { const m = document.getElementById('menu-modal'); if(m) { m.classList.remove('hidden'); switchSettingsTab('lang'); } }
+        function closeMenuModal() { const m = document.getElementById('menu-modal'); if(m) m.classList.add('hidden'); }
+
+        // --- LOGICA ONBOARDING PREFERITI (Enterprise UI/UX) ---
+        function checkBookmarkOnboarding() {
+            const hidePopup = localStorage.getItem('clivet_hide_bookmark_popup');
+            if (hidePopup !== 'true') {
+                const modal = document.getElementById('bookmark-modal');
+                const backdrop = document.getElementById('bm-backdrop');
+                const dialog = document.getElementById('bm-dialog');
+                const keysContainer = document.getElementById('os-keys-container');
+                
+                const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0 || navigator.userAgent.toUpperCase().indexOf('MAC') >= 0;
+                
+                // Icona Vettoriale HD più fine ed elegante
+                const modKeyContent = isMac 
+                    ? `<svg class="w-5 h-5 text-slate-500 dark:text-slate-300 drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3"/></svg><span class="absolute bottom-1 right-2 text-[8px] font-bold text-slate-400">cmd</span>`
+                    : `<span class="text-sm font-bold text-slate-500 dark:text-slate-300 tracking-wide drop-shadow-sm">Ctrl</span>`;
+                
+                // Motore di Rendering Tasti 3D Alta Fedeltà (Corsa di 4px calcolata al millimetro)
+                keysContainer.innerHTML = `
+                    <div class="relative w-[56px] h-[60px] flex-shrink-0">
+                        <!-- Meccanica di Base (Sfondo scuro, fisso) -->
+                        <div class="absolute inset-x-0 top-[4px] bottom-0 bg-slate-300 dark:bg-slate-950 rounded-[12px] shadow-sm"></div>
+                        
+                        <!-- Labbro e Faccia Animata -->
+                        <div class="anim-face-1 absolute inset-x-0 top-0 h-[56px] bg-[#f8f9fa] dark:bg-[#333b4d] rounded-[12px] border-b-[2px] border-slate-200 dark:border-slate-900 shadow-[inset_0_1px_2px_rgba(255,255,255,1),inset_0_-2px_4px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),inset_0_-2px_4px_rgba(0,0,0,0.4),0_2px_4px_rgba(0,0,0,0.3)] flex items-center justify-center">
+                            ${modKeyContent}
+                        </div>
+                    </div>
+                    
+                    <div class="text-slate-300 dark:text-slate-600 font-medium text-xl pt-4">+</div>
+                    
+                    <div class="relative w-[56px] h-[60px] flex-shrink-0">
+                        <div class="absolute inset-x-0 top-[4px] bottom-0 bg-slate-300 dark:bg-slate-950 rounded-[12px] shadow-sm"></div>
+                        
+                        <div class="anim-face-2 absolute inset-x-0 top-0 h-[56px] bg-[#f8f9fa] dark:bg-[#333b4d] rounded-[12px] border-b-[2px] border-slate-200 dark:border-slate-900 shadow-[inset_0_1px_2px_rgba(255,255,255,1),inset_0_-2px_4px_rgba(0,0,0,0.05),0_2px_4px_rgba(0,0,0,0.1)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.1),inset_0_-2px_4px_rgba(0,0,0,0.4),0_2px_4px_rgba(0,0,0,0.3)] flex items-center justify-center">
+                            <span class="text-xl font-bold text-slate-600 dark:text-slate-200 drop-shadow-sm">D</span>
+                        </div>
+                    </div>
+                `;
+                
+                modal.classList.remove('hidden');
+                void modal.offsetWidth; // Forza reflow
+                backdrop.classList.add('active');
+                dialog.classList.add('active');
+            }
+        }
+
+        function closeBookmarkModal() {
+            const checkbox = document.getElementById('chk-no-show-bm');
+            if (checkbox && checkbox.checked) {
+                localStorage.setItem('clivet_hide_bookmark_popup', 'true');
+            }
+            
+            const modal = document.getElementById('bookmark-modal');
+            const backdrop = document.getElementById('bm-backdrop');
+            const dialog = document.getElementById('bm-dialog');
+            
+            backdrop.classList.remove('active');
+            dialog.classList.remove('active');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 700);
+        }
+
+        function switchSettingsTab(tabId) {
+            document.querySelectorAll('.settings-pane').forEach(el => el.classList.add('hidden'));
+            const c = document.getElementById('tab-content-' + tabId);
+            if(c) c.classList.remove('hidden');
+            
+            ['lang', 'theme', 'about'].forEach(id => {
+                const b = document.getElementById('tab-btn-' + id);
+                if(b) {
+                    if (id === tabId) {
+                        b.className = "flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300";
+                    } else {
+                        b.className = "flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-colors text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700";
+                    }
+                }
+            });
+        }
+
+        // --- INIZIO NUOVO MOTORE i18n ---
+        const ClivetI18n = (() => {
+            const DEFAULT_LANG = 'en';
+            let currentLang = localStorage.getItem('clivet_lang') || DEFAULT_LANG;
+            let dictionaries = {};
+
+            const init = (dicts) => {
+                dictionaries = dicts;
+                if (!dictionaries[currentLang]) {
+                    currentLang = DEFAULT_LANG;
+                    localStorage.setItem('clivet_lang', currentLang);
+                }
+                document.documentElement.lang = currentLang;
+                translateDOM();
+            };
+
+            const setLanguage = (langCode) => {
+                if (dictionaries[langCode] || dictionaries[DEFAULT_LANG]) {
+                    currentLang = langCode;
+                    localStorage.setItem('clivet_lang', currentLang);
+                    document.documentElement.lang = currentLang;
+                    translateDOM();
+                    window.dispatchEvent(new CustomEvent('clivet:langChanged', { detail: { lang: currentLang } }));
+                }
+            };
+
+            const getTranslation = (key) => {
+                const flatKey = key.replace(/\./g, '_');
+                const nestedKeys = key.split('.');
+                const resolveNested = (obj, path) => path.reduce((acc, part) => acc && acc[part], obj);
+
+                let text = (dictionaries[currentLang] && dictionaries[currentLang][flatKey]) || 
+                           (dictionaries[currentLang] ? resolveNested(dictionaries[currentLang], nestedKeys) : undefined);
+                
+                if (text === undefined && currentLang !== DEFAULT_LANG) {
+                    console.warn(`[i18n] Missing translation for '${key}' in '${currentLang}'. Falling back to '${DEFAULT_LANG}'.`);
+                    text = (dictionaries[DEFAULT_LANG] && dictionaries[DEFAULT_LANG][flatKey]) || 
+                           (dictionaries[DEFAULT_LANG] ? resolveNested(dictionaries[DEFAULT_LANG], nestedKeys) : undefined);
+                }
+
+                if (text === undefined) {
+                    console.error(`[i18n] CRITICAL: Key '${key}' missing entirely!`);
+                    return null;
+                }
+                return text;
+            };
+
+            const translateDOM = () => {
+                document.querySelectorAll('[data-i18n]').forEach(el => {
+                    const key = el.getAttribute('data-i18n');
+                    const translation = getTranslation(key);
+                    if (translation !== null) el.innerHTML = translation;
+                });
+
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-i18n-placeholder');
+                    const translation = getTranslation(key);
+                    if (translation !== null) el.placeholder = translation;
+                });
+            };
+
+            return { init, setLanguage, get: getTranslation, getCurrentLang: () => currentLang };
+        })();
+
+        function selectLanguage(langCode) {
+            ClivetI18n.setLanguage(langCode);
+        }
+        // --- FINE NUOVO MOTORE i18n ---
+		
+        document.addEventListener("DOMContentLoaded", initApp);
+		document.addEventListener("DOMContentLoaded", checkBookmarkOnboarding);
+		
+		// 6. KEYBOARD SHORTCUTS (Accessibilità)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeMenuModal();
+                closeBookmarkModal();
+            }
+        });
+		
+    </script>
+</body>
+</html>
