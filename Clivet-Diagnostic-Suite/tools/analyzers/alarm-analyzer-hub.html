@@ -28,8 +28,9 @@
         html, body { height: 100%; margin: 0; overflow: hidden; }
         
         :root {
-            --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
-            --smooth-easing: cubic-bezier(0.4, 0, 0.2, 1);
+            /* Apple HIG Standard Spring Easing */
+            --spring-easing: cubic-bezier(0.25, 1, 0.5, 1);
+            --smooth-easing: cubic-bezier(0.32, 0.72, 0, 1);
             --fs-app-title: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
         }
         
@@ -45,40 +46,67 @@
 
         /* --- CARD ANIMATIONS & HOVER STATES (Apple HIG Standard) --- */
         .system-card { 
-            transition: transform 0.4s var(--spring-easing), box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease; 
+            position: relative;
+            z-index: 1;
+            transform: translate3d(0, 0, 0) scale(1);
             will-change: transform, box-shadow;
+            backface-visibility: hidden;
+            
+            box-shadow: 
+                0 20px 40px -8px rgba(0, 0, 0, 0), 
+                0 8px 16px -6px rgba(0, 0, 0, 0);
+            
+            transition: 
+                transform 0.4s var(--spring-easing), 
+                box-shadow 0.4s var(--spring-easing),
+                border-color 0.3s ease,
+                background-color 0.3s ease,
+                z-index 0s linear 0.4s; 
         }
+
         .system-card:hover {
-            transform: translateY(-4px);
-            z-index: 30;
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.16), 0 8px 16px -8px rgba(0, 0, 0, 0.08);
+            z-index: 50;
+            transform: translate3d(0, -2px, 0) scale(1.02);
+            
+            box-shadow: 
+                0 20px 40px -8px rgba(0, 0, 0, 0.12), 
+                0 8px 16px -6px rgba(0, 0, 0, 0.06);
+
+            transition: 
+                transform 0.4s var(--spring-easing), 
+                box-shadow 0.4s var(--spring-easing),
+                border-color 0.3s ease,
+                background-color 0.3s ease,
+                z-index 0s linear 0s;
         }
+
         .dark .system-card:hover {
-            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.5), 0 8px 16px -8px rgba(0, 0, 0, 0.3);
+            box-shadow: 
+                0 20px 40px -8px rgba(0, 0, 0, 0.5), 
+                0 8px 16px -6px rgba(0, 0, 0, 0.3);
         }
-        .system-card.hidden { display: none !important; }
+
+        .system-card.hidden { display: none; }
         
         .system-group { transition: opacity 0.3s ease; }
         .system-group.hidden { display: none; opacity: 0; }
 
-        /* Staggered Entrance Animation */
         @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translate3d(0, 20px, 0); }
+            to { opacity: 1; transform: translate3d(0, 0, 0); }
         }
         .animate-entrance { 
             opacity: 0; 
-            animation: slideUpFade 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+            animation: slideUpFade 0.5s var(--spring-easing) forwards; 
         }
 
         /* --- GRID VIEW LAYOUT (Optimized for Overflow & Elevation) --- */
-        .system-grid { display: grid; gap: 1rem; overflow: visible; padding: 4px; }
+        .system-grid { display: grid; gap: 0.875rem; overflow: visible; padding: 4px; }
 
         /* Apple HIG 44x44 Touch Target */
         .hit-44 { position: relative; }
         .hit-44::after { content: ''; position: absolute; top: 50%; left: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
 
-        /* GPU Compositor Strategy */
         #menu-modal-content, #info-modal-content { backface-visibility: hidden; contain: layout paint; }
 
         /* Tooltip Layer */
@@ -109,8 +137,17 @@
         @media (min-width: 2200px) { html { font-size: 18px; } }
         body { padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0); }
 
-        @media (hover: none) {
-            [class*="hover:scale-"]:hover, [class*="group-hover:scale-"], .group:hover [class*="group-hover:scale-"] { transform: none !important; box-shadow: none !important; }
+        @media (hover: none) and (pointer: coarse) {
+            .system-card:hover {
+                transform: none !important;
+                box-shadow: none !important;
+                z-index: auto !important;
+            }
+        }
+        html.is-touch .system-card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+            z-index: auto !important;
         }
         
         input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appearance: none; display: none; }
@@ -119,15 +156,15 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex flex-col relative h-screen">
 
-    <!-- GLOBAL HEADER (1600px Alignment) -->
-    <header id="global-header" class="select-none w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm z-40 flex-none h-16">
+    <!-- GLOBAL HEADER -->
+    <header id="global-header" class="select-none w-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200/80 dark:border-white/10 shadow-sm z-40 flex-none h-16">
         <div class="max-w-[1600px] mx-auto w-full px-4 md:px-6 h-full flex items-center justify-between">
             <div class="flex items-center min-w-0">
                 <a href="../../index.html" title="Back to Tools" data-i18n-title="nav_backToTools" aria-label="Back to Tools" data-i18n-aria="nav_backToTools" class="hit-44 group -ml-2 mr-2 sm:mr-3 inline-flex items-center h-10 pl-1.5 pr-2.5 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors focus:outline-none flex-shrink-0">
                     <svg aria-hidden="true" class="w-5 h-5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path></svg>
                     <span data-i18n="nav_tools" class="hidden md:inline text-sm font-semibold">Tools</span>
                 </a>
-                <span class="h-7 w-px bg-slate-200 dark:bg-slate-700 mr-3 sm:mr-4 flex-shrink-0" aria-hidden="true"></span>
+                <span class="h-7 w-px bg-slate-200/80 dark:bg-white/10 mr-3 sm:mr-4 flex-shrink-0" aria-hidden="true"></span>
                 <div class="flex items-center space-x-3 min-w-0">
                     <svg id="app-logo" aria-hidden="true" class="w-8 h-8 flex-shrink-0" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z" fill="#949494"/><path d="M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z" fill="#949494"/><path d="M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z" fill="#007CB1"/><path d="M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z" fill="#007CB1"/><path d="M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z" fill="#007CB1"/><path d="M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z" fill="#007CB1"/><path d="M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z" fill="#007CB1"/>
@@ -137,8 +174,8 @@
                         <p data-i18n="app_subtitle" class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-0.5 leading-tight truncate">Alarm Snapshot Analyzer Hub</p>
                     </div>
                 </div>
-                <div class="hidden sm:flex items-center ml-4 pl-4 border-l border-slate-200 dark:border-slate-700 h-7 flex-shrink-0">
-					<span class="inline-flex items-center justify-center h-5 px-2 rounded-md bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600/60 text-[11px] leading-none font-mono font-semibold text-slate-600 dark:text-slate-300 select-none app-version"></span>
+                <div class="hidden sm:flex items-center ml-4 pl-4 border-l border-slate-200/80 dark:border-white/10 h-7 flex-shrink-0">
+					<span class="inline-flex items-center justify-center h-5 px-2 rounded-md bg-slate-100 dark:bg-slate-700/60 border border-slate-200/70 dark:border-white/10 text-[11px] leading-none font-mono font-semibold text-slate-600 dark:text-slate-300 select-none app-version"></span>
 				</div>
             </div>
             
@@ -151,55 +188,72 @@
         </div>
     </header>
 
-    <!-- TOOLTIP INFO GLOBALE (Smart Anchoring, Glassmorphism, Spring Anim) -->
-    <div id="global-tooltip" role="tooltip" onclick="event.stopPropagation()" class="hidden fixed z-[150] w-[320px] sm:w-[360px] max-h-[85vh] overflow-y-auto custom-scrollbar p-5 bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl border border-slate-300 dark:border-slate-500 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.25)] dark:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-slate-900/5 dark:ring-white/10 pointer-events-auto transition-[opacity,transform] duration-300 ease-[var(--spring-easing)] transform scale-95 opacity-0"></div>
+    <!-- TOOLTIP INFO GLOBALE -->
+    <div id="global-tooltip" role="tooltip" onclick="event.stopPropagation()" class="hidden fixed z-[150] w-[320px] sm:w-[360px] max-h-[85vh] overflow-y-auto custom-scrollbar p-5 bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl border border-slate-200/80 dark:border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.25)] dark:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-slate-900/5 dark:ring-white/10 pointer-events-auto transition-[opacity,transform] duration-300 ease-[var(--spring-easing)] transform scale-95 opacity-0"></div>
 
     <!-- MAIN APP WRAPPER -->
-    <main id="main-scroll-area" class="max-w-[1600px] mx-auto w-full px-4 md:px-6 pt-6 pb-12 flex flex-col flex-grow relative min-h-0 overflow-y-auto custom-scrollbar">
+    <!-- FIX: Sostituito 'overflow-y-auto' con 'overflow-y-scroll' per prevenire il Layout Shift -->
+    <main id="main-scroll-area" class="max-w-[1600px] mx-auto w-full px-4 md:px-6 pt-6 pb-12 flex flex-col flex-grow relative min-h-0 overflow-y-scroll custom-scrollbar">
 
         <div id="systems-wrapper" class="w-full" data-view="grid">
-            
-            <!-- HEADER SEZIONE (Segmented Control + Search + View Toggle + Collapse All) -->
-            <div class="mb-8">
-                <h2 data-i18n="systems_select" class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-5">Select the Control System</h2>
-                
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                    <!-- SEGMENTED CONTROL FILTERS -->
-                    <div class="flex p-1 bg-slate-200/60 dark:bg-slate-800/80 rounded-xl w-full lg:w-auto" id="category-filters">
-                        <button onclick="setCategory('all')" id="btn-cat-all" data-i18n="systems_all" class="cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm transition-all">All Systems</button>
-                        <button onclick="setCategory('air')" id="btn-cat-air" data-i18n="systems_air" class="cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">AIR</button>
-                        <button onclick="setCategory('water')" id="btn-cat-water" data-i18n="systems_water" class="cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">WATER</button>
-                    </div>
 
-                    <!-- SEARCH BAR & CONTROLS -->
-                    <div class="flex items-center gap-2 w-full lg:w-auto">
-                        <!-- Search Bar -->
-                        <div class="relative w-full lg:w-80 flex-shrink-0">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
+                    <!-- HEADER SEZIONE -->
+                    <div class="mb-5">
+                        <h2 data-i18n="systems_select" class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-5">Select the Control System</h2>
+
+                        <!-- Aggiunto w-full per stabilizzare il layout orizzontale -->
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between w-full gap-4">
+                            
+                            <!-- SEGMENTED CONTROL FILTERS -->
+                            <div class="relative flex p-1 bg-slate-200/60 dark:bg-slate-800/80 rounded-xl w-full lg:w-auto lg:flex-shrink-0" id="category-filters">
+                                <!-- Slider animato (Background fisico) -->
+                                <div id="category-slider" class="absolute top-1 bottom-1 left-0 bg-white dark:bg-slate-600 rounded-lg shadow-sm transition-all duration-500 ease-[var(--spring-easing)] z-0 pointer-events-none"></div>
+                                
+                                <!-- Bottoni (Testo in primo piano) -->
+                                <button onclick="setCategory('all')" id="btn-cat-all" data-i18n="systems_all" class="cat-btn relative z-10 flex-1 px-6 py-2 text-sm font-medium text-slate-900 dark:text-white transition-colors duration-300 focus:outline-none">All Systems</button>
+                                <button onclick="setCategory('air')" id="btn-cat-air" data-i18n="systems_air" class="cat-btn relative z-10 flex-1 px-6 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-300 focus:outline-none">AIR</button>
+                                <button onclick="setCategory('water')" id="btn-cat-water" data-i18n="systems_water" class="cat-btn relative z-10 flex-1 px-6 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors duration-300 focus:outline-none">WATER</button>
                             </div>
-                            <input type="search" id="searchInput" oninput="filterSystems()" data-i18n-placeholder="systems_search" placeholder="Search Control System..." class="w-full pl-9 pr-16 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500/50 focus:border-blue-500 transition-shadow shadow-sm">
-                            
-                            <!-- Clear Button (Hidden by default) -->
-                            <button type="button" id="searchClearBtn" onclick="clearSearchInput()" aria-label="Clear Search" class="absolute inset-y-0 right-8 flex items-center justify-center w-8 h-full text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors focus:outline-none opacity-0 pointer-events-none scale-90">
-                                <svg aria-hidden="true" class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd"></path></svg>
-                            </button>
-                            
-                            <!-- Info Icon for Search -->
-                            <button type="button" aria-label="Search Info" data-i18n-aria="ui_moreInfo" aria-haspopup="dialog" class="absolute inset-y-0 right-1 flex items-center justify-center w-8 h-full text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none" onclick="toggleInfo(event, 'infoSearch')">
-                                <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"></path></svg>
-                            </button>
+
+                            <!-- SEARCH BAR & CONTROLS -->
+                            <!-- Aggiunto justify-between e lg:justify-end per ancorarlo rigidamente -->
+                            <div class="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
+
+                                <!-- SEARCH FIELD CONTAINER -->
+                                <!-- FIX: w-full sostituito con flex-1 per rispettare il Touch Target del bottone (i) -->
+                                <div class="relative flex-1 lg:flex-none lg:w-80 group">
+
+                                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                                        <svg class="h-[18px] w-[18px] text-[#8E8E93] dark:text-[#98989D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
+                                    </div>
+
+                                    <!-- FIX: Dark mode bg modificato in System Gray 5 (#2C2C2E) -->
+                                    <input type="search" id="searchInput" oninput="filterSystems()" data-i18n-placeholder="systems_search" placeholder="Search Control System" 
+                                        class="w-full pl-9 pr-10 py-1.5 bg-[#F2F2F7] dark:bg-[#2C2C2E] border-none rounded-[10px] text-[16px] text-black dark:text-white placeholder:text-[#AEAEB2] dark:placeholder:text-[#636366] focus:outline-none focus:bg-white dark:focus:bg-[#3A3A3C] focus:ring-[3px] focus:ring-[#007AFF]/40 transition-all duration-200">
+
+                                    <button type="button" id="searchClearBtn" onclick="clearSearchInput()" aria-label="Clear Search" 
+                                        class="absolute inset-y-0 right-0 flex items-center justify-center w-[44px] h-full text-[#8E8E93] dark:text-[#98989D] hover:text-[#3A3A3C] dark:hover:text-[#E5E5EA] transition-opacity duration-200 focus:outline-none focus-visible:ring-[3px] focus-visible:ring-[#007AFF]/40 rounded-[10px] opacity-0 pointer-events-none scale-90">
+                                        <svg aria-hidden="true" class="w-[15px] h-[15px]" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd"></path></svg>
+                                    </button>
+                                </div>
+
+                                <!-- Info Button -->
+                                <!-- flex-shrink-0 lavora in tandem con il flex-1 del container precedente -->
+                                <button type="button" aria-label="Search Info" data-i18n-aria="ui_moreInfo" aria-haspopup="dialog" onclick="toggleInfo(event, 'infoSearch')"
+                                    class="flex-shrink-0 flex items-center justify-center w-[44px] h-[44px] text-[#007AFF] hover:text-[#0056b3] dark:text-[#0A84FF] dark:hover:text-[#409CFF] bg-transparent hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors focus:outline-none focus-visible:ring-[3px] focus-visible:ring-[#007AFF]/40">
+                                    <svg aria-hidden="true" class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"></path></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- AIR SYSTEMS GROUP -->
-            <div id="group-air" class="system-group mb-10">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">
+            <div id="group-air" class="system-group mb-6">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-200/80 dark:border-white/10 pb-2">
                     <div class="flex items-center gap-3">
                         <div class="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">
-                            <!-- Enterprise Airflow/Wind Icon -->
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
                             </svg>
@@ -211,10 +265,10 @@
                     </button>
                 </div>
                 
-                <div id="group-air-grid" class="overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+                <div id="group-air-grid" class="transition-[max-height] duration-400 ease-in-out" style="max-height: 2000px; overflow: visible;" data-collapsed="false">
                     <div class="system-grid pb-2">
                         
-                        <a href="siemens-ar1.html" onclick="trackUsage('AR1')" data-category="air" data-sys="AR1" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-ar1.html" onclick="trackUsage('AR1')" data-category="air" data-sys="AR1" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
@@ -229,7 +283,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-az1.html" onclick="trackUsage('AZ1')" data-category="air" data-sys="AZ1" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-az1.html" onclick="trackUsage('AZ1')" data-category="air" data-sys="AZ1" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
@@ -244,7 +298,7 @@
                             </button>
                         </a>
                         
-                        <a href="siemens-a00.html" onclick="trackUsage('A00')" data-category="air" data-sys="A00" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-a00.html" onclick="trackUsage('A00')" data-category="air" data-sys="A00" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
@@ -259,7 +313,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-a01.html" onclick="trackUsage('A01')" data-category="air" data-sys="A01" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-a01.html" onclick="trackUsage('A01')" data-category="air" data-sys="A01" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 11.25h13.5a2.25 2.25 0 000-4.5h-2.25M3 15.75h10.5a2.25 2.25 0 010 4.5h-2.25M3 6.75h15a2.25 2.25 0 010 4.5h-2.25" />
@@ -274,7 +328,7 @@
                             </button>
                         </a>
                     </div>
-                    <!-- Pulsante Show All (nascosto di default) -->
+                    <!-- Pulsante Show All -->
                     <div id="group-air-show-all" class="hidden mt-4 flex justify-center no-print">
                         <button onclick="expandGroupCards('group-air')" class="hit-44 flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition-all duration-200 focus:outline-none active:scale-95 shadow-sm">
                             <span class="show-all-text">Show all</span>
@@ -287,11 +341,10 @@
             </div>
 
             <!-- WATER SYSTEMS GROUP -->
-            <div id="group-water" class="system-group mb-10">
-                <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">
+            <div id="group-water" class="system-group mb-6">
+                <div class="flex items-center justify-between mb-4 border-b border-slate-200/80 dark:border-white/10 pb-2">
                     <div class="flex items-center gap-3">
                         <div class="p-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-900/40 text-cyan-600 dark:text-cyan-400">
-                            <!-- Enterprise Water Drop Icon -->
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path>
                             </svg>
@@ -303,10 +356,10 @@
                     </button>
                 </div>
                 
-                <div id="group-water-grid" class="overflow-hidden transition-all duration-300" style="max-height: 2000px;">
+                <div id="group-water-grid" class="transition-[max-height] duration-400 ease-in-out" style="max-height: 2000px; overflow: visible;" data-collapsed="false">
                     <div class="system-grid pb-2">
                         
-                        <a href="siemens-w02.html" onclick="trackUsage('W02')" data-category="water" data-sys="W02" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-w02.html" onclick="trackUsage('W02')" data-category="water" data-sys="W02" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -319,7 +372,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-w01.html" onclick="trackUsage('W01')" data-category="water" data-sys="W01" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-w01.html" onclick="trackUsage('W01')" data-category="water" data-sys="W01" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -332,7 +385,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-w03.html" onclick="trackUsage('W03')" data-category="water" data-sys="W03" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-w03.html" onclick="trackUsage('W03')" data-category="water" data-sys="W03" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -345,7 +398,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-w04.html" onclick="trackUsage('W04')" data-category="water" data-sys="W04" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-w04.html" onclick="trackUsage('W04')" data-category="water" data-sys="W04" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -358,7 +411,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-w05.html" onclick="trackUsage('W05')" data-category="water" data-sys="W05" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-w05.html" onclick="trackUsage('W05')" data-category="water" data-sys="W05" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -371,7 +424,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-w00.html" onclick="trackUsage('W00')" data-category="water" data-sys="W00" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-w00.html" onclick="trackUsage('W00')" data-category="water" data-sys="W00" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -384,7 +437,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-w0i.html" onclick="trackUsage('W0i')" data-category="water" data-sys="W0i" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-w0i.html" onclick="trackUsage('W0i')" data-category="water" data-sys="W0i" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -397,7 +450,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-w0imf.html" onclick="trackUsage('W0i_MF')" data-category="water" data-sys="W0i_MF" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-w0imf.html" onclick="trackUsage('W0i_MF')" data-category="water" data-sys="W0i_MF" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -410,7 +463,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-wi2.html" onclick="trackUsage('Wi2')" data-category="water" data-sys="Wi2" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-wi2.html" onclick="trackUsage('Wi2')" data-category="water" data-sys="Wi2" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -423,7 +476,7 @@
                             </button>
                         </a>
 
-                        <a href="siemens-wk2.html" onclick="trackUsage('WK2')" data-category="water" data-sys="WK2" class="system-card relative group flex items-start bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <a href="siemens-wk2.html" onclick="trackUsage('WK2')" data-category="water" data-sys="WK2" class="system-card relative group flex items-start bg-white dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200/70 dark:border-white/10 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <div class="icon-wrapper w-12 h-12 bg-cyan-50 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400 rounded-lg flex items-center justify-center flex-shrink-0 mr-4 group-hover:scale-105 transition-transform">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c-1.892 2.956-5.25 7.252-5.25 10.5a5.25 5.25 0 0010.5 0c0-3.248-3.358-7.544-5.25-10.5z"></path></svg>
                             </div>
@@ -437,7 +490,7 @@
                         </a>
 
                     </div>
-                    <!-- Pulsante Show All (nascosto di default) -->
+                    <!-- Pulsante Show All -->
                     <div id="group-water-show-all" class="hidden mt-4 flex justify-center no-print">
                         <button onclick="expandGroupCards('group-water')" class="hit-44 flex items-center space-x-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition-all duration-200 focus:outline-none active:scale-95 shadow-sm">
                             <span class="show-all-text">Show all</span>
@@ -468,9 +521,9 @@
     <div id="info-modal" class="hidden fixed inset-0 z-[200] flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300 opacity-0" id="info-modal-bg" onclick="closeInfoModal()"></div>
         
-        <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl w-full sm:max-w-lg max-h-[calc(100dvh-0.5rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col rounded-t-[2rem] sm:rounded-2xl shadow-2xl relative z-10 transform transition-all duration-500 translate-y-10 scale-95 opacity-0 border border-slate-200/80 dark:border-slate-700/80 spring-anim overflow-hidden" id="info-modal-content" role="dialog" aria-modal="true" aria-labelledby="info-modal-title" style="padding-bottom: env(safe-area-inset-bottom);">
+        <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl w-full sm:max-w-lg max-h-[calc(100dvh-0.5rem)] sm:max-h-[calc(100dvh-2rem)] flex flex-col rounded-t-[2rem] sm:rounded-2xl shadow-2xl relative z-10 transform transition-[transform,opacity,background-color,border-color] duration-500 translate-y-10 scale-95 opacity-0 border border-slate-200/80 dark:border-white/10 spring-anim overflow-hidden" id="info-modal-content" role="dialog" aria-modal="true" aria-labelledby="info-modal-title" style="padding-bottom: env(safe-area-inset-bottom);">
             
-            <header class="select-none flex items-start gap-3 px-4 sm:px-6 pt-4 sm:pt-5 pb-4 flex-shrink-0 border-b border-slate-200/80 dark:border-slate-700/80 bg-slate-50/80 dark:bg-slate-800/60 rounded-t-[2rem] sm:rounded-t-2xl">
+            <header class="select-none flex items-start gap-3 px-4 sm:px-6 pt-4 sm:pt-5 pb-4 flex-shrink-0 border-b border-slate-200/80 dark:border-white/10 bg-slate-50/80 dark:bg-slate-800/60 rounded-t-[2rem] sm:rounded-t-2xl">
                 <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0 ring-1 ring-blue-500/10">
                     <svg aria-hidden="true" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"></path></svg>
                 </div>
@@ -495,10 +548,10 @@
     <div id="menu-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300 opacity-0" id="menu-modal-bg" onclick="closeMenuModal()"></div>
         
-        <div class="bg-white dark:bg-slate-800 w-full max-w-4xl h-full sm:h-[80vh] sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 dark:border-slate-700 relative z-10 transform translate-y-10 scale-95 opacity-0 transition-all duration-500 spring-anim" id="menu-modal-content" role="dialog" aria-modal="true" aria-labelledby="menu-modal-title">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-4xl h-full sm:h-[80vh] rounded-none sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200/80 dark:border-white/10 relative z-10 transform translate-y-10 scale-95 opacity-0 transition-[transform,opacity,background-color,border-color] duration-500 spring-anim" id="menu-modal-content" role="dialog" aria-modal="true" aria-labelledby="menu-modal-title">
             
             <!-- Header Modal -->
-            <div class="select-none flex justify-between items-center px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
+            <div class="select-none flex justify-between items-center px-6 py-4 border-b border-slate-200/80 dark:border-white/10 bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
                 <div class="flex items-center space-x-3">
                     <svg aria-hidden="true" class="w-6 h-6 text-slate-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     <h2 id="menu-modal-title" data-i18n="modal_menuTitle" class="text-lg font-bold text-slate-800 dark:text-white">Menu</h2>
@@ -511,7 +564,7 @@
             <!-- Wrapper Elastico Interno -->
             <div class="flex flex-col md:flex-row flex-grow min-h-0 overflow-hidden">
                 <!-- Tab-Bar Mobile / Sidebar Desktop -->
-                <div class="select-none w-full md:w-64 lg:w-[280px] bg-slate-50 dark:bg-slate-800/30 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-3 md:p-4 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto space-x-2 md:space-x-0 md:space-y-2 flex-shrink-0 custom-scrollbar">
+                <div class="select-none w-full md:w-64 lg:w-[280px] bg-slate-50 dark:bg-slate-800/30 border-b md:border-b-0 md:border-r border-slate-200/80 dark:border-white/10 p-3 md:p-4 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto space-x-2 md:space-x-0 md:space-y-2 flex-shrink-0 custom-scrollbar">
                     
                     <div class="hidden md:block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-3 pt-1 pb-1" data-i18n="modal_settings_app">Appearance & Lang</div>
                     
@@ -525,7 +578,7 @@
                         <span data-i18n="modal_theme" class="flex-1 min-w-0 truncate text-left">Appearance</span>
                     </button>
 
-                    <div class="hidden md:block my-2 border-t border-slate-200 dark:border-slate-700/60"></div>
+                    <div class="hidden md:block my-2 border-t border-slate-200/80 dark:border-white/10"></div>
                     <div class="block md:hidden w-px h-8 bg-slate-300 dark:bg-slate-600 flex-shrink-0 mx-1.5 self-center rounded-full"></div>
 
                     <button id="tab-btn-about" onclick="switchSettingsTab('about')" class="flex-none md:w-full flex items-center justify-center md:justify-start space-x-2 md:space-x-3 px-4 py-2.5 md:py-3 rounded-lg text-sm font-medium transition-all duration-200 text-slate-600 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700 focus:outline-none active:scale-[0.98]">
@@ -548,15 +601,15 @@
                     <div id="tab-content-theme" class="settings-pane hidden select-none">
                         <p data-i18n="modal_themeDesc" class="text-sm text-slate-500 dark:text-slate-400 mb-6">Choose the appearance of the application.</p>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            <button id="theme-card-light" onclick="setTheme('light')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 focus:outline-none active:scale-95">
+                            <button id="theme-card-light" onclick="setTheme('light')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200/80 dark:border-white/10 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 focus:outline-none active:scale-95">
                                 <svg aria-hidden="true" class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                                 <span data-i18n="theme_light" class="font-bold text-slate-700 dark:text-slate-300">Light</span>
                             </button>
-                            <button id="theme-card-dark" onclick="setTheme('dark')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 focus:outline-none active:scale-95">
+                            <button id="theme-card-dark" onclick="setTheme('dark')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200/80 dark:border-white/10 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 focus:outline-none active:scale-95">
                                 <svg aria-hidden="true" class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                                 <span data-i18n="theme_dark" class="font-bold text-slate-700 dark:text-slate-300">Dark</span>
                             </button>
-                            <button id="theme-card-system" onclick="setTheme('system')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200 dark:border-slate-700 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 focus:outline-none active:scale-95">
+                            <button id="theme-card-system" onclick="setTheme('system')" class="flex flex-col items-center justify-center p-6 border-2 border-slate-200/80 dark:border-white/10 rounded-xl hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 focus:outline-none active:scale-95">
                                 <svg aria-hidden="true" class="w-8 h-8 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                                 <span data-i18n="theme_sys" class="font-bold text-slate-700 dark:text-slate-300">System</span>
                             </button>
@@ -565,7 +618,7 @@
 
                     <!-- Tab About -->
                     <div id="tab-content-about" class="settings-pane hidden text-slate-600 dark:text-slate-300 space-y-6">
-                        <div class="flex items-center space-x-4 pb-4 border-b border-slate-200 dark:border-slate-700 select-none">
+                        <div class="flex items-center space-x-4 pb-4 border-b border-slate-200/80 dark:border-white/10 select-none">
                             <div class="w-12 h-12 flex-shrink-0 flex items-center justify-center text-blue-600 dark:text-blue-400">
                                 <svg aria-hidden="true" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z" fill="#949494"/>
@@ -584,11 +637,11 @@
                         </div>
                         
                         <div class="grid grid-cols-2 gap-4 text-sm mt-4 mb-3">
-                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-white/10">
                                 <span data-i18n="misc_version" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 select-none">Version</span>
                                 <span class="font-mono text-slate-800 dark:text-slate-200 app-version cursor-text select-text"></span>
                             </div>
-                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <div class="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200/80 dark:border-white/10">
                                 <span data-i18n="misc_release" class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 select-none">Release Date</span>
                                 <span class="font-mono text-slate-800 dark:text-slate-200 app-date cursor-text select-text"></span>
                             </div>
@@ -1077,7 +1130,7 @@
                 nav_menu: "Meny", nav_backToTools: "Tillbaka till Verktyg", nav_tools: "Verktyg",
                 systems_select: "Välj styrsystem", systems_search: "Sök system...", systems_all: "Alla system", systems_air: "LUFT", systems_water: "VATTEN",
                 systems_air_title: "Luftenheter", systems_water_title: "Vattenenheter",
-                systems_ar1: "Analysera AlarmSnapshot.txt-filer för CSRN-Y Rooftop-enheter CLIVETPack3-serien.",
+                systems_ar1: "Analysera AlarmSnapshot.txt-filer för CSRN-Y Rooftop-enheder CLIVETPack3-serien.",
                 systems_az1: "Analysera AlarmSnapshot.txt-filer för CPAN-iY-enheter ZEPHIR4-serien.",
                 systems_a00: "Analysera AlarmSnapshot.txt-filer för Rooftop-enheter CLIVETPack2-serien.",
                 systems_a01: "Analysera AlarmSnapshot.txt-filer för CPAN-XHE3-enheter ZEPHIR3-serien.",
@@ -1238,22 +1291,22 @@
         };
 
         const flags = {
-            en: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#012169" d="M0 0h64v48H0z"/><path stroke="#FFF" stroke-width="10" d="M0 0l64 48m0-48L0 48"/><path stroke="#C8102E" stroke-width="6" d="M0 0l64 48m0-48L0 48"/><path fill="#FFF" d="M24 0h16v48H24zM0 16h64v16H0z"/><path fill="#C8102E" d="M28 0h8v48h-8zM0 20h64v8H0z"/></svg>`,
-            it: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#009246" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#CE2B37" d="M42.7 0H64v48H42.7z"/></svg>`,
-            de: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#000" d="M0 0h64v16H0z"/><path fill="#DD0000" d="M0 16h64v16H0z"/><path fill="#FFCE00" d="M0 32h64v16H0z"/></svg>`,
-            fr: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#002395" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#ED2939" d="M42.7 0H64v48H42.7z"/></svg>`,
-            es: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#AA151B" d="M0 0h64v12H0zm0 36h64v12H0z"/><path fill="#F1BF00" d="M0 12h64v24H0z"/></svg>`,
-            zh: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#EE1C25" d="M0 0h64v48H0z"/><path fill="#FF0" d="M10.5 6a4.5 4.5 0 100 9 4.5 4.5 0 000-9zm11.5 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm2 4.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-1 5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-4.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>`,
-            pt: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#006600" d="M0 0h25.6v48H0z"/><path fill="#FF0000" d="M25.6 0H64v48H25.6z"/><circle cx="25.6" cy="24" r="8" fill="#FF0"/></svg>`,
-            ru: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v16H0z"/><path fill="#0039A6" d="M0 16h64v16H0z"/><path fill="#D52B1E" d="M0 32h64v16H0z"/></svg>`,
-            ja: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="14" fill="#BC002D"/></svg>`,
-            ko: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="12" fill="#CD2E3A"/><path d="M20 24a12 12 0 0024 0 6 6 0 01-12 0 6 6 0 00-12 0z" fill="#0F64CD"/></svg>`,
-            tr: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#E30A17" d="M0 0h64v48H0z"/><circle cx="24" cy="24" r="12" fill="#FFF"/><circle cx="28" cy="24" r="10" fill="#E30A17"/><path fill="#FFF" d="M36 19l2 5h5l-4 3 1 5-4-3-4 3 1-5-4-3h5z"/></svg>`,
-            pl: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v24H0z"/><path fill="#DC143C" d="M0 24h64v24H0z"/></svg>`,
-            nl: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#AE1C28" d="M0 0h64v16H0z"/><path fill="#FFF" d="M0 16h64v16H0z"/><path fill="#21468B" d="M0 32h64v16H0z"/></svg>`,
-            sv: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#006AA7" d="M0 0h64v48H0z"/><path fill="#FECC00" d="M18 0h8v48h-8zM0 18h64v8H0z"/></svg>`,
-            da: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#C60C30" d="M0 0h64v48H0z"/><path fill="#FFF" d="M18 0h6v48h-6zM0 20h64v6H0z"/></svg>`,
-            fi: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200 dark:border-slate-600"><path fill="#FFF" d="M0 0h64v48H0z"/><path fill="#002F6C" d="M18 0h10v48H18zM0 18h64v12H0z"/></svg>`
+            en: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#012169" d="M0 0h64v48H0z"/><path stroke="#FFF" stroke-width="10" d="M0 0l64 48m0-48L0 48"/><path stroke="#C8102E" stroke-width="6" d="M0 0l64 48m0-48L0 48"/><path fill="#FFF" d="M24 0h16v48H24zM0 16h64v16H0z"/><path fill="#C8102E" d="M28 0h8v48h-8zM0 20h64v8H0z"/></svg>`,
+            it: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#009246" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#CE2B37" d="M42.7 0H64v48H42.7z"/></svg>`,
+            de: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#000" d="M0 0h64v16H0z"/><path fill="#DD0000" d="M0 16h64v16H0z"/><path fill="#FFCE00" d="M0 32h64v16H0z"/></svg>`,
+            fr: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#002395" d="M0 0h21.3v48H0z"/><path fill="#FFF" d="M21.3 0h21.4v48H21.3z"/><path fill="#ED2939" d="M42.7 0H64v48H42.7z"/></svg>`,
+            es: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#AA151B" d="M0 0h64v12H0zm0 36h64v12H0z"/><path fill="#F1BF00" d="M0 12h64v24H0z"/></svg>`,
+            zh: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#EE1C25" d="M0 0h64v48H0z"/><path fill="#FF0" d="M10.5 6a4.5 4.5 0 100 9 4.5 4.5 0 000-9zm11.5 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm2 4.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-1 5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm-4.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/></svg>`,
+            pt: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#006600" d="M0 0h25.6v48H0z"/><path fill="#FF0000" d="M25.6 0H64v48H25.6z"/><circle cx="25.6" cy="24" r="8" fill="#FF0"/></svg>`,
+            ru: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#FFF" d="M0 0h64v16H0z"/><path fill="#0039A6" d="M0 16h64v16H0z"/><path fill="#D52B1E" d="M0 32h64v16H0z"/></svg>`,
+            ja: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="14" fill="#BC002D"/></svg>`,
+            ko: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#FFF" d="M0 0h64v48H0z"/><circle cx="32" cy="24" r="12" fill="#CD2E3A"/><path d="M20 24a12 12 0 0024 0 6 6 0 01-12 0 6 6 0 00-12 0z" fill="#0F64CD"/></svg>`,
+            tr: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#E30A17" d="M0 0h64v48H0z"/><circle cx="24" cy="24" r="12" fill="#FFF"/><circle cx="28" cy="24" r="10" fill="#E30A17"/><path fill="#FFF" d="M36 19l2 5h5l-4 3 1 5-4-3-4 3 1-5-4-3h5z"/></svg>`,
+            pl: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#FFF" d="M0 0h64v24H0z"/><path fill="#DC143C" d="M0 24h64v24H0z"/></svg>`,
+            nl: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#AE1C28" d="M0 0h64v16H0z"/><path fill="#FFF" d="M0 16h64v16H0z"/><path fill="#21468B" d="M0 32h64v16H0z"/></svg>`,
+            sv: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#006AA7" d="M0 0h64v48H0z"/><path fill="#FECC00" d="M18 0h8v48h-8zM0 18h64v8H0z"/></svg>`,
+            da: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#C60C30" d="M0 0h64v48H0z"/><path fill="#FFF" d="M18 0h6v48h-6zM0 20h64v6H0z"/></svg>`,
+            fi: `<svg aria-hidden="true" viewBox="0 0 64 48" class="w-6 h-auto rounded object-cover shadow-sm border border-slate-200/70 dark:border-white/10"><path fill="#FFF" d="M0 0h64v48H0z"/><path fill="#002F6C" d="M18 0h10v48H18zM0 18h64v12H0z"/></svg>`
         };
 
         const langNames = { en: "English", it: "Italiano", de: "Deutsch", fr: "Français", es: "Español", zh: "中文", pt: "Português", ru: "Русский", ja: "日本語", ko: "한국어", tr: "Türkçe", pl: "Polski", nl: "Nederlands", sv: "Svenska", da: "Dansk", fi: "Suomi" };
@@ -1288,10 +1341,10 @@
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 if (btn.getAttribute('data-lang-btn') === activeLang) {
                     btn.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
-                    btn.classList.remove('border-slate-200', 'dark:border-slate-700');
+                    btn.classList.remove('border-slate-200/70', 'dark:border-white/10');
                 } else {
                     btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
-                    btn.classList.add('border-slate-200', 'dark:border-slate-700');
+                    btn.classList.add('border-slate-200/70', 'dark:border-white/10');
                 }
             });
         }
@@ -1299,7 +1352,7 @@
         function selectLanguage(langCode) {
             ClivetI18n.setLanguage(langCode);
             recordLanguageUsage(langCode); 
-            updateGroupButtonsText(); // Aggiorna i testi dei bottoni "Show all"
+            updateGroupButtonsText();
         }
 
         function renderLanguageGrids() {
@@ -1314,7 +1367,7 @@
 
             let favHtml = '', allHtml = '';
             Object.keys(langNames).forEach(k => {
-                const btnHtml = `<button onclick="selectLanguage('${k}')" data-lang-btn="${k}" class="lang-btn flex items-center space-x-3 p-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition focus:outline-none w-full text-left active:scale-95">${flags[k]} <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">${langNames[k]}</span></button>`;
+                const btnHtml = `<button onclick="selectLanguage('${k}')" data-lang-btn="${k}" class="lang-btn flex items-center space-x-3 p-3 rounded-xl border border-slate-200/70 dark:border-white/10 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition focus:outline-none w-full text-left active:scale-95">${flags[k]} <span class="font-medium text-slate-700 dark:text-slate-200 text-sm">${langNames[k]}</span></button>`;
                 
                 if (currentFavs.includes(k)) favHtml += btnHtml;
                 allHtml += btnHtml;
@@ -1347,7 +1400,6 @@
 
                 const cards = Array.from(grid.querySelectorAll('.system-card'));
                 
-                // Ordinamento: prima per utilizzo (decrescente), poi alfabetico
                 cards.sort((a, b) => {
                     const sysA = a.getAttribute('data-sys');
                     const sysB = b.getAttribute('data-sys');
@@ -1360,10 +1412,7 @@
                     return sysA.localeCompare(sysB); 
                 });
                 
-                // Riappende le card ordinate
                 cards.forEach(card => grid.appendChild(card));
-                
-                // Logica Top 4
                 applyTop4Logic(groupId, cards);
             });
         }
@@ -1376,7 +1425,6 @@
             const isSearching = document.getElementById('searchInput').value.trim().length > 0;
 
             if (cards.length > 4 && !isSearching) {
-                // Nascondi le card oltre la quarta
                 cards.forEach((card, index) => {
                     if (index >= 4) {
                         card.classList.add('hidden');
@@ -1387,11 +1435,9 @@
                     }
                 });
                 
-                // Mostra il bottone "Show all"
                 showAllBtnContainer.classList.remove('hidden');
                 showAllBtnContainer.classList.add('flex');
                 
-                // Imposta il testo corretto
                 const btnText = showAllBtnContainer.querySelector('.show-all-text');
                 const icon = showAllBtnContainer.querySelector('svg');
                 if (btnText) {
@@ -1402,10 +1448,8 @@
                 showAllBtnContainer.dataset.expanded = "false";
 
             } else {
-                // Se ci sono <= 4 card o stiamo cercando, mostra tutto e nascondi il bottone
                 cards.forEach(card => {
                     card.dataset.hiddenByTop4 = "false";
-                    // Non rimuovere 'hidden' se è nascosta dalla ricerca
                     if (!isSearching) card.classList.remove('hidden');
                 });
                 showAllBtnContainer.classList.add('hidden');
@@ -1426,7 +1470,6 @@
             const icon = showAllBtnContainer.querySelector('svg');
 
             if (isExpanded) {
-                // Collassa (torna a Top 4)
                 cards.forEach((card, index) => {
                     if (index >= 4) {
                         card.classList.add('hidden');
@@ -1439,17 +1482,14 @@
                 if (icon) icon.classList.remove('rotate-180');
                 showAllBtnContainer.dataset.expanded = "false";
                 
-                // Scrolla leggermente su per mantenere il contesto
                 group.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             } else {
-                // Espandi (mostra tutte)
                 cards.forEach(card => {
                     card.classList.remove('hidden');
                     card.dataset.hiddenByTop4 = "false";
-                    // Aggiungi animazione di ingresso per le nuove card
                     card.classList.add('animate-entrance');
-                    setTimeout(() => card.classList.remove('animate-entrance'), 600);
+                    setTimeout(() => card.classList.remove('animate-entrance'), 500);
                 });
                 
                 if (btnText) btnText.textContent = ClivetI18n.get('ui_showTopCards') || "Show less";
@@ -1485,10 +1525,12 @@
             const icon = btn.querySelector('svg');
             if (!gridWrapper || !icon) return;
 
-            const isCollapsed = gridWrapper.style.maxHeight === '0px';
+            const isCollapsed = gridWrapper.dataset.collapsed === 'true';
 
             if (isCollapsed) {
                 // Expand
+                gridWrapper.dataset.collapsed = 'false';
+                gridWrapper.style.overflow = 'hidden'; // Nascondi overflow durante l'animazione
                 gridWrapper.style.maxHeight = gridWrapper.scrollHeight + 'px';
                 icon.classList.add('rotate-180');
                 btn.setAttribute('aria-label', ClivetI18n.get('ui_collapseGroup') || 'Collapse Group');
@@ -1497,23 +1539,25 @@
                     if (e.target !== gridWrapper) return;
                     gridWrapper.removeEventListener('transitionend', onEnd);
                     gridWrapper.style.maxHeight = '2000px'; 
+                    gridWrapper.style.overflow = 'visible'; // Ripristina per hover effects
                 };
                 gridWrapper.addEventListener('transitionend', onEnd);
             } else {
                 // Collapse
+                gridWrapper.dataset.collapsed = 'true';
+                gridWrapper.style.overflow = 'hidden'; // Nascondi subito per evitare clipping
                 gridWrapper.style.maxHeight = gridWrapper.scrollHeight + 'px'; 
                 
+                // Forza il reflow per far registrare l'altezza esatta prima di portarla a 0
+                void gridWrapper.offsetHeight;
+
                 requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        gridWrapper.style.maxHeight = '0px';
-                        icon.classList.remove('rotate-180');
-                        btn.setAttribute('aria-label', ClivetI18n.get('ui_expandGroup') || 'Expand Group');
-                    });
+                    gridWrapper.style.maxHeight = '0px';
+                    icon.classList.remove('rotate-180');
+                    btn.setAttribute('aria-label', ClivetI18n.get('ui_expandGroup') || 'Expand Group');
                 });
             }
         }
-
-
 
         // --- SCROLL TO TOP ---
         function scrollToTop() {
@@ -1557,7 +1601,6 @@
             const clearBtn = document.getElementById('searchClearBtn');
             let visibleCount = 0;
 
-            // Gestione bottone Clear
             if (clearBtn) {
                 if (isSearching) {
                     clearBtn.classList.remove('opacity-0', 'pointer-events-none', 'scale-90');
@@ -1573,7 +1616,6 @@
                 const category = card.getAttribute('data-category');
                 const sysCode = card.getAttribute('data-sys');
                 
-                // Cerca anche all'interno dei modelli supportati (UX potenziata)
                 let modelsText = "";
                 if (sysCode && supportedUnits[sysCode]) {
                     modelsText = supportedUnits[sysCode].map(u => `${u.series} ${u.model} ${u.sizes}`).join(" ").toLowerCase();
@@ -1583,11 +1625,9 @@
                 const matchesCategory = currentCategory === 'all' || category === currentCategory;
 
                 if (matchesSearch && matchesCategory) {
-                    // Se stiamo cercando, ignora la logica Top 4
                     if (isSearching) {
                         card.classList.remove('hidden');
                     } else {
-                        // Se non stiamo cercando, rispetta lo stato Top 4
                         if (card.dataset.hiddenByTop4 === "true") {
                             card.classList.add('hidden');
                         } else {
@@ -1600,7 +1640,6 @@
                 }
             });
 
-            // Gestione visibilità dei gruppi e auto-espansione
             ['group-air', 'group-water'].forEach(groupId => {
                 const group = document.getElementById(groupId);
                 if (!group) return;
@@ -1610,15 +1649,15 @@
                 const icon = btn.querySelector('svg');
                 const showAllBtnContainer = document.getElementById(`${groupId}-show-all`);
                 
-                // Conta le card visibili in questo gruppo
                 const visibleCardsInGroup = Array.from(gridWrapper.querySelectorAll('.system-card')).filter(card => !card.classList.contains('hidden')).length;
                 
                 if (visibleCardsInGroup > 0) {
                     group.classList.remove('hidden');
                     
-                    // Se stiamo cercando, forza l'espansione del gruppo e nascondi il bottone "Show all"
                     if (isSearching) {
-                        if (gridWrapper.style.maxHeight === '0px') {
+                        if (gridWrapper.dataset.collapsed === 'true' || gridWrapper.style.maxHeight === '0px') {
+                            gridWrapper.dataset.collapsed = 'false';
+                            gridWrapper.style.overflow = 'hidden';
                             gridWrapper.style.maxHeight = gridWrapper.scrollHeight + 'px';
                             if(icon) icon.classList.add('rotate-180');
                             if(btn) btn.setAttribute('aria-label', ClivetI18n.get('ui_collapseGroup') || 'Collapse Group');
@@ -1627,6 +1666,7 @@
                                 if (e.target !== gridWrapper) return;
                                 gridWrapper.removeEventListener('transitionend', onEnd);
                                 gridWrapper.style.maxHeight = '2000px';
+                                gridWrapper.style.overflow = 'visible';
                             };
                             gridWrapper.addEventListener('transitionend', onEnd);
                         }
@@ -1635,7 +1675,6 @@
                             showAllBtnContainer.classList.remove('flex');
                         }
                     } else {
-                        // Ripristina la logica Top 4 se non stiamo cercando
                         const allCardsInGroup = Array.from(gridWrapper.querySelectorAll('.system-card'));
                         applyTop4Logic(groupId, allCardsInGroup);
                     }
@@ -1666,12 +1705,25 @@
         function setCategory(cat) {
             currentCategory = cat;
             
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                btn.className = "cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all";
-            });
+            const buttons = document.querySelectorAll('.cat-btn');
             const activeBtn = document.getElementById('btn-cat-' + cat);
+            const slider = document.getElementById('category-slider');
+            
+            // 1. Aggiorna i colori del testo (Crossfade)
+            buttons.forEach(btn => {
+                btn.classList.remove('text-slate-900', 'dark:text-white');
+                btn.classList.add('text-slate-600', 'dark:text-slate-400');
+            });
+            
             if (activeBtn) {
-                activeBtn.className = "cat-btn flex-1 lg:flex-none px-6 py-2 rounded-lg text-sm font-bold bg-white dark:bg-slate-600 text-slate-900 dark:text-white shadow-sm transition-all";
+                activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
+                activeBtn.classList.add('text-slate-900', 'dark:text-white');
+                
+                // 2. Muovi lo slider fisicamente (Fluid Spatial Motion via GPU)
+                if (slider) {
+                    slider.style.width = `${activeBtn.offsetWidth}px`;
+                    slider.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+                }
             }
             
             filterSystems();
@@ -1687,12 +1739,12 @@
                 if (btn) {
                     if (t === themeMode) {
                         btn.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
-                        btn.classList.remove('border-slate-200', 'dark:border-slate-700');
+                        btn.classList.remove('border-slate-200/80', 'dark:border-white/10');
                         const svg = btn.querySelector('svg');
                         if(svg) svg.classList.replace('text-slate-400', 'text-blue-500');
                     } else {
                         btn.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/20');
-                        btn.classList.add('border-slate-200', 'dark:border-slate-700');
+                        btn.classList.add('border-slate-200/80', 'dark:border-white/10');
                         const svg = btn.querySelector('svg');
                         if(svg) svg.classList.replace('text-blue-500', 'text-slate-400');
                     }
@@ -1700,7 +1752,7 @@
             });
         }
 
-        // [Clipboard Engine] API asincrona con fallback sincrono
+        // [Clipboard Engine]
         function copyText(text) {
             if (navigator.clipboard && window.isSecureContext) {
                 return navigator.clipboard.writeText(text).catch(() => legacyCopy(text));
@@ -1717,7 +1769,7 @@
                 document.body.appendChild(ta);
                 ta.select();
                 let ok = false;
-                try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+                try { ok= document.execCommand('copy'); } catch (e) { ok = false; }
                 document.body.removeChild(ta);
                 ok ? resolve() : reject(new Error('Clipboard unavailable'));
             });
@@ -1813,11 +1865,10 @@
 
         function renderInfoCard(key, data) {
             if (!Array.isArray(data) || data.length < 2) return '';
-            // Icona di ricerca standard
             const icon = 'M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z';
             const [title, intro, ...items] = data;
             const lis = items.map(([label, text]) => `<li class="flex items-start gap-1.5"><span class="text-blue-500 mt-0.5" aria-hidden="true">•</span><span><b class="text-slate-700 dark:text-slate-200">${escapeHTML(label)}</b> ${escapeHTML(text)}</span></li>`).join('');
-            return `<div class="flex flex-col gap-2.5"><div class="flex items-center gap-2.5 border-b border-slate-200 dark:border-slate-700 pb-2.5"><div class="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400"><svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${icon}"></path></svg></div><h4 class="font-bold text-sm text-slate-900 dark:text-white">${escapeHTML(title)}</h4></div><p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHTML(intro)}</p><ul class="space-y-1.5 mt-1 text-[12px] text-slate-500 dark:text-slate-400">${lis}</ul></div>`;
+            return `<div class="flex flex-col gap-2.5"><div class="flex items-center gap-2.5 border-b border-slate-200/80 dark:border-white/10 pb-2.5"><div class="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400"><svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="${icon}"></path></svg></div><h4 class="font-bold text-sm text-slate-900 dark:text-white">${escapeHTML(title)}</h4></div><p class="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHTML(intro)}</p><ul class="space-y-1.5 mt-1 text-[12px] text-slate-500 dark:text-slate-400">${lis}</ul></div>`;
         }
 
         function toggleInfo(e, key) {
@@ -1939,9 +1990,14 @@
         function animateCardsIn() {
             const cards = document.querySelectorAll('.system-card');
             cards.forEach((card, index) => {
-                // Staggered entrance animation
                 card.classList.add('animate-entrance');
-                card.style.animationDelay = `${index * 0.04}s`;
+                const delay = index * 0.04;
+                card.style.animationDelay = `${delay}s`;
+                
+                setTimeout(() => {
+                    card.classList.remove('animate-entrance');
+                    card.style.animationDelay = '';
+                }, (delay * 1000) + 500); 
             });
         }
 
@@ -1957,8 +2013,11 @@
             setTheme(localStorage.getItem('clivet_theme') || 'system');
             initPassiveScrollListeners();
             
-            // Trigger entrance animation
             animateCardsIn();
+            
+            // Inizializza la posizione dello slider e gestisci il resize
+            setTimeout(() => setCategory(currentCategory), 50);
+            window.addEventListener('resize', () => setCategory(currentCategory), { passive: true });
         }
 
         // --- MODALS (Apple HIG / Material 3 Standard) ---
@@ -2045,16 +2104,14 @@
             const infoTitle = ClivetI18n.get('modal_infoTitle') || "Supported Units";
             title.innerText = infoTitle;
             
-            // Formattazione speciale per i nomi con spazi (es. W0i MF)
             const displaySysCode = sysCode.replace('_', ' ');
             subtitle.innerText = `Siemens ${displaySysCode}`;
             
             list.innerHTML = '';
             if(supportedUnits[sysCode]) {
                 supportedUnits[sysCode].forEach(unit => {
-                    // List View Auto-Descrittiva (Apple Settings Pattern) a prova di resize
                     list.innerHTML += `
-                    <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                    <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-100 dark:border-white/5 last:border-0">
                         <div class="flex flex-col min-w-0 flex-1">
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">${ClivetI18n.get('modal_series') || 'Series'}</span>
                             <span class="text-sm font-semibold text-slate-900 dark:text-white break-words">${unit.series}</span>
