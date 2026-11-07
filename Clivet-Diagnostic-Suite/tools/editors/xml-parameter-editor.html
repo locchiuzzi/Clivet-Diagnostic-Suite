@@ -279,90 +279,136 @@
         <!-- ========================================== -->
         <!-- VIEW 1: DUAL UPLOAD ZONE                   -->
         <!-- ========================================== -->
-        <div id="view-upload" class="view-layer view-active p-4 md:p-6 overflow-y-auto custom-scrollbar">
+        <div id="view-upload" class="view-layer view-active flex flex-col relative h-full">
             
-            <div class="mb-6 mt-4 text-center max-w-2xl mx-auto flex-none">
-                <h2 data-i18n="upload_title" class="text-2xl font-bold text-slate-800 dark:text-white mb-2">Load Configuration Files</h2>
-                <p data-i18n="upload_desc" class="text-sm text-slate-500 dark:text-slate-400">Load a single XML to edit parameters, or load two XML files to visually compare and modify them simultaneously.</p>
-            </div>
-
-            <div class="max-w-[1600px] mx-auto w-full px-4 md:px-6 flex-none mb-4">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-                   
-                <!-- DROPZONE 1 -->
-                <div id="dz-0" class="group bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-2xl shadow-sm border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 flex flex-col items-center justify-center transition-all duration-300 w-full cursor-pointer relative min-h-[280px]" onclick="triggerFileSelect(0, event)">
-                    <button id="btn-remove-0" style="display:none;" disabled onclick="removeFile(0, event)" class="hidden absolute top-3 right-3 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 p-2 rounded-xl hover:bg-red-200 dark:hover:bg-red-800/60 transition focus:outline-none z-20 shadow-sm" title="Remove File">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                    
-                    <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.03] transition-transform duration-500 pointer-events-none">
-                        <div id="dz-icon-0" class="bg-blue-50 dark:bg-slate-700 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10 p-4 sm:p-5 rounded-full mb-4 transition-colors duration-300">
-                            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-blue-500 dark:text-blue-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                        </div>
-                        
-                        <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
-                            <span data-i18n="drop_1" class="text-lg sm:text-xl font-medium text-slate-700 dark:text-slate-200 tracking-wide transition-colors duration-300">Drop XML File 1 here</span>
-                        </div>
-                        
-                        <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[240px] mb-6 transition-opacity duration-300 opacity-80">
-                            <p data-i18n="ui_supportedFormat" class="text-sm font-mono text-slate-400 dark:text-slate-500 mb-5">Supported format: .xml</p>
-                            <div class="flex items-center justify-center w-full">
-                                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                                <span data-i18n="drop_or" class="px-4 text-[10px] font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase">OR</span>
-                                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                            </div>
-                        </div>
-
-                        <div id="ui-btn-0" class="relative px-8 py-2.5 rounded-full border border-blue-500/30 dark:border-blue-400/30 bg-blue-500/5 dark:bg-blue-400/10 text-blue-600 dark:text-blue-400 font-semibold text-sm hover:bg-blue-500/10 dark:hover:bg-blue-400/20 hover:border-blue-500/50 dark:hover:border-blue-400/50 transition-all duration-300 shadow-sm pointer-events-auto">
-                            <span data-i18n="drop_browse">Browse File</span>
-                        </div>
-                    </div>
-                    <input type="file" id="file-0" accept=".xml" class="pointer-events-none hidden">
-                </div>
-
-                <!-- DROPZONE 2 -->
-                <div id="dz-1" class="group bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-2xl shadow-sm border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 flex flex-col items-center justify-center transition-all duration-300 w-full cursor-pointer relative min-h-[280px]" onclick="triggerFileSelect(1, event)">
-                    <button id="btn-remove-1" style="display:none;" disabled onclick="removeFile(1, event)" class="hidden absolute top-3 right-3 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 p-2 rounded-xl hover:bg-red-200 dark:hover:bg-red-800/60 transition focus:outline-none z-20 shadow-sm" title="Remove File">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                    
-                    <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.03] transition-transform duration-500 pointer-events-none">
-                        <div id="dz-icon-1" class="bg-indigo-50 dark:bg-slate-700 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10 p-4 sm:p-5 rounded-full mb-4 transition-colors duration-300">
-                            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-indigo-500 dark:text-indigo-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                        </div>
-                        
-                        <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
-                            <span data-i18n="drop_2" class="text-lg sm:text-xl font-medium text-slate-700 dark:text-slate-200 tracking-wide transition-colors duration-300">Drop XML File 2 here</span>
-                        </div>
-                        
-                        <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[240px] mb-6 transition-opacity duration-300 opacity-80">
-                            <p data-i18n="ui_supportedFormat" class="text-sm font-mono text-slate-400 dark:text-slate-500 mb-5">Supported format: .xml</p>
-                            <div class="flex items-center justify-center w-full">
-                                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                                <span data-i18n="drop_or" class="px-4 text-[10px] font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase">OR</span>
-                                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
-                            </div>
-                        </div>
-
-                        <div id="ui-btn-1" class="relative px-8 py-2.5 rounded-full border border-indigo-500/30 dark:border-indigo-400/30 bg-indigo-500/5 dark:bg-indigo-400/10 text-indigo-600 dark:text-indigo-400 font-semibold text-sm hover:bg-indigo-500/10 dark:hover:bg-indigo-400/20 hover:border-indigo-500/50 dark:hover:border-indigo-400/50 transition-all duration-300 shadow-sm pointer-events-auto">
-                            <span data-i18n="drop_browse">Browse File</span>
-                        </div>
-                    </div>
-                    <input type="file" id="file-1" accept=".xml" class="pointer-events-none hidden">
-                </div>
+            <!-- Area Scrollabile Indipendente -->
+            <div class="flex-grow overflow-y-auto custom-scrollbar w-full">
                 
-            </div>
-                <!-- NOTA DISCRETA DI EQUIVALENZA SLOT (Apple HIG Tip) -->
-                <div class="flex justify-center w-full mt-6">
-                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800/30 rounded-xl text-xs font-medium text-slate-500 dark:text-slate-400 max-w-2xl text-center">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <span data-i18n="drop_singleNote">For single-file editing, you can upload your XML to either Slot 1 or Slot 2 interchangeably.</span>
+                <!-- Wrapper per centratura verticale sicura (Task 4.2) -->
+                <!-- AGGIUNTO pb-32 per garantire lo spazio di fine corsa sotto il pulsante -->
+                <div class="min-h-full flex flex-col justify-center py-6 sm:py-3 pb-32 px-4 md:px-6 max-w-[1600px] mx-auto">
+                    
+                    <!-- Titoli (HIG Standard - 100% Compliant) -->
+                    <div class="mb-8 text-center max-w-2xl mx-auto flex-none font-sans">
+                        
+                        <!-- Titolo: Title 3 (20pt). Rimosso tracking-tight perché >= 20pt (SF Pro Display) non è compresso in HIG -->
+                        <h2 data-i18n="upload_title" class="text-[1.25rem] font-semibold text-black dark:text-white mb-3">
+                            Load Configuration Files
+                        </h2>
+
+                        <!-- Sottotitolo: 13pt (Footnote, leading 1.38) -> 15pt (Subhead, leading 1.33).
+                            leading-[1.35] (o snugh/1.375) è la media matematica perfetta per queste due taglie in HIG. -->
+                        <p data-i18n="upload_desc" class="text-[0.8125rem] sm:text-[0.9375rem] text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 leading-[1.35]">
+                            Load a single XML to edit parameters, or load two XML files to visually compare and modify them simultaneously.
+                        </p>
+                        
                     </div>
-                </div>
-            </div>
+
+                    <!-- Dropzones (HIG Compliant 100%) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full flex-none font-sans">
+
+                        <!-- DROPZONE 1 -->
+                        <div id="dz-0" 
+                            role="button" 
+                            tabindex="0"
+                            aria-label="Dropzone for XML File 1"
+                            class="group bg-white dark:bg-[#1C1C1E] p-8 sm:p-10 rounded-[1.25rem] shadow-sm border border-dashed border-[#C6C6C8] dark:border-[#38383A] hover:border-[#007AFF] dark:hover:border-[#0A84FF] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007AFF]/50 flex flex-col items-center justify-center transition-all duration-200 w-full cursor-pointer relative min-h-[280px]" 
+                            onclick="triggerFileSelect(0, event)"
+                            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); triggerFileSelect(0, event); }">
+                            
+                            <button id="btn-remove-0" 
+                                    aria-label="Remove File"
+                                    class="hidden absolute top-2 right-2 bg-[#E5E5EA] dark:bg-[#3A3A3C] text-[#FF3B30] dark:text-[#FF453A] p-3 rounded-full hover:opacity-80 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FF3B30]/50 z-20" 
+                                    onclick="removeFile(0, event); event.stopPropagation();">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            
+                            <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.02] transition-transform duration-200 pointer-events-none">
+                                
+                                <div id="dz-icon-0" class="mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
+                                    <svg class="w-12 h-12 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                                </div>
+                                
+                                <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
+                                    <span data-i18n="drop_1" class="text-[1.25rem] font-semibold text-black dark:text-white transition-colors duration-200">Drop XML File 1 here</span>
+                                </div>
+                                
+                                <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[240px] mb-6 opacity-80">
+                                    <p data-i18n="ui_supportedFormat" class="text-[0.8125rem] font-[ui-monospace,SFMono-Regular,monospace] text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-5">Supported format: .xml</p>
+                                    
+                                    <div class="flex items-center justify-center w-full">
+                                        <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
+                                        <span data-i18n="drop_or" class="px-3 text-[0.75rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 uppercase">Or</span>
+                                        <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
+                                    </div>
+                                </div>
+
+                                <div id="ui-btn-0" class="relative px-6 py-[0.625rem] rounded-full bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[1.0625rem] group-hover:bg-[#E5E5EA] dark:group-hover:bg-[#3A3A3C] transition-colors duration-200 pointer-events-auto">
+                                    <span data-i18n="drop_browse">Browse File</span>
+                                </div>
+                            </div>
+                            
+                            <input type="file" id="file-0" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
+                        </div>
+
+                        <!-- DROPZONE 2 -->
+                        <div id="dz-1" 
+                            role="button" 
+                            tabindex="0"
+                            aria-label="Dropzone for XML File 2"
+                            class="group bg-white dark:bg-[#1C1C1E] p-8 sm:p-10 rounded-[1.25rem] shadow-sm border border-dashed border-[#C6C6C8] dark:border-[#38383A] hover:border-[#007AFF] dark:hover:border-[#0A84FF] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007AFF]/50 flex flex-col items-center justify-center transition-all duration-200 w-full cursor-pointer relative min-h-[280px]" 
+                            onclick="triggerFileSelect(1, event)"
+                            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); triggerFileSelect(1, event); }">
+                            
+                            <button id="btn-remove-1" 
+                                    aria-label="Remove File"
+                                    class="hidden absolute top-2 right-2 bg-[#E5E5EA] dark:bg-[#3A3A3C] text-[#FF3B30] dark:text-[#FF453A] p-3 rounded-full hover:opacity-80 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FF3B30]/50 z-20" 
+                                    onclick="removeFile(1, event); event.stopPropagation();">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            
+                            <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.02] transition-transform duration-200 pointer-events-none">
+                                
+                                <div id="dz-icon-1" class="mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
+                                    <svg class="w-12 h-12 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                                </div>
+                                
+                                <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
+                                    <span data-i18n="drop_2" class="text-[1.25rem] font-semibold text-black dark:text-white transition-colors duration-200">Drop XML File 2 here</span>
+                                </div>
+                                
+                                <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[240px] mb-6 opacity-80">
+                                    <p data-i18n="ui_supportedFormat" class="text-[0.8125rem] font-[ui-monospace,SFMono-Regular,monospace] text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-5">Supported format: .xml</p>
+                                    
+                                    <div class="flex items-center justify-center w-full">
+                                        <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
+                                        <span data-i18n="drop_or" class="px-3 text-[0.75rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 uppercase">Or</span>
+                                        <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
+                                    </div>
+                                </div>
+
+                                <div id="ui-btn-1" class="relative px-6 py-[0.625rem] rounded-full bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[1.0625rem] group-hover:bg-[#E5E5EA] dark:group-hover:bg-[#3A3A3C] transition-colors duration-200 pointer-events-auto">
+                                    <span data-i18n="drop_browse">Browse File</span>
+                                </div>
+                            </div>
+                            
+                            <input type="file" id="file-1" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
+                        </div>
+                    </div>
+
+                    <!-- Nota Equivalenza (HIG Footnote Standard - 100% Compliant) -->
+                    <div class="mt-4 flex items-start justify-center gap-1.5 w-full flex-none text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 font-sans max-w-full">
+                        <svg aria-hidden="true" class="w-[0.875rem] h-[0.875rem] flex-shrink-0 mt-[2px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p data-i18n="drop_singleNote" class="text-[0.8125rem] leading-[1.38] text-left font-normal m-0">
+                            For single-file editing, you can upload your XML to either Slot 1 or Slot 2 interchangeably.
+                        </p>
+                    </div>
             
-            <!-- Floating Proceed Button -->
-            <div class="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-none z-30">
+            <!-- Floating Proceed Button con Gradiente Protettivo (Task 4.6) -->
+            <!-- AGGIUNTO id="proceed-container" e opacity-0 transition-opacity -->
+            <div id="proceed-container" class="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent dark:from-slate-900 dark:via-slate-900/90 pointer-events-none z-30 flex items-end justify-center pb-8 sm:pb-10 opacity-0 transition-opacity duration-300">
                 <button id="btn-proceed" disabled onclick="validateAndProceed()" class="opacity-0 translate-y-4 cursor-not-allowed pointer-events-auto px-8 py-3.5 rounded-full text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-300 shadow-[0_8px_16px_rgba(37,99,235,0.25)] hover:shadow-[0_12px_24px_rgba(37,99,235,0.35)] focus:outline-none flex items-center space-x-2 active:scale-95">
                     <span id="ui-proceed">Proceed</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
@@ -1804,11 +1850,19 @@
         }
 
         function updateDzUI(idx, fname) {
+            const idleContainer = document.getElementById(`dz-idle-${idx}`);
+            if (idleContainer) {
+                idleContainer.classList.remove('dz-content-enter');
+                void idleContainer.offsetWidth; // Trigger reflow for GPU animation
+                idleContainer.classList.add('dz-content-enter');
+            }
+            
             const dzIcon = document.getElementById(`dz-icon-${idx}`);
             if(dzIcon) {
                 dzIcon.className = "bg-green-50 dark:bg-green-900/20 shadow-sm ring-1 ring-green-500/20 dark:ring-green-400/20 p-4 sm:p-5 rounded-full mb-4 transition-colors duration-300";
                 dzIcon.innerHTML = `<svg class="w-10 h-10 sm:w-12 sm:h-12 text-green-500 dark:text-green-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
             }
+
             const container = document.getElementById(`ui-drop${idx+1}-container`);
             const loadedTxt = ClivetI18n.get('drop_loaded') || "Loaded:";
             if(container) {
@@ -1832,6 +1886,13 @@
             if(event) { event.preventDefault(); event.stopPropagation(); }
             filesData[index] = null;
             document.getElementById(`file-${index}`).value = '';
+            
+            const idleContainer = document.getElementById(`dz-idle-${index}`);
+            if (idleContainer) {
+                idleContainer.classList.remove('dz-content-enter');
+                void idleContainer.offsetWidth; // Trigger reflow for GPU animation
+                idleContainer.classList.add('dz-content-enter');
+            }
             
             const icon = document.getElementById(`dz-icon-${index}`);
             if (icon) {
@@ -2001,11 +2062,16 @@
         function updateProceedButton() {
             const btn = document.getElementById('btn-proceed');
             const span = document.getElementById('ui-proceed');
+            const container = document.getElementById('proceed-container');
             
             if (filesData[0] || filesData[1]) {
                 btn.disabled = false;
                 btn.classList.remove('opacity-0', 'translate-y-4', 'cursor-not-allowed', 'pointer-events-none');
                 btn.classList.add('opacity-100', 'translate-y-0');
+                if (container) {
+                    container.classList.remove('opacity-0');
+                    container.classList.add('opacity-100');
+                }
                 if (filesData[0] && filesData[1]) {
                     span.innerText = ClivetI18n.get('btn_proceed2');
                 } else {
@@ -2015,6 +2081,10 @@
                 btn.disabled = true;
                 btn.classList.add('opacity-0', 'translate-y-4', 'cursor-not-allowed', 'pointer-events-none');
                 btn.classList.remove('opacity-100', 'translate-y-0');
+                if (container) {
+                    container.classList.remove('opacity-100');
+                    container.classList.add('opacity-0');
+                }
             }
         }
 
