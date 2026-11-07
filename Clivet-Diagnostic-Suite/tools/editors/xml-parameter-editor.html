@@ -200,14 +200,26 @@
             will-change: transform, opacity;
         }
         
-        /* Dropzone Content Transition (GPU Accelerated) */
-        .dz-content-enter {
-            animation: fadeInScale 0.35s var(--spring-easing) forwards;
+        /* Apple Spring Motion Physics (HIG Compliant 60fps) */
+        .dz-spring-pop {
+            animation: appleSpringPop 0.46s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+            will-change: transform, opacity;
+            transform-origin: center;
+        }
+        @keyframes appleSpringPop {
+            0% { opacity: 0; transform: scale(0.45); }
+            65% { opacity: 1; transform: scale(1.15); }
+            85% { transform: scale(0.97); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .dz-spring-slide {
+            animation: appleSpringSlide 0.35s cubic-bezier(0.25, 1, 0.5, 1) both;
             will-change: transform, opacity;
         }
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
+        @keyframes appleSpringSlide {
+            0% { opacity: 0; transform: translateY(8px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -281,27 +293,20 @@
         <!-- ========================================== -->
         <div id="view-upload" class="view-layer view-active flex flex-col relative h-full">
             
-            <!-- Area Scrollabile Indipendente -->
-            <div class="flex-grow overflow-y-auto custom-scrollbar w-full">
+            <!-- Area Scrollabile Indipendente (Flex Column nativa) -->
+            <div id="upload-scroll-container" class="flex-grow overflow-y-auto custom-scrollbar w-full flex flex-col">
                 
-                <!-- Wrapper per centratura verticale sicura (Task 4.2) -->
-                <!-- AGGIUNTO pb-32 per garantire lo spazio di fine corsa sotto il pulsante -->
-                <div class="min-h-full flex flex-col justify-center py-6 sm:py-3 pb-32 px-4 md:px-6 max-w-[1600px] mx-auto">
+                <!-- Wrapper con my-auto: centratura matematica perfetta quando non serve scroll, sblocco dello scroll verso il basso quando necessario -->
+                <div id="upload-content-wrapper" class="w-full max-w-[1600px] mx-auto px-4 md:px-6 py-6 sm:py-6 my-auto flex flex-col flex-none transition-[padding] duration-300">
                     
                     <!-- Titoli (HIG Standard - 100% Compliant) -->
                     <div class="mb-8 text-center max-w-2xl mx-auto flex-none font-sans">
-                        
-                        <!-- Titolo: Title 3 (20pt). Rimosso tracking-tight perché >= 20pt (SF Pro Display) non è compresso in HIG -->
                         <h2 data-i18n="upload_title" class="text-[1.25rem] font-semibold text-black dark:text-white mb-3">
                             Load Configuration Files
                         </h2>
-
-                        <!-- Sottotitolo: 13pt (Footnote, leading 1.38) -> 15pt (Subhead, leading 1.33).
-                            leading-[1.35] (o snugh/1.375) è la media matematica perfetta per queste due taglie in HIG. -->
                         <p data-i18n="upload_desc" class="text-[0.8125rem] sm:text-[0.9375rem] text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 leading-[1.35]">
                             Load a single XML to edit parameters, or load two XML files to visually compare and modify them simultaneously.
                         </p>
-                        
                     </div>
 
                     <!-- Dropzones (HIG Compliant 100%) -->
@@ -324,30 +329,24 @@
                             </button>
                             
                             <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.02] transition-transform duration-200 pointer-events-none">
-                                
                                 <div id="dz-icon-0" class="mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
                                     <svg class="w-12 h-12 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
                                 </div>
-                                
                                 <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
                                     <span data-i18n="drop_1" class="text-[1.25rem] font-semibold text-black dark:text-white transition-colors duration-200">Drop XML File 1 here</span>
                                 </div>
-                                
                                 <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[240px] mb-6 opacity-80">
                                     <p data-i18n="ui_supportedFormat" class="text-[0.8125rem] font-[ui-monospace,SFMono-Regular,monospace] text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-5">Supported format: .xml</p>
-                                    
                                     <div class="flex items-center justify-center w-full">
                                         <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
                                         <span data-i18n="drop_or" class="px-3 text-[0.75rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 uppercase">Or</span>
                                         <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
                                     </div>
                                 </div>
-
                                 <div id="ui-btn-0" class="relative px-6 py-[0.625rem] rounded-full bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[1.0625rem] group-hover:bg-[#E5E5EA] dark:group-hover:bg-[#3A3A3C] transition-colors duration-200 pointer-events-auto">
                                     <span data-i18n="drop_browse">Browse File</span>
                                 </div>
                             </div>
-                            
                             <input type="file" id="file-0" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
                         </div>
 
@@ -368,30 +367,24 @@
                             </button>
                             
                             <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.02] transition-transform duration-200 pointer-events-none">
-                                
                                 <div id="dz-icon-1" class="mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
                                     <svg class="w-12 h-12 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
                                 </div>
-                                
                                 <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
                                     <span data-i18n="drop_2" class="text-[1.25rem] font-semibold text-black dark:text-white transition-colors duration-200">Drop XML File 2 here</span>
                                 </div>
-                                
                                 <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[240px] mb-6 opacity-80">
                                     <p data-i18n="ui_supportedFormat" class="text-[0.8125rem] font-[ui-monospace,SFMono-Regular,monospace] text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-5">Supported format: .xml</p>
-                                    
                                     <div class="flex items-center justify-center w-full">
                                         <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
                                         <span data-i18n="drop_or" class="px-3 text-[0.75rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 uppercase">Or</span>
                                         <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
                                     </div>
                                 </div>
-
                                 <div id="ui-btn-1" class="relative px-6 py-[0.625rem] rounded-full bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[1.0625rem] group-hover:bg-[#E5E5EA] dark:group-hover:bg-[#3A3A3C] transition-colors duration-200 pointer-events-auto">
                                     <span data-i18n="drop_browse">Browse File</span>
                                 </div>
                             </div>
-                            
                             <input type="file" id="file-1" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
                         </div>
                     </div>
@@ -405,9 +398,11 @@
                             For single-file editing, you can upload your XML to either Slot 1 or Slot 2 interchangeably.
                         </p>
                     </div>
+
+                </div>
+            </div>
             
             <!-- Floating Proceed Button con Gradiente Protettivo (Task 4.6) -->
-            <!-- AGGIUNTO id="proceed-container" e opacity-0 transition-opacity -->
             <div id="proceed-container" class="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent dark:from-slate-900 dark:via-slate-900/90 pointer-events-none z-30 flex items-end justify-center pb-8 sm:pb-10 opacity-0 transition-opacity duration-300">
                 <button id="btn-proceed" disabled onclick="validateAndProceed()" class="opacity-0 translate-y-4 cursor-not-allowed pointer-events-auto px-8 py-3.5 rounded-full text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-300 shadow-[0_8px_16px_rgba(37,99,235,0.25)] hover:shadow-[0_12px_24px_rgba(37,99,235,0.35)] focus:outline-none flex items-center space-x-2 active:scale-95">
                     <span id="ui-proceed">Proceed</span>
@@ -1859,14 +1854,15 @@
             
             const dzIcon = document.getElementById(`dz-icon-${idx}`);
             if(dzIcon) {
-                dzIcon.className = "bg-green-50 dark:bg-green-900/20 shadow-sm ring-1 ring-green-500/20 dark:ring-green-400/20 p-4 sm:p-5 rounded-full mb-4 transition-colors duration-300";
-                dzIcon.innerHTML = `<svg class="w-10 h-10 sm:w-12 sm:h-12 text-green-500 dark:text-green-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                // Apple System Green con Spring Pop
+                dzIcon.className = "p-3 rounded-full bg-[#34C759]/10 dark:bg-[#30D158]/15 text-[#34C759] dark:text-[#30D158] ring-1 ring-[#34C759]/25 dark:ring-[#30D158]/25 mb-4 dz-spring-pop";
+                dzIcon.innerHTML = `<svg class="w-10 h-10 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
             }
-
             const container = document.getElementById(`ui-drop${idx+1}-container`);
             const loadedTxt = ClivetI18n.get('drop_loaded') || "Loaded:";
             if(container) {
-                container.innerHTML = `<span class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">${loadedTxt}</span><span class="text-blue-600 dark:text-blue-400 font-mono text-base sm:text-lg break-all px-4" title="${fname}">${fname}</span>`;
+                container.className = "flex flex-col items-center justify-center min-h-[48px] mb-1 dz-spring-slide";
+                container.innerHTML = `<span class="text-[0.8125rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-1">${loadedTxt}</span><span class="text-[#007AFF] dark:text-[#0A84FF] font-[ui-monospace,SFMono-Regular,monospace] text-[0.9375rem] sm:text-[1rem] font-semibold break-all px-4" title="${fname}">${fname}</span>`;
             }
             
             const orEl = document.getElementById(`ui-or-${idx}`);
@@ -1896,15 +1892,17 @@
             
             const icon = document.getElementById(`dz-icon-${index}`);
             if (icon) {
-                const colorClass = index === 0 ? 'blue' : 'indigo';
-                icon.className = `bg-${colorClass}-50 dark:bg-slate-700 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10 p-4 sm:p-5 rounded-full mb-4 transition-colors duration-300`;
-                icon.innerHTML = `<svg class="w-10 h-10 sm:w-12 sm:h-12 text-${colorClass}-500 dark:text-${colorClass}-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>`;
+                // Ripristino con Spring Pop sull'icona iniziale
+                icon.className = "mb-4 text-[#007AFF] dark:text-[#0A84FF] dz-spring-pop";
+                icon.innerHTML = `<svg class="w-12 h-12 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>`;
             }
             
             const container = document.getElementById(`ui-drop${index+1}-container`);
             if(container) {
                 const dropText = ClivetI18n.get(`drop_${index+1}`);
-                container.innerHTML = `<span class="text-lg sm:text-xl font-medium text-slate-700 dark:text-slate-200 tracking-wide transition-colors duration-300">${dropText}</span>`;
+                // Ripristino con Spring Slide sul testo
+                container.className = "flex flex-col items-center justify-center min-h-[48px] mb-1 dz-spring-slide";
+                container.innerHTML = `<span data-i18n="drop_${index+1}" class="text-[1.25rem] font-semibold text-black dark:text-white transition-colors duration-200">${dropText}</span>`;
             }
             
             const orEl = document.getElementById(`ui-or-${index}`);
@@ -2063,6 +2061,7 @@
             const btn = document.getElementById('btn-proceed');
             const span = document.getElementById('ui-proceed');
             const container = document.getElementById('proceed-container');
+            const contentWrapper = document.getElementById('upload-content-wrapper');
             
             if (filesData[0] || filesData[1]) {
                 btn.disabled = false;
@@ -2071,6 +2070,10 @@
                 if (container) {
                     container.classList.remove('opacity-0');
                     container.classList.add('opacity-100');
+                }
+                // Iniezione diretta nativa: garantisce al 100% l'area di scroll sotto il pulsante
+                if (contentWrapper) {
+                    contentWrapper.style.paddingBottom = '7rem';
                 }
                 if (filesData[0] && filesData[1]) {
                     span.innerText = ClivetI18n.get('btn_proceed2');
@@ -2084,6 +2087,9 @@
                 if (container) {
                     container.classList.remove('opacity-100');
                     container.classList.add('opacity-0');
+                }
+                if (contentWrapper) {
+                    contentWrapper.style.paddingBottom = '';
                 }
             }
         }
