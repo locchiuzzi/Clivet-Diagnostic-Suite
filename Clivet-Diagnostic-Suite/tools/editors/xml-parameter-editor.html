@@ -26,6 +26,12 @@
     <style id="clivet-core-styles">
         html, body { height: 100%; margin: 0; overflow: hidden; }
         
+        /* [HD Rendering & Adaptive Scale] Porting dal file aureo per coerenza geometrica assoluta */
+        svg { shape-rendering: geometricPrecision; }
+        body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; min-width: 280px; }
+        html { font-size: clamp(15px, 0.35vw + 13.6px, 17px); }
+        @media (min-width: 2200px) { html { font-size: 18px; } }
+        
         :root {
             /* Apple HIG Standard Spring Easing */
             --spring-easing: cubic-bezier(0.25, 1, 0.5, 1);
@@ -119,57 +125,51 @@
             display: none !important;
         }
 
-        /* Apple HIG Search Accessory Segmented Capsule */
-        .search-segmented-group {
-            display: inline-flex;
-            align-items: center;
-            height: 36px;
-            padding: 3px;
-            border-radius: 10px;
-            background-color: rgba(226, 232, 240, 0.8);
-        }
-        .dark .search-segmented-group {
-            background-color: rgba(30, 41, 59, 0.8);
-        }
-        .search-seg-btn {
-            height: 100%;
-            padding: 0 9px;
-            border-radius: 7px;
-            font-size: 11px;
-            font-weight: 700;
-            font-family: ui-monospace, SFMono-Regular, monospace;
-            color: #64748b;
-            transition: all 0.18s var(--smooth-easing);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .dark .search-seg-btn { color: #94a3b8; }
-        .search-seg-btn.is-active {
-            background-color: #ffffff;
-            color: #2563eb;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-        }
-        .dark .search-seg-btn.is-active {
-            background-color: #334155;
-            color: #60a5fa;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        }
-
         /* Floating Tooltip / Popover (Apple HIG Organic Spring) */
         #global-tooltip {
             transition: transform 0.25s var(--spring-easing), opacity 0.2s ease-out;
             will-change: transform, opacity;
         }
         
-        /* High-Density Pill Filters (Zero-Scroll) */
-        .filter-pill-btn { transition: all 0.2s var(--smooth-easing); }
-        .filter-pill-btn.is-active-err { background-color: #fee2e2; color: #991b1b; }
-        .dark .filter-pill-btn.is-active-err { background-color: rgba(153, 27, 27, 0.4); color: #fca5a5; }
-        .filter-pill-btn.is-active-diff { background-color: #fef3c7; color: #92400e; }
-        .dark .filter-pill-btn.is-active-diff { background-color: rgba(146, 64, 14, 0.4); color: #fde68a; }
-        .filter-pill-btn.is-active-sync { background-color: #dbeafe; color: #1e40af; }
-        .dark .filter-pill-btn.is-active-sync { background-color: rgba(30, 64, 175, 0.4); color: #93c5fd; }
+        /* High-Density Pill Filters (Apple HIG Standard) */
+        .filter-pill-btn {
+            position: relative;
+            transition: background-color 0.2s var(--smooth-easing), color 0.2s var(--smooth-easing), box-shadow 0.2s var(--smooth-easing);
+        }
+        
+        /* Priorità assoluta in primo piano per i Corner Notification Badges */
+        #count-err, #count-diff, #term-counter-badge {
+            z-index: 30 !important;
+            pointer-events: none;
+        }
+        .filter-pill-btn.is-active-err {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        .dark .filter-pill-btn.is-active-err {
+            background-color: rgba(239, 68, 68, 0.25) !important;
+            color: #f87171 !important;
+            box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.4);
+        }
+        .filter-pill-btn.is-active-diff {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        .dark .filter-pill-btn.is-active-diff {
+            background-color: rgba(245, 158, 11, 0.25) !important;
+            color: #fbbf24 !important;
+            box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.4);
+        }
+        .filter-pill-btn.is-active-sync {
+            background-color: #ffffff;
+            color: #2563eb;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        .dark .filter-pill-btn.is-active-sync {
+            background-color: #1e293b !important;
+            color: #60a5fa !important;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
 
         /* Side Panel (Drawer) */
         #side-panel-overlay { transition: opacity 0.3s ease; }
@@ -199,6 +199,16 @@
             transition: transform 0.25s var(--spring-easing), opacity 0.2s ease-out;
             will-change: transform, opacity;
         }
+        
+        /* Dropzone Content Transition (GPU Accelerated) */
+        .dz-content-enter {
+            animation: fadeInScale 0.35s var(--spring-easing) forwards;
+            will-change: transform, opacity;
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex flex-col relative h-screen">
@@ -213,17 +223,17 @@
         <h2 data-i18n="drop_update" class="text-2xl sm:text-3xl font-bold text-white tracking-wide">Drop new file anywhere to load</h2>
     </div>
 
-    <!-- GLOBAL HEADER -->
-    <header class="select-none w-full bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200/80 dark:border-white/10 shadow-sm z-40 flex-none h-16">
+    <!-- GLOBAL HEADER (1600px Alignment) -->
+    <header id="global-header" class="select-none no-print w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm z-40 flex-none h-16">
         <div class="max-w-[1600px] mx-auto w-full px-4 md:px-6 h-full flex items-center justify-between">
             <div class="flex items-center min-w-0">
                 <a href="../../index.html" title="Back to Tools" data-i18n-title="nav_backToTools" aria-label="Back to Tools" data-i18n-aria="nav_backToTools" class="hit-44 group -ml-2 mr-2 sm:mr-3 inline-flex items-center h-10 pl-1.5 pr-2.5 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors focus:outline-none flex-shrink-0">
                     <svg aria-hidden="true" class="w-5 h-5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path></svg>
                     <span data-i18n="nav_tools" class="hidden md:inline text-sm font-semibold">Tools</span>
                 </a>
-                <span class="h-7 w-px bg-slate-200/80 dark:bg-white/10 mr-3 sm:mr-4 flex-shrink-0" aria-hidden="true"></span>
+                <span class="h-7 w-px bg-slate-200 dark:bg-slate-700 mr-3 sm:mr-4 flex-shrink-0" aria-hidden="true"></span>
                 <div class="flex items-center space-x-3 min-w-0">
-                    <svg aria-hidden="true" class="w-8 h-8 flex-shrink-0" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg id="app-logo" aria-hidden="true" class="w-8 h-8 flex-shrink-0" viewBox="0 0 37 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M18.3028 36.0022C25.1405 36.0022 31.0882 32.1882 34.1369 26.5732H2.46875C5.51744 32.1882 11.4609 36.0022 18.3028 36.0022Z" fill="#949494"/><path d="M18.3001 0C11.296 0 5.23189 3.997 2.25391 9.83653H34.3462C31.3683 3.997 25.3 0 18.3001 0Z" fill="#949494"/><path d="M0.350692 16.6577C0.317418 17.1028 0.300781 17.5478 0.300781 18.0011C0.300781 18.6001 0.329896 19.1948 0.388124 19.7813H15.59C15.016 18.7955 14.4005 17.7308 13.7766 16.6619H0.350692V16.6577Z" fill="#007CB1"/><path d="M36.217 19.7813C36.2752 19.1948 36.3043 18.6042 36.3043 18.0011C36.3043 17.5478 36.2877 17.1028 36.2544 16.6577H22.8327L21.0234 19.7771H36.2128L36.217 19.7813Z" fill="#007CB1"/><path d="M17.351 22.8092C17.1389 22.4432 16.8976 22.0315 16.6398 21.5823H0.660156C0.876434 22.6595 1.19253 23.7035 1.59182 24.7017H35.0151C35.4144 23.7035 35.7305 22.6595 35.9468 21.5823H19.9838L19.2725 22.8092C18.8442 23.5454 17.7794 23.5496 17.351 22.8092Z" fill="#007CB1"/><path d="M9.53728 11.7373H1.41854C1.04837 12.7397 0.761382 13.7836 0.574219 14.8567H12.7357C12.3489 14.1912 11.9746 13.5424 11.6169 12.931C11.1843 12.1907 10.3941 11.7332 9.53728 11.7332V11.7373Z" fill="#007CB1"/><path d="M35.1799 11.7373H27.0695C26.2127 11.7373 25.4183 12.1948 24.9858 12.9393L23.8711 14.8609H36.0243C35.8329 13.7836 35.5501 12.7397 35.1799 11.7415V11.7373Z" fill="#007CB1"/>
                     </svg>
                     <div class="flex flex-col justify-center min-w-0">
@@ -231,10 +241,13 @@
                         <p data-i18n="app_subtitle" class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-0.5 leading-snug pb-px truncate">Visual Comparator & Configuration Builder</p>
                     </div>
                 </div>
-                <div class="hidden sm:flex items-center ml-4 pl-4 border-l border-slate-200/80 dark:border-white/10 h-7 flex-shrink-0">
-                    <span class="inline-flex items-center justify-center h-5 px-2 rounded-md bg-slate-100 dark:bg-slate-700/60 border border-slate-200/70 dark:border-white/10 text-[11px] leading-none font-mono font-semibold text-slate-600 dark:text-slate-300 select-none app-version"></span>
+                
+                <!-- Pattern Enterprise per Metadati di Sistema -->
+                <div class="hidden sm:flex items-center ml-4 pl-4 border-l border-slate-200 dark:border-slate-700 h-7 flex-shrink-0">
+                    <span class="inline-flex items-center justify-center h-5 px-2 rounded-md bg-slate-100 dark:bg-slate-700/60 border border-slate-200 dark:border-slate-600/60 text-[11px] leading-none font-mono font-semibold text-slate-600 dark:text-slate-300 select-none app-version"></span>
                 </div>
             </div>
+            
             <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
                 <button onclick="openMenuModal()" aria-label="Menu" data-i18n-aria="nav_menu" aria-haspopup="dialog" class="hit-44 flex items-center justify-center space-x-2 px-3 py-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 transition focus:outline-none border border-transparent">
                     <svg aria-hidden="true" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -243,8 +256,25 @@
             </div>
         </div>
     </header>
+
+    <!-- TOAST NOTIFICATION PER ERRORE FILE -->
+    <div id="error-toast" role="alert" aria-live="assertive" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-[200] bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-6 py-4 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none flex items-center space-x-3 border border-slate-200 dark:border-slate-700 max-w-[calc(100vw-2rem)]">
+        <div class="bg-amber-50 dark:bg-amber-400/10 ring-1 ring-amber-500/20 p-2 rounded-xl flex-shrink-0">
+            <svg aria-hidden="true" class="w-6 h-6 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <span id="error-toast-text" class="font-bold text-sm sm:text-base">File non valido</span>
+    </div>
+
+    <!-- TOAST NOTIFICATION PER SUCCESSO -->
+    <div id="success-toast" role="status" aria-live="polite" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-[200] bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-6 py-4 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none flex items-center space-x-3 border-l-4 border-green-500 border-y border-r border-slate-200 dark:border-slate-700">
+        <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-full flex-shrink-0">
+            <svg aria-hidden="true" class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path></svg>
+        </div>
+        <span id="success-toast-text" class="font-bold text-sm sm:text-base">Data loaded successfully</span>
+    </div>
+
     <!-- MAIN WRAPPER -->
-    <main class="flex-grow flex flex-col min-h-0 w-full relative">
+    <main id="main-wrapper" class="flex-grow flex flex-col min-h-0 w-full relative opacity-0 transition-opacity duration-300">
 
         <!-- ========================================== -->
         <!-- VIEW 1: DUAL UPLOAD ZONE                   -->
@@ -260,47 +290,80 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
                    
                 <!-- DROPZONE 1 -->
-                <div id="dz-0" class="system-card dz-content-wrapper bg-white dark:bg-slate-800/80 py-10 px-5 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center h-64 cursor-pointer relative group text-center w-full" onclick="triggerFileSelect(0, event)">
+                <div id="dz-0" class="group bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-2xl shadow-sm border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 flex flex-col items-center justify-center transition-all duration-300 w-full cursor-pointer relative min-h-[280px]" onclick="triggerFileSelect(0, event)">
                     <button id="btn-remove-0" style="display:none;" disabled onclick="removeFile(0, event)" class="hidden absolute top-3 right-3 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 p-2 rounded-xl hover:bg-red-200 dark:hover:bg-red-800/60 transition focus:outline-none z-20 shadow-sm" title="Remove File">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
-                    <div id="dz-icon-0" class="w-16 h-16 bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20 dark:ring-blue-400/20 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-105">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                    </div>
-                    <div id="ui-drop1-container" class="flex flex-col items-center justify-center pointer-events-none w-full">
-                        <span data-i18n="drop_1" class="text-lg font-bold text-slate-700 dark:text-slate-200">Drop XML File 1 here</span>
-                        <span data-i18n="drop_or" class="text-sm font-medium text-slate-400 dark:text-slate-500 mt-2 mb-2 uppercase tracking-widest">- or -</span>
-                        <span data-i18n="drop_browse" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">Browse file</span>
+                    
+                    <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.03] transition-transform duration-500 pointer-events-none">
+                        <div id="dz-icon-0" class="bg-blue-50 dark:bg-slate-700 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10 p-4 sm:p-5 rounded-full mb-4 transition-colors duration-300">
+                            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-blue-500 dark:text-blue-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                        </div>
+                        
+                        <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
+                            <span data-i18n="drop_1" class="text-lg sm:text-xl font-medium text-slate-700 dark:text-slate-200 tracking-wide transition-colors duration-300">Drop XML File 1 here</span>
+                        </div>
+                        
+                        <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[240px] mb-6 transition-opacity duration-300 opacity-80">
+                            <p data-i18n="ui_supportedFormat" class="text-sm font-mono text-slate-400 dark:text-slate-500 mb-5">Supported format: .xml</p>
+                            <div class="flex items-center justify-center w-full">
+                                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                                <span data-i18n="drop_or" class="px-4 text-[10px] font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase">OR</span>
+                                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                            </div>
+                        </div>
+
+                        <div id="ui-btn-0" class="relative px-8 py-2.5 rounded-full border border-blue-500/30 dark:border-blue-400/30 bg-blue-500/5 dark:bg-blue-400/10 text-blue-600 dark:text-blue-400 font-semibold text-sm hover:bg-blue-500/10 dark:hover:bg-blue-400/20 hover:border-blue-500/50 dark:hover:border-blue-400/50 transition-all duration-300 shadow-sm pointer-events-auto">
+                            <span data-i18n="drop_browse">Browse File</span>
+                        </div>
                     </div>
                     <input type="file" id="file-0" accept=".xml" class="pointer-events-none hidden">
                 </div>
 
                 <!-- DROPZONE 2 -->
-                <div id="dz-1" class="system-card dz-content-wrapper bg-white dark:bg-slate-800/80 py-10 px-5 rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center h-64 cursor-pointer relative group text-center w-full" onclick="triggerFileSelect(1, event)">
+                <div id="dz-1" class="group bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-2xl shadow-sm border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 flex flex-col items-center justify-center transition-all duration-300 w-full cursor-pointer relative min-h-[280px]" onclick="triggerFileSelect(1, event)">
                     <button id="btn-remove-1" style="display:none;" disabled onclick="removeFile(1, event)" class="hidden absolute top-3 right-3 bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 p-2 rounded-xl hover:bg-red-200 dark:hover:bg-red-800/60 transition focus:outline-none z-20 shadow-sm" title="Remove File">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
-                    <div id="dz-icon-1" class="w-16 h-16 bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20 dark:ring-indigo-400/20 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-105">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                    </div>
-                    <div id="ui-drop2-container" class="flex flex-col items-center justify-center pointer-events-none w-full">
-                        <span data-i18n="drop_2" class="text-lg font-bold text-slate-700 dark:text-slate-200">Drop XML File 2 here</span>
-                        <span data-i18n="drop_or" class="text-sm font-medium text-slate-400 dark:text-slate-500 mt-2 mb-2 uppercase tracking-widest">- or -</span>
-                        <span data-i18n="drop_browse" class="text-indigo-600 dark:text-indigo-400 font-bold hover:underline">Browse file</span>
+                    
+                    <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.03] transition-transform duration-500 pointer-events-none">
+                        <div id="dz-icon-1" class="bg-indigo-50 dark:bg-slate-700 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10 p-4 sm:p-5 rounded-full mb-4 transition-colors duration-300">
+                            <svg class="w-10 h-10 sm:w-12 sm:h-12 text-indigo-500 dark:text-indigo-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                        </div>
+                        
+                        <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
+                            <span data-i18n="drop_2" class="text-lg sm:text-xl font-medium text-slate-700 dark:text-slate-200 tracking-wide transition-colors duration-300">Drop XML File 2 here</span>
+                        </div>
+                        
+                        <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[240px] mb-6 transition-opacity duration-300 opacity-80">
+                            <p data-i18n="ui_supportedFormat" class="text-sm font-mono text-slate-400 dark:text-slate-500 mb-5">Supported format: .xml</p>
+                            <div class="flex items-center justify-center w-full">
+                                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                                <span data-i18n="drop_or" class="px-4 text-[10px] font-bold tracking-[0.2em] text-slate-400 dark:text-slate-500 uppercase">OR</span>
+                                <div class="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+                            </div>
+                        </div>
+
+                        <div id="ui-btn-1" class="relative px-8 py-2.5 rounded-full border border-indigo-500/30 dark:border-indigo-400/30 bg-indigo-500/5 dark:bg-indigo-400/10 text-indigo-600 dark:text-indigo-400 font-semibold text-sm hover:bg-indigo-500/10 dark:hover:bg-indigo-400/20 hover:border-indigo-500/50 dark:hover:border-indigo-400/50 transition-all duration-300 shadow-sm pointer-events-auto">
+                            <span data-i18n="drop_browse">Browse File</span>
+                        </div>
                     </div>
                     <input type="file" id="file-1" accept=".xml" class="pointer-events-none hidden">
                 </div>
                 
             </div>
-                <!-- NOTA DISCRETA DI EQUIVALENZA SLOT -->
-                <p class="text-xs text-slate-400 dark:text-slate-500 italic text-center mt-3 flex items-center justify-center space-x-1.5">
-                    <svg class="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span data-i18n="drop_singleNote">For single-file editing, you can upload your XML to either Slot 1 or Slot 2 interchangeably.</span>
-                </p>
+                <!-- NOTA DISCRETA DI EQUIVALENZA SLOT (Apple HIG Tip) -->
+                <div class="flex justify-center w-full mt-6">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 dark:bg-slate-800/30 rounded-xl text-xs font-medium text-slate-500 dark:text-slate-400 max-w-2xl text-center">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span data-i18n="drop_singleNote">For single-file editing, you can upload your XML to either Slot 1 or Slot 2 interchangeably.</span>
+                    </div>
+                </div>
             </div>
-
-            <div class="flex justify-center flex-none mt-2">
-                <button id="btn-proceed" disabled onclick="validateAndProceed()" class="opacity-0 translate-y-4 cursor-not-allowed pointer-events-none px-8 py-3 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all shadow-md hover:shadow-lg focus:outline-none flex items-center space-x-2">
+            
+            <!-- Floating Proceed Button -->
+            <div class="absolute bottom-8 left-0 right-0 flex justify-center pointer-events-none z-30">
+                <button id="btn-proceed" disabled onclick="validateAndProceed()" class="opacity-0 translate-y-4 cursor-not-allowed pointer-events-auto px-8 py-3.5 rounded-full text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-300 shadow-[0_8px_16px_rgba(37,99,235,0.25)] hover:shadow-[0_12px_24px_rgba(37,99,235,0.35)] focus:outline-none flex items-center space-x-2 active:scale-95">
                     <span id="ui-proceed">Proceed</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
@@ -330,7 +393,7 @@
                                 </div>
                                 
                                 <input type="search" id="searchInput" oninput="handleSearchInput(this)" onkeydown="handleSearchKey(event)" data-i18n-placeholder="search_plc" placeholder="Search parameters..." 
-                                    class="w-full h-full py-0 pl-9 pr-10 bg-slate-200/80 dark:bg-slate-800/80 border-none rounded-[10px] text-[15px] sm:text-[17px] leading-normal tracking-[-0.4px] text-black dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus:outline-none focus:bg-white dark:focus:bg-[#3A3A3C] focus:ring-[3px] focus:ring-blue-500/40 transition-all duration-200">
+                                    class="w-full h-full py-0 pl-9 pr-10 bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 border-none rounded-[10px] text-[15px] sm:text-[16px] leading-normal tracking-[-0.3px] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-500/50 dark:focus:ring-blue-400/50 transition-all duration-200">
 
                                 <!-- Counter e UNICO Clear Button -->
                                 <div class="absolute inset-y-0 right-0 pr-1.5 flex items-center gap-1.5">
@@ -344,17 +407,17 @@
 
                             <!-- Gear Dropdown (Apple HIG) -->
                             <div class="relative flex-shrink-0 z-50">
-                                <button id="searchSettingsBtn" type="button" onclick="toggleSearchSettings(event)" title="Search Options" aria-label="Search Options" aria-haspopup="true" aria-expanded="false" class="hit-44 relative inline-flex items-center justify-center h-[36px] w-[36px] rounded-[10px] bg-slate-200/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-300/80 dark:hover:bg-slate-700/80 transition-all duration-200 focus:outline-none flex-shrink-0">
+                                <button id="searchSettingsBtn" type="button" onclick="toggleSearchSettings(event)" title="Search Options" aria-label="Search Options" aria-haspopup="true" aria-expanded="false" class="hit-44 relative inline-flex items-center justify-center h-[36px] w-[36px] rounded-[10px] bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-slate-800/80 transition-all duration-200 focus:outline-none flex-shrink-0">
                                     <svg aria-hidden="true" class="w-[18px] h-[18px] transition-transform duration-300" id="gearIconSvg" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                     <span id="searchSettingsBadge" class="hidden absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full ring-2 ring-white dark:ring-slate-800 pointer-events-none"></span>
                                 </button>
-                                <div id="searchSettingsDropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-700/80 rounded-xl shadow-xl p-1.5 z-50 origin-top-right dropdown-spring scale-95 opacity-0">
+                                <div id="searchSettingsDropdown" class="hidden absolute right-0 top-full mt-2 w-56 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl border border-slate-200/80 dark:border-white/10 rounded-xl shadow-2xl p-1.5 z-50 origin-top-right dropdown-spring scale-95 opacity-0">
                                     <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-2.5 pt-1.5 pb-1">Search Options</div>
-                                    <label class="flex items-center gap-3 px-2.5 h-11 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 cursor-pointer transition-colors text-sm text-slate-700 dark:text-slate-200">
+                                    <label class="flex items-center gap-3 px-2.5 h-10 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 cursor-pointer transition-colors text-xs font-medium text-slate-700 dark:text-slate-200">
                                         <input type="checkbox" id="matchCase" onchange="toggleSearchOpt('case')" class="rounded w-4 h-4 text-blue-600 focus:ring-blue-500 bg-slate-100 border-slate-300 dark:bg-slate-700 dark:border-slate-600">
                                         <span data-i18n="search_case">Match case</span>
                                     </label>
-                                    <label class="flex items-center gap-3 px-2.5 h-11 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 cursor-pointer transition-colors text-sm text-slate-700 dark:text-slate-200">
+                                    <label class="flex items-center gap-3 px-2.5 h-10 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/60 cursor-pointer transition-colors text-xs font-medium text-slate-700 dark:text-slate-200">
                                         <input type="checkbox" id="wholeWord" onchange="toggleSearchOpt('word')" class="rounded w-4 h-4 text-blue-600 focus:ring-blue-500 bg-slate-100 border-slate-300 dark:bg-slate-700 dark:border-slate-600">
                                         <span data-i18n="search_word">Whole word</span>
                                     </label>
@@ -363,38 +426,40 @@
                         </div>
                     </div>
 
-                    <!-- Right: Segmented Filters & Log Drawer -->
-                    <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                    <!-- Right: Segmented Filters & Log Drawer (All 36x36 Symmetrical Controls) -->
+                    <div class="flex items-center gap-2 flex-shrink-0">
                         
-                        <!-- Segmented Pill Bar (Icon & Badge Only - Apple HIG) -->
-                        <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-800/80 rounded-[10px] h-[36px]">
+                        <!-- Segmented Pill Bar -->
+                        <div class="flex items-center p-0.5 bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 rounded-[10px] h-[36px]">
                             
                             <!-- Filter Errors Button -->
                             <div id="toggle-err-container" class="hidden h-full">
-                                <button type="button" id="toggleErrBtn" onclick="toggleFilterDirect('err')" aria-pressed="false" class="filter-pill-btn h-full px-2.5 rounded-[8px] flex items-center justify-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none min-w-[36px]" title="Show Errors only" aria-label="Show Errors only" data-i18n-title="filter_err" data-i18n-aria="filter_err">
-                                    <span id="count-err" class="text-[10px] font-bold bg-red-500 text-white px-1.5 py-0.5 rounded-full leading-none flex-shrink-0 tabular-nums">0</span>
+                                <button type="button" id="toggleErrBtn" onclick="toggleFilterDirect('err')" aria-pressed="false" class="filter-pill-btn h-full w-[36px] rounded-[8px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none relative group" title="Show Errors only" aria-label="Show Errors only" data-i18n-title="filter_err" data-i18n-aria="filter_err">
+                                    <svg aria-hidden="true" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+                                    <span id="count-err" class="hidden absolute -top-1 -right-1 z-30 pointer-events-none px-1 h-3.5 min-w-[15px] text-[9px] font-bold bg-red-500 text-white rounded-full items-center justify-center leading-none ring-2 ring-white dark:ring-slate-900 shadow-sm tabular-nums">0</span>
                                 </button>
                             </div>
                             
                             <!-- Filter Differences Button -->
-                            <div id="toggle-diff-container" class="hidden h-full border-l border-slate-300 dark:border-slate-700/60">
-                                <button type="button" id="toggleDiffBtn" onclick="toggleFilterDirect('diff')" aria-pressed="false" class="filter-pill-btn h-full px-2.5 rounded-[8px] flex items-center justify-center text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none min-w-[36px]" title="Show Differences only" aria-label="Show Differences only" data-i18n-title="filter_diff" data-i18n-aria="filter_diff">
-                                    <span id="count-diff" class="text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded-full leading-none flex-shrink-0 tabular-nums">0</span>
+                            <div id="toggle-diff-container" class="hidden h-full border-l border-slate-300/60 dark:border-white/10">
+                                <button type="button" id="toggleDiffBtn" onclick="toggleFilterDirect('diff')" aria-pressed="false" class="filter-pill-btn h-full w-[36px] rounded-[8px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none relative group" title="Show Differences only" aria-label="Show Differences only" data-i18n-title="filter_diff" data-i18n-aria="filter_diff">
+                                    <svg aria-hidden="true" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                                    <span id="count-diff" class="hidden absolute -top-1 -right-1 z-30 pointer-events-none px-1 h-3.5 min-w-[15px] text-[9px] font-bold bg-amber-500 text-white rounded-full items-center justify-center leading-none ring-2 ring-white dark:ring-slate-900 shadow-sm tabular-nums">0</span>
                                 </button>
                             </div>
                             
                             <!-- Toggle Sync Scroll Button -->
-                            <div id="toggle-sync-container" class="hidden h-full border-l border-slate-300 dark:border-slate-700/60">
-                                <button type="button" id="toggleSyncBtn" onclick="toggleSyncScrollDirect()" aria-pressed="true" class="filter-pill-btn h-full px-2.5 rounded-[8px] flex items-center justify-center text-xs font-semibold text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-700 shadow-sm transition-colors focus:outline-none min-w-[36px]" title="Sync Scroll" aria-label="Sync Scroll" data-i18n-title="filter_sync" data-i18n-aria="filter_sync">
-                                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                            <div id="toggle-sync-container" class="hidden h-full border-l border-slate-300/60 dark:border-white/10">
+                                <button type="button" id="toggleSyncBtn" onclick="toggleSyncScrollDirect()" aria-pressed="true" class="filter-pill-btn h-full w-[36px] rounded-[8px] flex items-center justify-center text-blue-600 dark:text-blue-400 is-active-sync transition-colors focus:outline-none relative" title="Sync Scroll" aria-label="Sync Scroll" data-i18n-title="filter_sync" data-i18n-aria="filter_sync">
+                                    <svg aria-hidden="true" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                                 </button>
                             </div>
                         </div>
 
                         <!-- Log Drawer Button -->
-                        <button type="button" onclick="toggleSidePanel()" class="hit-44 h-[36px] px-2.5 bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-700/60 rounded-[10px] flex items-center justify-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition-all focus:outline-none active:scale-95 min-w-[36px]" title="Session Modifications Log" aria-label="Session Modifications Log" data-i18n-title="term_title" data-i18n-aria="term_title">
-                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            <span id="term-counter-badge" class="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none min-w-[18px] text-center flex-shrink-0 tabular-nums">0</span>
+                        <button type="button" onclick="toggleSidePanel()" class="hit-44 h-[36px] w-[36px] bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-700/60 rounded-[10px] flex items-center justify-center text-slate-700 dark:text-slate-200 shadow-sm transition-all focus:outline-none active:scale-95 relative" title="Session Modifications Log" aria-label="Session Modifications Log" data-i18n-title="term_title" data-i18n-aria="term_title">
+                            <svg aria-hidden="true" class="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span id="term-counter-badge" class="hidden absolute -top-1 -right-1 z-30 pointer-events-none px-1 h-3.5 min-w-[15px] text-[9px] font-bold bg-blue-600 text-white rounded-full items-center justify-center leading-none ring-2 ring-white dark:ring-slate-900 shadow-sm tabular-nums">0</span>
                         </button>
                     </div>
 
@@ -411,14 +476,14 @@
                         <!-- Metadata Block (Spazio raddoppiato a tutta larghezza) -->
                         <div class="flex flex-col min-w-0 flex-1 pr-3 justify-center">
                             <div class="flex items-center gap-2 min-w-0">
-                                <span id="fname-0" class="font-bold text-[13px] sm:text-sm text-slate-900 dark:text-white truncate cursor-help hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="File1.xml">File1.xml</span>
+                                <span id="fname-0" class="font-bold text-[13px] sm:text-sm text-slate-900 dark:text-white truncate" data-tip-title="File1.xml">File1.xml</span>
                             </div>
                             <div class="flex items-center gap-2 text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                                <span id="sn-wrapper-0" class="truncate cursor-help hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="S/N or Item: N/A"><span data-i18n="lbl_sn">S/N</span>: <span id="fsn-0" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
+                                <span id="sn-wrapper-0" class="truncate" data-tip-title="S/N or Item: N/A"><span data-i18n="lbl_sn">S/N</span>: <span id="fsn-0" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
                                 <span class="opacity-40">&bull;</span>
-                                <span id="sw-wrapper-0" class="truncate cursor-help hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="SW: N/A">SW: <span id="fsw-0" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
+                                <span id="sw-wrapper-0" class="truncate" data-tip-title="SW: N/A">SW: <span id="fsw-0" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
                                 <span class="opacity-40">&bull;</span>
-                                <span id="total-wrapper-0" class="truncate cursor-help hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Total parameters:">Qty: <span id="count-total-0" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span></span>
+                                <span id="total-wrapper-0" class="truncate" data-tip-title="Total parameters:">Qty: <span id="count-total-0" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
                             </div>
                         </div>
 
@@ -474,14 +539,14 @@
                         <!-- Metadata Block (Spazio raddoppiato a tutta larghezza) -->
                         <div class="flex flex-col min-w-0 flex-1 pr-3 justify-center">
                             <div class="flex items-center gap-2 min-w-0">
-                                <span id="fname-1" class="font-bold text-[13px] sm:text-sm text-slate-900 dark:text-white truncate cursor-help hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="File2.xml">File2.xml</span>
+                                <span id="fname-1" class="font-bold text-[13px] sm:text-sm text-slate-900 dark:text-white truncate" data-tip-title="File2.xml">File2.xml</span>
                             </div>
                             <div class="flex items-center gap-2 text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                                <span id="sn-wrapper-1" class="truncate cursor-help hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="S/N or Item: N/A"><span data-i18n="lbl_sn">S/N</span>: <span id="fsn-1" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
+                                <span id="sn-wrapper-1" class="truncate" data-tip-title="S/N or Item: N/A"><span data-i18n="lbl_sn">S/N</span>: <span id="fsn-1" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
                                 <span class="opacity-40">&bull;</span>
-                                <span id="sw-wrapper-1" class="truncate cursor-help hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="SW: N/A">SW: <span id="fsw-1" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
+                                <span id="sw-wrapper-1" class="truncate" data-tip-title="SW: N/A">SW: <span id="fsw-1" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
                                 <span class="opacity-40">&bull;</span>
-                                <span id="total-wrapper-1" class="truncate cursor-help hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Total parameters">Qty: <span id="count-total-1" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
+                                <span id="total-wrapper-1" class="truncate" data-tip-title="Total parameters">Qty: <span id="count-total-1" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
                             </div>
                         </div>
 
@@ -555,20 +620,20 @@
                 </div>
                 
                 <!-- Panel Body -->
-                <div class="flex-1 overflow-y-auto custom-scrollbar p-5 flex flex-col gap-6 bg-slate-100/50 dark:bg-slate-900/50">
+                <div class="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 flex flex-col gap-4 bg-slate-100/50 dark:bg-slate-900/50">
                     
-                    <div id="term-box-0" class="flex-1 flex flex-col min-h-[200px] bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-white/10 shadow-sm overflow-hidden">
-                        <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-white/10 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex justify-between items-center">
+                    <div id="term-box-0" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-white/10 shadow-sm overflow-hidden">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-white/10 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex justify-between items-center">
                             <span>File 1</span>
                         </div>
-                        <div id="terminal-output-0" class="p-4 font-mono text-[11px] leading-relaxed overflow-y-auto flex-grow custom-scrollbar flex flex-col space-y-2"></div>
+                        <div id="terminal-output-0" class="p-3 font-mono text-[11px] leading-relaxed overflow-y-auto custom-scrollbar flex flex-col space-y-2"></div>
                     </div>
                     
-                    <div id="term-box-1" class="flex-1 flex flex-col min-h-[200px] bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-white/10 shadow-sm overflow-hidden hidden">
-                        <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-white/10 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex justify-between items-center">
+                    <div id="term-box-1" class="flex flex-col bg-white dark:bg-slate-800 rounded-xl border border-slate-200/80 dark:border-white/10 shadow-sm overflow-hidden hidden">
+                        <div class="px-3 py-2 bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200/80 dark:border-white/10 text-[10px] font-bold text-slate-500 uppercase tracking-widest flex justify-between items-center">
                             <span>File 2</span>
                         </div>
-                        <div id="terminal-output-1" class="p-4 font-mono text-[11px] leading-relaxed overflow-y-auto flex-grow custom-scrollbar flex flex-col space-y-2"></div>
+                        <div id="terminal-output-1" class="p-3 font-mono text-[11px] leading-relaxed overflow-y-auto custom-scrollbar flex flex-col space-y-2"></div>
                     </div>
 
                 </div>
@@ -785,7 +850,9 @@
                 if (filesData[0] && filesData[1] && window.activeDiffs.size > 0) {
                     diffBadge.innerText = window.activeDiffs.size;
                     diffBadge.classList.remove('hidden');
+                    diffBadge.classList.add('flex');
                 } else {
+                    diffBadge.classList.remove('flex');
                     diffBadge.classList.add('hidden');
                     if (showDiffOnly && window.activeDiffs.size === 0) {
                         showDiffOnly = false;
@@ -820,6 +887,9 @@
 
         const editorDictionaries = {
             en: {
+                err_wrong_type: "This file type isn't supported. Please choose a .xml file.",
+                err_parse_xml: "Unable to parse the XML file. Please check its format.",
+                msg_xml_loaded: "XML file loaded successfully.",
                 app_title: "Parameter List XML Editor", app_subtitle: "Visual Comparator & Configuration Builder", nav_home: "Home", nav_menu: "Menu", nav_tools: "Tools", nav_backToTools: "Back to Tools",
                 upload_title: "Load Configuration Files", upload_desc: "Load a single XML to edit parameters, or load two XML files to visually compare and modify them simultaneously.",
                 drop_1: "Drop XML File 1 here", drop_2: "Drop XML File 2 here", drop_or: "- or -", drop_browse: "Browse file", drop_loaded: "Loaded:", drop_update: "Drop new XML file anywhere to load",
@@ -842,6 +912,9 @@
                 exp_title: "Export Options", exp_desc: "Do you want to export the modifications log (.txt) along with the XML file?", exp_yes: "Yes, XML + Log", exp_no: "Only XML"
             },
             it: {
+                err_wrong_type: "Questo tipo di file non è supportato. Scegli un file .xml.",
+                err_parse_xml: "Impossibile leggere il file XML. Verificane il formato.",
+                msg_xml_loaded: "File XML caricato correttamente.",
                 app_title: "Parameter List XML Editor", app_subtitle: "Comparatore Visivo e Configuratore", nav_home: "Home", nav_menu: "Menu", nav_tools: "Strumenti", nav_backToTools: "Torna agli Strumenti",
                 upload_title: "Carica File di Configurazione", upload_desc: "Carica un singolo XML per modificarlo, oppure carica due XML per confrontarli ed editarli in simultanea.",
                 drop_1: "Rilascia qui il File XML 1", drop_2: "Rilascia qui il File XML 2", drop_or: "- oppure -", drop_browse: "Sfoglia file", drop_loaded: "Caricato:", drop_update: "Rilascia un nuovo file ovunque per caricarlo",
@@ -1420,6 +1493,12 @@
                 console.error("Session restore failed, cleaning memory.", e);
                 sessionStorage.clear();
             }
+            
+            // Rivela il main wrapper solo dopo aver ripristinato lo stato (evita FOUC/Glitch)
+            requestAnimationFrame(() => {
+                const mainWrapper = document.getElementById('main-wrapper');
+                if (mainWrapper) mainWrapper.classList.remove('opacity-0');
+            });
         }
 
         window.addEventListener('beforeunload', saveSessionState);
@@ -1727,14 +1806,19 @@
         function updateDzUI(idx, fname) {
             const dzIcon = document.getElementById(`dz-icon-${idx}`);
             if(dzIcon) {
-                dzIcon.className = "w-16 h-16 bg-green-500/10 dark:bg-green-500/20 text-green-600 dark:text-green-400 ring-1 ring-green-500/20 dark:ring-green-400/20 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-105";
-                dzIcon.innerHTML = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                dzIcon.className = "bg-green-50 dark:bg-green-900/20 shadow-sm ring-1 ring-green-500/20 dark:ring-green-400/20 p-4 sm:p-5 rounded-full mb-4 transition-colors duration-300";
+                dzIcon.innerHTML = `<svg class="w-10 h-10 sm:w-12 sm:h-12 text-green-500 dark:text-green-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
             }
             const container = document.getElementById(`ui-drop${idx+1}-container`);
             const loadedTxt = ClivetI18n.get('drop_loaded') || "Loaded:";
             if(container) {
-                container.innerHTML = `<span class="text-sm font-medium text-slate-500">${loadedTxt}</span><br><span class="text-blue-600 dark:text-blue-400 font-mono text-base break-all" title="${fname}">${fname}</span>`;
+                container.innerHTML = `<span class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">${loadedTxt}</span><span class="text-blue-600 dark:text-blue-400 font-mono text-base sm:text-lg break-all px-4" title="${fname}">${fname}</span>`;
             }
+            
+            const orEl = document.getElementById(`ui-or-${idx}`);
+            if (orEl) orEl.classList.add('hidden');
+            const btnEl = document.getElementById(`ui-btn-${idx}`);
+            if (btnEl) btnEl.classList.add('hidden');
             
             const dzBtnRemove = document.getElementById(`btn-remove-${idx}`);
             if(dzBtnRemove) {
@@ -1751,23 +1835,22 @@
             
             const icon = document.getElementById(`dz-icon-${index}`);
             if (icon) {
-                icon.className = index===0 ? "w-16 h-16 bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/20 dark:ring-blue-400/20 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-105" : "w-16 h-16 bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20 dark:ring-indigo-400/20 rounded-2xl flex items-center justify-center mb-4 transition-transform group-hover:scale-105";
-                icon.innerHTML = `<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>`;
+                const colorClass = index === 0 ? 'blue' : 'indigo';
+                icon.className = `bg-${colorClass}-50 dark:bg-slate-700 shadow-sm ring-1 ring-slate-900/5 dark:ring-white/10 p-4 sm:p-5 rounded-full mb-4 transition-colors duration-300`;
+                icon.innerHTML = `<svg class="w-10 h-10 sm:w-12 sm:h-12 text-${colorClass}-500 dark:text-${colorClass}-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>`;
             }
             
             const container = document.getElementById(`ui-drop${index+1}-container`);
             if(container) {
                 const dropText = ClivetI18n.get(`drop_${index+1}`);
-                const orText = ClivetI18n.get('drop_or');
-                const browseText = ClivetI18n.get('drop_browse');
-                const colorClass = index===0 ? 'blue' : 'indigo';
-                
-                container.innerHTML = `
-                    <span class="text-lg font-bold text-slate-700 dark:text-slate-200">${dropText}</span>
-                    <span class="text-sm font-medium text-slate-400 dark:text-slate-500 mt-2 mb-2 uppercase tracking-widest">${orText}</span>
-                    <span class="text-${colorClass}-600 dark:text-${colorClass}-400 font-bold hover:underline">${browseText}</span>
-                `;
+                container.innerHTML = `<span class="text-lg sm:text-xl font-medium text-slate-700 dark:text-slate-200 tracking-wide transition-colors duration-300">${dropText}</span>`;
             }
+            
+            const orEl = document.getElementById(`ui-or-${index}`);
+            if (orEl) orEl.classList.remove('hidden');
+            const btnEl = document.getElementById(`ui-btn-${index}`);
+            if (btnEl) btnEl.classList.remove('hidden');
+
 			const btnRemove = document.getElementById(`btn-remove-${index}`);
             if(btnRemove) {
                 btnRemove.classList.add('hidden');
@@ -1783,13 +1866,52 @@
             updateProceedButton();
         }
 
+        function showToastError(messageKey, fallbackMsg) {
+            const toast = document.getElementById('error-toast');
+            const toastText = document.getElementById('error-toast-text');
+            if (toast && toastText) {
+                toastText.innerText = ClivetI18n.get(messageKey) || fallbackMsg;
+                toast.classList.remove('opacity-0', 'pointer-events-none');
+                toast.classList.add('opacity-100');
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(() => {
+                    toast.classList.remove('opacity-100');
+                    toast.classList.add('opacity-0', 'pointer-events-none');
+                }, 5000);
+            }
+        }
+
+        function showToastSuccess(messageKey, fallbackMsg) {
+            const toast = document.getElementById('success-toast');
+            const toastText = document.getElementById('success-toast-text');
+            if (toast && toastText) {
+                toastText.innerText = ClivetI18n.get(messageKey) || fallbackMsg;
+                toast.classList.remove('opacity-0', 'pointer-events-none');
+                toast.classList.add('opacity-100');
+                clearTimeout(toast._hideTimer);
+                toast._hideTimer = setTimeout(() => {
+                    toast.classList.remove('opacity-100');
+                    toast.classList.add('opacity-0', 'pointer-events-none');
+                }, 3000);
+            }
+        }
+
         function handleFileSelect(index, file) {
-            if (!file.name.toLowerCase().endsWith('.xml')) { alert("Please upload a valid .xml file."); return; }
+            if (!file.name.toLowerCase().endsWith('.xml')) { 
+                showToastError('err_wrong_type', "This file type isn't supported. Please choose a .xml file."); 
+                return; 
+            }
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
                     const parser = new DOMParser();
                     const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+                    
+                    // Controllo validità XML nativo del browser
+                    const parseError = xmlDoc.getElementsByTagName("parsererror");
+                    if (parseError.length > 0) {
+                        throw new Error("Invalid XML structure");
+                    }
                     
                     let parsedData = {
                         rawText: e.target.result,
@@ -1860,6 +1982,7 @@
                     
                     updateDzUI(index, file.name);
                     updateProceedButton();
+                    showToastSuccess('msg_xml_loaded', "XML file loaded successfully.");
 
                     const viewUp = document.getElementById('view-upload');
                     if (viewUp.classList.contains('view-hidden')) {
@@ -1869,7 +1992,7 @@
 
                 } catch(err) {
                     console.error(err);
-                    alert("An error occurred while parsing the XML file. Check format.");
+                    showToastError('err_parse_xml', "Unable to parse the XML file. Please check its format.");
                 }
             };
             reader.readAsText(file);
@@ -2119,11 +2242,11 @@
             if (btn) {
                 btn.setAttribute('aria-pressed', String(isSyncScrollActive));
                 if (isSyncScrollActive) {
-                    btn.classList.add('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'text-blue-600', 'dark:text-blue-400');
-                    btn.classList.remove('text-slate-600', 'dark:text-slate-400');
+                    btn.classList.add('is-active-sync', 'text-blue-600', 'dark:text-blue-400');
+                    btn.classList.remove('text-slate-500', 'dark:text-slate-400');
                 } else {
-                    btn.classList.remove('bg-white', 'dark:bg-slate-700', 'shadow-sm', 'text-blue-600', 'dark:text-blue-400');
-                    btn.classList.add('text-slate-600', 'dark:text-slate-400');
+                    btn.classList.remove('is-active-sync', 'text-blue-600', 'dark:text-blue-400');
+                    btn.classList.add('text-slate-500', 'dark:text-slate-400');
                 }
             }
         }
@@ -2395,7 +2518,11 @@
                 if (errCount > 0) {
                     errContainer.classList.remove('hidden');
                     errContainer.classList.add('flex');
+                    errBadge.classList.remove('hidden');
+                    errBadge.classList.add('flex');
                 } else {
+                    errBadge.classList.remove('flex');
+                    errBadge.classList.add('hidden');
                     errContainer.classList.add('hidden');
                     errContainer.classList.remove('flex');
                     if(showErrOnly) {
@@ -2460,7 +2587,16 @@
             let countStr = liveLogMap.size;
             
             const badge = document.getElementById('term-counter-badge');
-            if (badge) badge.innerText = countStr;
+            if (badge) {
+                badge.innerText = countStr;
+                if (countStr > 0) {
+                    badge.classList.remove('hidden');
+                    badge.classList.add('flex');
+                } else {
+                    badge.classList.remove('flex');
+                    badge.classList.add('hidden');
+                }
+            }
             
             const term0 = document.getElementById('terminal-output-0');
             const term1 = document.getElementById('terminal-output-1');
@@ -2494,18 +2630,17 @@
                 const paramKey = key.replace(`${log.fileIdx}-`, '');
                 
                 let str = `
-                <div class="flex flex-col gap-1.5 p-2.5 bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200/80 dark:border-white/5 shadow-sm">
+                <div class="flex flex-col gap-1 p-2 bg-white dark:bg-slate-800/50 rounded-lg border border-slate-200/80 dark:border-white/5 shadow-sm">
                     <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-bold text-slate-400">${log.time}</span>
-                            <span class="text-xs font-bold ${colorClass}">${log.reg}</span>
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="text-[10px] font-bold text-slate-400 flex-shrink-0">${log.time}</span>
+                            <span class="text-xs font-bold ${colorClass} flex-shrink-0">${log.reg}</span>
+                            <span class="text-[11px] text-slate-700 dark:text-slate-300 truncate ml-1" title="${log.details}">${log.details}</span>
                         </div>
-                        <button onclick="undoLastModification(${log.fileIdx}, '${paramKey}')" class="hit-44 flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-700 border border-slate-200/80 dark:border-slate-600 rounded text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none active:scale-95">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
-                            <span>${ClivetI18n.get('term_undo')}</span>
+                        <button onclick="undoLastModification(${log.fileIdx}, '${paramKey}')" title="${ClivetI18n.get('term_undo')}" class="hit-44 flex items-center justify-center w-6 h-6 bg-slate-100 dark:bg-slate-700 border border-slate-200/80 dark:border-slate-600 rounded text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors focus:outline-none active:scale-95 flex-shrink-0 ml-2">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
                         </button>
                     </div>
-                    <span class="text-[11px] text-slate-700 dark:text-slate-300 break-all">${log.details}</span>
                 </div>`;
                 
                 if (log.fileIdx === 0) html0 += str;
