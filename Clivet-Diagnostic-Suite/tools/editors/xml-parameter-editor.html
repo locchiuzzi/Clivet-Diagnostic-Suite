@@ -82,7 +82,7 @@
         /* View Layers */
         .view-layer { transition: opacity 0.3s ease, transform 0.4s var(--spring-easing); width: 100%; height: 100%; }
         .view-hidden { opacity: 0 !important; pointer-events: none !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: -1 !important; visibility: hidden !important; display: none !important; transform: scale(0.98); }
-        .view-active { opacity: 1 !important; position: relative !important; z-index: 10 !important; visibility: visible !important; display: flex !important; flex-direction: column !important; transform: scale(1); }
+        .view-active { opacity: 1 !important; position: relative !important; z-index: 10 !important; visibility: visible !important; display: flex !important; flex-direction: column !important; transform: scale(1); flex: 1 1 0% !important; min-height: 0 !important; }
         
         tr.search-hidden, tr.diff-hidden { display: none !important; }
 
@@ -104,15 +104,14 @@
         mark.search-hl { background-color: #fef08a; color: #0f172a; padding: 0 2px; border-radius: 2px; transition: all 0.2s ease-in-out; }
         mark.search-hl.active-match { background-color: #fbbf24; color: #000; font-weight: bold; box-shadow: 0 0 0 2px #d97706; transform: scale(1.05); display: inline-block; position: relative; z-index: 10; }
 
-        /* Struttura Tabella Blindata */
-        .sync-table-container { overflow-x: hidden !important; background-color: #f1f5f9; }
+        /* Struttura Tabella (Scroll nativo sbloccato) */
+        .sync-table-container { background-color: #f1f5f9; }
         .dark .sync-table-container { background-color: #334155; }
         .sync-table-container table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
         .sync-table-container tbody { background-color: #ffffff; }
         .dark .sync-table-container tbody { background-color: #1e293b; }
-        .sync-table-container tr { height: 38px !important; max-height: 38px !important; } 
-        .sync-table-container td { height: 38px !important; max-height: 38px !important; padding: 0.2rem 0.5rem !important; vertical-align: middle; word-wrap: break-word; overflow: hidden !important; }
-        .sync-table-container th { height: 34px !important; padding: 0.4rem 0.5rem !important; position: sticky !important; top: 0 !important; z-index: 50 !important; background-color: #f1f5f9 !important; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+        .sync-table-container td { padding: 0.2rem 0.5rem !important; vertical-align: middle; word-wrap: break-word; }
+        .sync-table-container th { padding: 0.4rem 0.5rem !important; position: sticky !important; top: 0 !important; z-index: 50 !important; background-color: #f1f5f9 !important; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
         .dark .sync-table-container th { background-color: #334155 !important; }
 
         /* Soppressione tasto Cancel nativo WebKit (Elimina il doppio tasto X) */
@@ -402,11 +401,11 @@
                 </div>
             </div>
             
-            <!-- Floating Proceed Button con Gradiente Protettivo (Task 4.6) -->
-            <div id="proceed-container" class="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent dark:from-slate-900 dark:via-slate-900/90 pointer-events-none z-30 flex items-end justify-center pb-8 sm:pb-10 opacity-0 transition-opacity duration-300">
-                <button id="btn-proceed" disabled onclick="validateAndProceed()" class="opacity-0 translate-y-4 cursor-not-allowed pointer-events-auto px-8 py-3.5 rounded-full text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-300 shadow-[0_8px_16px_rgba(37,99,235,0.25)] hover:shadow-[0_12px_24px_rgba(37,99,235,0.35)] focus:outline-none flex items-center space-x-2 active:scale-95">
+            <!-- Floating Proceed Action & Native Ambient Mask (Apple HIG 100% Compliant) -->
+            <div id="proceed-container" class="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent dark:from-slate-900 dark:via-slate-900/80 pointer-events-none z-30 flex items-end justify-center pb-8 opacity-0 transition-opacity duration-300">
+                <button id="btn-proceed" disabled onclick="validateAndProceed()" class="opacity-0 translate-y-4 cursor-not-allowed pointer-events-auto h-[50px] px-8 rounded-full text-[1.0625rem] font-semibold text-white bg-[#007AFF] hover:bg-[#0071E3] dark:bg-[#0A84FF] dark:hover:bg-[#0077ED] ring-1 ring-white/20 dark:ring-white/10 shadow-[0_12px_32px_rgba(0,122,255,0.3)] dark:shadow-[0_12px_32px_rgba(10,132,255,0.25)] transition-all duration-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007AFF]/50 flex items-center gap-2.5 active:scale-95 active:opacity-90">
                     <span id="ui-proceed">Proceed</span>
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    <svg class="w-4 h-4 flex-shrink-0 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
             </div>
         </div>
@@ -414,7 +413,7 @@
         <!-- ========================================== -->
         <!-- VIEW 2: EDITOR & COMPARATOR WORKSPACE      -->
         <!-- ========================================== -->
-        <div id="view-editor" class="view-layer view-hidden bg-slate-100 dark:bg-slate-900/50">
+        <div id="view-editor" class="view-layer view-hidden flex-1 min-h-0 bg-slate-100 dark:bg-slate-900/50">
         
 		<!-- TOOLBAR TOP (Apple HIG High-Density / Zero-Scroll) -->
             <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200/80 dark:border-white/10 flex-none z-40 shadow-sm mb-2 relative">
@@ -467,21 +466,21 @@
                         </div>
                     </div>
 
-                    <!-- Right: Segmented Filters & Log Drawer (All 36x36 Symmetrical Controls) -->
+                    <!-- Right: Segmented Filters & Log Drawer (All 36x36 Symmetrical Controls - Apple HIG Permanent Toolbar) -->
                     <div class="flex items-center gap-2 flex-shrink-0">
                         
-                        <!-- Segmented Pill Bar -->
-                        <div class="flex items-center p-0.5 bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 rounded-[10px] h-[36px]">
+                        <!-- Segmented Pill Bar (Toolbar Contestuale Apple HIG: 1 Tasto in Single File, 3 Tasti in Dual File) -->
+                        <div id="segmented-pill-bar" class="flex items-center p-0.5 bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 rounded-[10px] h-[36px] transition-all duration-200">
                             
-                            <!-- Filter Errors Button -->
-                            <div id="toggle-err-container" class="hidden h-full">
+                            <!-- Filter Errors Button (Sempre presente) -->
+                            <div id="toggle-err-container" class="flex h-full">
                                 <button type="button" id="toggleErrBtn" onclick="toggleFilterDirect('err')" aria-pressed="false" class="filter-pill-btn h-full w-[36px] rounded-[8px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none relative group" title="Show Errors only" aria-label="Show Errors only" data-i18n-title="filter_err" data-i18n-aria="filter_err">
                                     <svg aria-hidden="true" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
                                     <span id="count-err" class="hidden absolute -top-1 -right-1 z-30 pointer-events-none px-1 h-3.5 min-w-[15px] text-[9px] font-bold bg-red-500 text-white rounded-full items-center justify-center leading-none ring-2 ring-white dark:ring-slate-900 shadow-sm tabular-nums">0</span>
                                 </button>
                             </div>
                             
-                            <!-- Filter Differences Button -->
+                            <!-- Filter Differences Button (Mostrato solo in modalità 2 file) -->
                             <div id="toggle-diff-container" class="hidden h-full border-l border-slate-300/60 dark:border-white/10">
                                 <button type="button" id="toggleDiffBtn" onclick="toggleFilterDirect('diff')" aria-pressed="false" class="filter-pill-btn h-full w-[36px] rounded-[8px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors focus:outline-none relative group" title="Show Differences only" aria-label="Show Differences only" data-i18n-title="filter_diff" data-i18n-aria="filter_diff">
                                     <svg aria-hidden="true" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
@@ -489,22 +488,14 @@
                                 </button>
                             </div>
                             
-                            <!-- Toggle Sync Scroll Button -->
+                            <!-- Toggle Sync Scroll Button (Mostrato solo in modalità 2 file) -->
                             <div id="toggle-sync-container" class="hidden h-full border-l border-slate-300/60 dark:border-white/10">
                                 <button type="button" id="toggleSyncBtn" onclick="toggleSyncScrollDirect()" aria-pressed="true" class="filter-pill-btn h-full w-[36px] rounded-[8px] flex items-center justify-center text-blue-600 dark:text-blue-400 is-active-sync transition-colors focus:outline-none relative" title="Sync Scroll" aria-label="Sync Scroll" data-i18n-title="filter_sync" data-i18n-aria="filter_sync">
                                     <svg aria-hidden="true" class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Log Drawer Button -->
-                        <button type="button" onclick="toggleSidePanel()" class="hit-44 h-[36px] w-[36px] bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-slate-700/60 rounded-[10px] flex items-center justify-center text-slate-700 dark:text-slate-200 shadow-sm transition-all focus:outline-none active:scale-95 relative" title="Session Modifications Log" aria-label="Session Modifications Log" data-i18n-title="term_title" data-i18n-aria="term_title">
-                            <svg aria-hidden="true" class="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            <span id="term-counter-badge" class="hidden absolute -top-1 -right-1 z-30 pointer-events-none px-1 h-3.5 min-w-[15px] text-[9px] font-bold bg-blue-600 text-white rounded-full items-center justify-center leading-none ring-2 ring-white dark:ring-slate-900 shadow-sm tabular-nums">0</span>
-                        </button>
                     </div>
-
-                </div>
             </div>
 
            <!-- DUAL TABLES WORKSPACE -->
@@ -528,28 +519,29 @@
                             </div>
                         </div>
 
-                        <!-- Action Controls (Ingombro ridotto da 330px a 125px) -->
-                        <div class="flex items-center gap-1.5 flex-shrink-0">
-                            <!-- Segmented Group: Undo & Restore -->
-                            <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 rounded-[8px] h-7">
-                                <button onclick="undoLastModification(0)" data-i18n-title="btn_undo" title="Undo" class="h-6 w-6 rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus:outline-none active:scale-95">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <!-- Action Controls (Apple HIG Standard: h-7 / 28px Coordinated Alignment) -->
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <!-- Segmented Group: Undo & Restore con micro-divisore ottico -->
+                            <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
+                                <button type="button" onclick="undoLastModification(0)" data-i18n-title="btn_undo" title="Undo" class="h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90">
+                                    <svg class="w-3.5 h-3.5 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                                 </button>
-                                <button onclick="restoreAll(0)" data-i18n-title="btn_restore" title="Restore All" class="h-6 w-6 rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus:outline-none active:scale-95">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <div class="w-px h-3 bg-slate-300 dark:bg-slate-600 mx-0.5"></div>
+                                <button type="button" onclick="restoreAll(0)" data-i18n-title="btn_restore" title="Restore All" class="h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90">
+                                    <svg class="w-3.5 h-3.5 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 </button>
                             </div>
                             
-                            <!-- Adaptive Export Button -->
-                            <button id="btn-export-0" disabled onclick="promptExport(0)" class="h-7 px-2.5 bg-blue-600 text-white text-xs font-semibold rounded-[8px] shadow-sm hover:bg-blue-700 transition focus:outline-none opacity-50 cursor-not-allowed flex items-center justify-center gap-1.5 active:scale-95 flex-shrink-0">
-                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                <span class="hidden sm:inline export-text" data-i18n="btn_export">Export</span>
+                            <!-- Adaptive Export Button (Apple System Blue #007AFF / #0A84FF) -->
+                            <button type="button" id="btn-export-0" disabled onclick="promptExport(0)" class="h-7 px-3 bg-[#007AFF] hover:bg-[#0071E3] dark:bg-[#0A84FF] dark:hover:bg-[#0077ED] text-white text-[12px] font-semibold rounded-[8px] shadow-sm hover:shadow ring-1 ring-white/15 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 opacity-40 cursor-not-allowed flex items-center justify-center gap-1.5 active:scale-95 flex-shrink-0">
+                                <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                <span class="hidden sm:inline export-text leading-none pt-px" data-i18n="btn_export">Export</span>
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Corpo scrollabile e Colonne Fixed -->
-                    <div id="scroll-0" class="sync-table-container flex-grow overflow-y-auto custom-scrollbar relative">
+                    <!-- Corpo scrollabile e Colonne Fixed (Sblocco Scroll: flex-1 min-h-0) -->
+                    <div id="scroll-0" class="sync-table-container flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar relative">
                         <table class="w-full text-left text-xs table-fixed">
                             <thead class="border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                                 <tr>
@@ -591,28 +583,29 @@
                             </div>
                         </div>
 
-                        <!-- Action Controls (Ingombro ridotto da 330px a 125px) -->
-                        <div class="flex items-center gap-1.5 flex-shrink-0">
-                            <!-- Segmented Group: Undo & Restore -->
-                            <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 rounded-[8px] h-7">
-                                <button onclick="undoLastModification(1)" data-i18n-title="btn_undo" title="Undo" class="h-6 w-6 rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus:outline-none active:scale-95">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        <!-- Action Controls (Apple HIG Standard: h-7 / 28px Coordinated Alignment) -->
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <!-- Segmented Group: Undo & Restore con micro-divisore ottico -->
+                            <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
+                                <button type="button" onclick="undoLastModification(1)" data-i18n-title="btn_undo" title="Undo" class="h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90">
+                                    <svg class="w-3.5 h-3.5 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                                 </button>
-                                <button onclick="restoreAll(1)" data-i18n-title="btn_restore" title="Restore All" class="h-6 w-6 rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus:outline-none active:scale-95">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <div class="w-px h-3 bg-slate-300 dark:bg-slate-600 mx-0.5"></div>
+                                <button type="button" onclick="restoreAll(1)" data-i18n-title="btn_restore" title="Restore All" class="h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90">
+                                    <svg class="w-3.5 h-3.5 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 </button>
                             </div>
                             
-                            <!-- Adaptive Export Button -->
-                            <button id="btn-export-1" disabled onclick="promptExport(1)" class="h-7 px-2.5 bg-blue-600 text-white text-xs font-semibold rounded-[8px] shadow-sm hover:bg-blue-700 transition focus:outline-none opacity-50 cursor-not-allowed flex items-center justify-center gap-1.5 active:scale-95 flex-shrink-0">
-                                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                                <span class="hidden sm:inline export-text" data-i18n="btn_export">Export</span>
+                            <!-- Adaptive Export Button (Apple System Blue #007AFF / #0A84FF) -->
+                            <button type="button" id="btn-export-1" disabled onclick="promptExport(1)" class="h-7 px-3 bg-[#007AFF] hover:bg-[#0071E3] dark:bg-[#0A84FF] dark:hover:bg-[#0077ED] text-white text-[12px] font-semibold rounded-[8px] shadow-sm hover:shadow ring-1 ring-white/15 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 opacity-40 cursor-not-allowed flex items-center justify-center gap-1.5 active:scale-95 flex-shrink-0">
+                                <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                <span class="hidden sm:inline export-text leading-none pt-px" data-i18n="btn_export">Export</span>
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Corpo scrollabile e Colonne Fixed -->
-                    <div id="scroll-1" class="sync-table-container flex-grow overflow-y-auto custom-scrollbar relative">
+                    <!-- Corpo scrollabile e Colonne Fixed (Sblocco Scroll: flex-1 min-h-0) -->
+                    <div id="scroll-1" class="sync-table-container flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar relative">
                         <table class="w-full text-left text-xs table-fixed">
                             <thead class="border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                                 <tr>
@@ -893,13 +886,9 @@
                     diffBadge.classList.remove('hidden');
                     diffBadge.classList.add('flex');
                 } else {
+                    // Se non ci sono differenze il badge si nasconde, ma il filtro rimane attivo se selezionato dall'utente
                     diffBadge.classList.remove('flex');
                     diffBadge.classList.add('hidden');
-                    if (showDiffOnly && window.activeDiffs.size === 0) {
-                        showDiffOnly = false;
-                        syncFilterButtonsUI();
-                        runSearch(false);
-                    }
                 }
             }
         }
@@ -928,11 +917,15 @@
 
         const editorDictionaries = {
             en: {
+                empty_diff_title: "No Differences Detected",
+                empty_diff_desc: "Both parameter lists have identical configurations and values.",
+                empty_err_title: "No Errors Detected",
+                empty_err_desc: "All parameters in this configuration have valid values within their allowed ranges.",
+                empty_err_action: "Show All Parameters",
                 err_wrong_type: "This file type isn't supported. Please choose a .xml file.",
                 err_parse_xml: "Unable to parse the XML file. Please check its format.",
                 msg_xml_loaded: "XML file loaded successfully.",
-                app_title: "Parameter List XML Editor", app_subtitle: "Visual Comparator & Configuration Builder", nav_home: "Home", nav_menu: "Menu", nav_tools: "Tools", nav_backToTools: "Back to Tools",
-                upload_title: "Load Configuration Files", upload_desc: "Load a single XML to edit parameters, or load two XML files to visually compare and modify them simultaneously.",
+                app_title: "Parameter List XML Editor", app_subtitle: "Visual Comparator & Configuration Builder", nav_home: "Home", nav_menu: "Menu", nav_tools: "Tools", nav_backToTools: "Back to Tools",                upload_title: "Load Configuration Files", upload_desc: "Load a single XML to edit parameters, or load two XML files to visually compare and modify them simultaneously.",
                 drop_1: "Drop XML File 1 here", drop_2: "Drop XML File 2 here", drop_or: "- or -", drop_browse: "Browse file", drop_loaded: "Loaded:", drop_update: "Drop new XML file anywhere to load",
                 drop_singleNote: "For single-file editing, you can upload your XML to either Slot 1 or Slot 2 interchangeably.",
                 btn_proceed1: "Proceed with 1 File", btn_proceed2: "Compare & Edit 2 Files",
@@ -953,11 +946,15 @@
                 exp_title: "Export Options", exp_desc: "Do you want to export the modifications log (.txt) along with the XML file?", exp_yes: "Yes, XML + Log", exp_no: "Only XML"
             },
             it: {
+                empty_diff_title: "Nessuna differenza rilevata",
+                empty_diff_desc: "Entrambe le liste presentano parametri e valori identici.",
+                empty_err_title: "Nessun errore rilevato",
+                empty_err_desc: "Tutti i parametri di questa configurazione hanno valori validi compresi nei limiti previsti.",
+                empty_err_action: "Mostra tutti i parametri",
                 err_wrong_type: "Questo tipo di file non è supportato. Scegli un file .xml.",
                 err_parse_xml: "Impossibile leggere il file XML. Verificane il formato.",
                 msg_xml_loaded: "File XML caricato correttamente.",
-                app_title: "Parameter List XML Editor", app_subtitle: "Comparatore Visivo e Configuratore", nav_home: "Home", nav_menu: "Menu", nav_tools: "Strumenti", nav_backToTools: "Torna agli Strumenti",
-                upload_title: "Carica File di Configurazione", upload_desc: "Carica un singolo XML per modificarlo, oppure carica due XML per confrontarli ed editarli in simultanea.",
+                app_title: "Parameter List XML Editor", app_subtitle: "Comparatore Visivo e Configuratore", nav_home: "Home", nav_menu: "Menu", nav_tools: "Strumenti", nav_backToTools: "Torna agli Strumenti",                upload_title: "Carica File di Configurazione", upload_desc: "Carica un singolo XML per modificarlo, oppure carica due XML per confrontarli ed editarli in simultanea.",
                 drop_1: "Rilascia qui il File XML 1", drop_2: "Rilascia qui il File XML 2", drop_or: "- oppure -", drop_browse: "Sfoglia file", drop_loaded: "Caricato:", drop_update: "Rilascia un nuovo file ovunque per caricarlo",
                 drop_singleNote: "Per la modifica di un singolo file, è possibile caricare l'XML indifferentemente nello Slot 1 o nello Slot 2.",
                 btn_proceed1: "Procedi con 1 File", btn_proceed2: "Compara e Modifica 2 File",
@@ -2393,35 +2390,42 @@
 
             const tBox0 = document.getElementById('term-box-0');
             const tBox1 = document.getElementById('term-box-1');
-
             const viewEditor = document.getElementById('view-editor');
+            const diffBtn = document.getElementById('toggleDiffBtn');
+            const syncBtn = document.getElementById('toggleSyncBtn');
+
+            const diffContainer = document.getElementById('toggle-diff-container');
+            const syncContainer = document.getElementById('toggle-sync-container');
+            const errContainer = document.getElementById('toggle-err-container');
+
+            // Il pulsante Errori è sempre visibile e operativo
+            if (errContainer) {
+                errContainer.classList.remove('hidden');
+                errContainer.classList.add('flex');
+            }
 
             if (filesData[0] && filesData[1]) {
                 if (viewEditor) viewEditor.classList.add('dual-view-active');
                 
-                document.getElementById('toggle-diff-container').classList.remove('hidden');
-                document.getElementById('toggle-diff-container').classList.add('flex');
+                // Modalità Dual File: la Pill Bar si espande a 3 pulsanti
+                if (diffContainer) { diffContainer.classList.remove('hidden'); diffContainer.classList.add('flex'); }
+                if (syncContainer) { syncContainer.classList.remove('hidden'); syncContainer.classList.add('flex'); }
                 
-                document.getElementById('toggle-sync-container').classList.remove('hidden');
-                document.getElementById('toggle-sync-container').classList.add('flex');
-                
-                if(tBox0) tBox0.classList.remove('hidden');
-                if(tBox1) tBox1.classList.remove('hidden');
+                if (tBox0) tBox0.classList.remove('hidden');
+                if (tBox1) tBox1.classList.remove('hidden');
             } else {
                 if (viewEditor) viewEditor.classList.remove('dual-view-active');
                 
-                document.getElementById('toggle-diff-container').classList.add('hidden');
-                document.getElementById('toggle-diff-container').classList.remove('flex');
-                
-                document.getElementById('toggle-sync-container').classList.add('hidden');
-                document.getElementById('toggle-sync-container').classList.remove('flex');
+                // Modalità Single File: la Pill Bar si contrae a 1 solo pulsante (Errori)
+                if (diffContainer) { diffContainer.classList.add('hidden'); diffContainer.classList.remove('flex'); }
+                if (syncContainer) { syncContainer.classList.add('hidden'); syncContainer.classList.remove('flex'); }
                 
                 if (filesData[1] && !filesData[0]) {
-                    if(tBox0) tBox0.classList.add('hidden');
-                    if(tBox1) tBox1.classList.remove('hidden');
+                    if (tBox0) tBox0.classList.add('hidden');
+                    if (tBox1) tBox1.classList.remove('hidden');
                 } else {
-                    if(tBox0) tBox0.classList.remove('hidden');
-                    if(tBox1) tBox1.classList.add('hidden');
+                    if (tBox0) tBox0.classList.remove('hidden');
+                    if (tBox1) tBox1.classList.add('hidden');
                 }
                 
                 showDiffOnly = false;
@@ -2586,26 +2590,23 @@
             if(filesData[0]) errCount += filesData[0].errors.size;
             if(filesData[1]) errCount += filesData[1].errors.size;
             
-            const errContainer = document.getElementById('toggle-err-container');
             const errBadge = document.getElementById('count-err');
+            const errContainer = document.getElementById('toggle-err-container');
             
-            if (errContainer && errBadge) {
+            if (errContainer) {
+                // Il container del pulsante Errori rimane SEMPRE visibile nella Pill Bar
+                errContainer.classList.remove('hidden');
+                errContainer.classList.add('flex');
+            }
+            
+            if (errBadge) {
                 errBadge.innerText = errCount;
                 if (errCount > 0) {
-                    errContainer.classList.remove('hidden');
-                    errContainer.classList.add('flex');
                     errBadge.classList.remove('hidden');
                     errBadge.classList.add('flex');
                 } else {
                     errBadge.classList.remove('flex');
                     errBadge.classList.add('hidden');
-                    errContainer.classList.add('hidden');
-                    errContainer.classList.remove('flex');
-                    if(showErrOnly) {
-                        showErrOnly = false;
-                        syncFilterButtonsUI();
-                        runSearch(false);
-                    }
                 }
             }
         }
@@ -2967,6 +2968,76 @@
             } else {
                 if(cg) cg.classList.add('hidden');
             }
+
+            // [Apple HIG Content Unavailable View] Gestione Empty State tabelle
+            [0, 1].forEach(idx => {
+                if (!filesData[idx]) return;
+                const tbody = document.getElementById(`tbody-${idx}`);
+                if (!tbody) return;
+
+                let emptyRow = document.getElementById(`empty-state-row-${idx}`);
+                const hasVisibleRows = Array.from(tbody.querySelectorAll('tr.search-row'))
+                    .some(tr => !tr.classList.contains('search-hidden') && !tr.classList.contains('diff-hidden'));
+
+                if (!hasVisibleRows) {
+                    if (!emptyRow) {
+                        emptyRow = document.createElement('tr');
+                        emptyRow.id = `empty-state-row-${idx}`;
+                        tbody.appendChild(emptyRow);
+                    }
+
+                    let iconSvg = '';
+                    let title = '';
+                    let desc = '';
+                    let actionBtn = '';
+
+                    if (showErrOnly) {
+                        // Stato di eccellenza: Nessun errore nel file
+                        iconSvg = `<div class="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3 ring-1 ring-emerald-500/20 shadow-sm">
+                            <svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>`;
+                        title = ClivetI18n.get('empty_err_title') || "No Errors Detected";
+                        desc = ClivetI18n.get('empty_err_desc') || "All parameters in this configuration have valid values within their allowed ranges.";
+                        actionBtn = `<button type="button" onclick="toggleFilterDirect('err')" class="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-colors focus:outline-none active:scale-95 shadow-sm">
+                            ${ClivetI18n.get('empty_err_action') || "Show All Parameters"}
+                        </button>`;
+                    } else if (showDiffOnly) {
+                        // Apple Content Unavailable: File identici o nessuna differenza residua
+                        iconSvg = `<div class="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-950/30 text-[#007AFF] dark:text-[#0A84FF] flex items-center justify-center mb-3 ring-1 ring-[#007AFF]/25 shadow-sm">
+                            <svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>`;
+                        title = ClivetI18n.get('empty_diff_title') || "No Differences Detected";
+                        desc = ClivetI18n.get('empty_diff_desc') || "Both parameter lists have identical configurations and values.";
+                        actionBtn = `<button type="button" onclick="toggleFilterDirect('diff')" class="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-colors focus:outline-none active:scale-95 shadow-sm">
+                            ${ClivetI18n.get('empty_err_action') || "Show All Parameters"}
+                        </button>`;
+                    } else {
+                        // Ricerca testuale senza match
+                        iconSvg = `<div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-400 flex items-center justify-center mb-3 ring-1 ring-slate-900/5 dark:ring-white/10">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>`;
+                        title = ClivetI18n.get('search_plc') || "No matching parameters";
+                        desc = "No parameters match the current search filter.";
+                        actionBtn = `<button type="button" onclick="clearSearchInput()" class="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/60 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-colors focus:outline-none active:scale-95 shadow-sm">
+                            Clear Filter
+                        </button>`;
+                    }
+
+                    emptyRow.innerHTML = `
+                        <td colspan="6" class="p-8 text-center" style="height: auto !important; max-height: none !important; overflow: visible !important;">
+                            <div class="flex flex-col items-center justify-center py-8">
+                                ${iconSvg}
+                                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-1">${title}</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm leading-relaxed">${desc}</p>
+                                ${actionBtn}
+                            </div>
+                        </td>
+                    `;
+                    emptyRow.style.display = '';
+                } else if (emptyRow) {
+                    emptyRow.style.display = 'none';
+                }
+            });
 
             updateDiffUI();
         }
