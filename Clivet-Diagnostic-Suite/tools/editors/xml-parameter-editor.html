@@ -315,100 +315,102 @@
         <div id="view-upload" class="view-layer view-active flex flex-col relative h-full">
             
             <!-- Area Scrollabile Indipendente (Flex Column nativa) -->
-            <div id="upload-scroll-container" class="flex-grow overflow-y-auto custom-scrollbar w-full flex flex-col">
+            <div id="upload-scroll-container" class="flex-grow overflow-y-auto custom-scrollbar w-full flex flex-col items-center">
                 
-                <!-- Wrapper con my-auto: centratura matematica perfetta quando non serve scroll, sblocco dello scroll verso il basso quando necessario -->
-                <div id="upload-content-wrapper" class="w-full max-w-[1600px] mx-auto px-4 md:px-12 py-6 sm:py-6 my-auto flex flex-col flex-none transition-[padding] duration-300">
+                <!-- Bounding Box HIG (max-w-4xl/5xl) con Optical Center bilanciato verso l'alto -->
+            <div id="upload-content-wrapper" class="w-full max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 my-auto pt-4 pb-14 sm:pt-6 sm:pb-20 flex flex-col flex-none transition-[padding] duration-300">
                     
-                    <!-- Titoli (HIG Standard - 100% Compliant) -->
-                    <div class="mb-8 text-center max-w-2xl mx-auto flex-none font-sans">
-                        <h2 data-i18n="upload_title" class="text-[1.25rem] font-semibold text-black dark:text-white mb-3">
+                    <!-- Titoli (Apple HIG Large Title & Content Hierarchy) -->
+                    <div class="mb-6 sm:mb-8 text-center max-w-xl mx-auto flex-none font-sans">
+                        <h2 data-i18n="upload_title" class="text-2xl sm:text-[1.75rem] font-bold tracking-tight text-slate-900 dark:text-white mb-2 sm:mb-2.5 leading-snug">
                             Load Configuration Files
                         </h2>
-                        <p data-i18n="upload_desc" class="text-[0.8125rem] sm:text-[0.9375rem] text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 leading-[1.35]">
+                        <p data-i18n="upload_desc" class="text-[0.875rem] sm:text-[0.9375rem] text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg mx-auto">
                             Load a single XML to edit parameters, or load two XML files to visually compare and modify them simultaneously.
                         </p>
                     </div>
 
                     <!-- Dropzones (HIG Compliant 100%) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full flex-none font-sans">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 w-full flex-none font-sans">
 
                         <!-- DROPZONE 1 -->
-                        <div id="dz-0" 
-                            role="button" 
-                            tabindex="0"
-                            aria-label="Dropzone for XML File 1"
-                            class="group bg-white dark:bg-[#1C1C1E] p-8 sm:p-10 rounded-[1.25rem] shadow-sm border border-dashed border-[#C6C6C8] dark:border-[#38383A] hover:border-[#007AFF] dark:hover:border-[#0A84FF] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007AFF]/50 flex flex-col items-center justify-center transition-all duration-200 w-full cursor-pointer relative min-h-[280px]" 
-                            onclick="triggerFileSelect(0, event)"
-                            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); triggerFileSelect(0, event); }">
-                            
-                            <button id="btn-remove-0" 
-                                    aria-label="Remove File"
-                                    class="hidden absolute top-2 right-2 bg-[#E5E5EA] dark:bg-[#3A3A3C] text-[#FF3B30] dark:text-[#FF453A] p-3 rounded-full hover:opacity-80 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FF3B30]/50 z-20" 
-                                    onclick="removeFile(0, event); event.stopPropagation();">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </button>
-                            
-                            <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.02] transition-transform duration-200 pointer-events-none">
-                                <div id="dz-icon-0" class="mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
-                                    <svg class="w-12 h-12 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                                </div>
-                                <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
-                                    <span data-i18n="drop_1" class="text-[1.25rem] font-semibold text-black dark:text-white transition-colors duration-200">Drop XML File 1 here</span>
-                                </div>
-                                <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[240px] mb-6 opacity-80">
-                                    <p data-i18n="ui_supportedFormat" class="text-[0.8125rem] font-[ui-monospace,SFMono-Regular,monospace] text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-5">Supported format: .xml</p>
-                                    <div class="flex items-center justify-center w-full">
-                                        <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
-                                        <span data-i18n="drop_or" class="px-3 text-[0.75rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 uppercase">Or</span>
-                                        <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
-                                    </div>
-                                </div>
-                                <div id="ui-btn-0" class="relative px-6 py-[0.625rem] rounded-full bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[1.0625rem] group-hover:bg-[#E5E5EA] dark:group-hover:bg-[#3A3A3C] transition-colors duration-200 pointer-events-auto">
-                                    <span data-i18n="drop_browse">Browse File</span>
+                    <div id="dz-0" 
+                        role="button" 
+                        tabindex="0"
+                        aria-label="Dropzone for XML File 1"
+                        class="group bg-white dark:bg-[#1C1C1E] p-6 sm:p-8 rounded-2xl shadow-sm border-2 border-dashed border-slate-300 dark:border-slate-700/80 hover:border-blue-500 dark:hover:border-blue-400 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/40 flex flex-col items-center justify-center transition-all duration-300 ease-[var(--spring-easing)] w-full min-w-0 cursor-pointer relative min-h-[250px] sm:min-h-[270px] select-none" 
+                        onclick="triggerFileSelect(0, event)"
+                        onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); triggerFileSelect(0, event); }">
+                        
+                        <!-- Apple 44x44 Touch Target Remove Button -->
+                        <button id="btn-remove-0" 
+                                aria-label="Remove File"
+                                class="hidden hit-44 absolute top-2.5 right-2.5 w-9 h-9 items-center justify-center bg-slate-100 hover:bg-red-50 dark:bg-slate-800 dark:hover:bg-red-950/40 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50 z-20 shadow-sm" 
+                                onclick="removeFile(0, event); event.stopPropagation();">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                        
+                        <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.01] transition-transform duration-200 pointer-events-none">
+                            <div id="dz-icon-0" class="mb-3 sm:mb-4 text-blue-600 dark:text-blue-400" aria-hidden="true">
+                                <svg class="w-11 h-11 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                            </div>
+                            <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1">
+                                <span data-i18n="drop_1" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 1 here</span>
+                            </div>
+                            <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[220px] mb-4 sm:mb-5">
+                                <p data-i18n="ui_supportedFormat" class="text-xs font-mono text-slate-400 dark:text-slate-500 mb-3 sm:mb-4">Supported format: .xml</p>
+                                <div class="flex items-center justify-center w-full">
+                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700/80"></div>
+                                    <span data-i18n="drop_or" class="px-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Or</span>
+                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700/80"></div>
                                 </div>
                             </div>
-                            <input type="file" id="file-0" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
-                        </div>
-
-                        <!-- DROPZONE 2 -->
-                        <div id="dz-1" 
-                            role="button" 
-                            tabindex="0"
-                            aria-label="Dropzone for XML File 2"
-                            class="group bg-white dark:bg-[#1C1C1E] p-8 sm:p-10 rounded-[1.25rem] shadow-sm border border-dashed border-[#C6C6C8] dark:border-[#38383A] hover:border-[#007AFF] dark:hover:border-[#0A84FF] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#007AFF]/50 flex flex-col items-center justify-center transition-all duration-200 w-full cursor-pointer relative min-h-[280px]" 
-                            onclick="triggerFileSelect(1, event)"
-                            onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); triggerFileSelect(1, event); }">
-                            
-                            <button id="btn-remove-1" 
-                                    aria-label="Remove File"
-                                    class="hidden absolute top-2 right-2 bg-[#E5E5EA] dark:bg-[#3A3A3C] text-[#FF3B30] dark:text-[#FF453A] p-3 rounded-full hover:opacity-80 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FF3B30]/50 z-20" 
-                                    onclick="removeFile(1, event); event.stopPropagation();">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            </button>
-                            
-                            <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.02] transition-transform duration-200 pointer-events-none">
-                                <div id="dz-icon-1" class="mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
-                                    <svg class="w-12 h-12 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                                </div>
-                                <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[48px] mb-1">
-                                    <span data-i18n="drop_2" class="text-[1.25rem] font-semibold text-black dark:text-white transition-colors duration-200">Drop XML File 2 here</span>
-                                </div>
-                                <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[240px] mb-6 opacity-80">
-                                    <p data-i18n="ui_supportedFormat" class="text-[0.8125rem] font-[ui-monospace,SFMono-Regular,monospace] text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-5">Supported format: .xml</p>
-                                    <div class="flex items-center justify-center w-full">
-                                        <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
-                                        <span data-i18n="drop_or" class="px-3 text-[0.75rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 uppercase">Or</span>
-                                        <div class="flex-grow border-t border-[#3C3C43]/20 dark:border-[#EBEBF5]/20"></div>
-                                    </div>
-                                </div>
-                                <div id="ui-btn-1" class="relative px-6 py-[0.625rem] rounded-full bg-[#F2F2F7] dark:bg-[#2C2C2E] text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[1.0625rem] group-hover:bg-[#E5E5EA] dark:group-hover:bg-[#3A3A3C] transition-colors duration-200 pointer-events-auto">
-                                    <span data-i18n="drop_browse">Browse File</span>
-                                </div>
+                            <div id="ui-btn-0" class="hit-44 h-10 sm:h-11 px-5 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:bg-blue-50 dark:group-hover:bg-blue-900/40 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-95 shadow-sm">
+                                <span data-i18n="drop_browse">Browse File</span>
                             </div>
-                            <input type="file" id="file-1" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
                         </div>
+                        <input type="file" id="file-0" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
                     </div>
+
+                    <!-- DROPZONE 2 -->
+                    <div id="dz-1" 
+                        role="button" 
+                        tabindex="0"
+                        aria-label="Dropzone for XML File 2"
+                        class="group bg-white dark:bg-[#1C1C1E] p-6 sm:p-8 rounded-2xl shadow-sm border-2 border-dashed border-slate-300 dark:border-slate-700/80 hover:border-blue-500 dark:hover:border-blue-400 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/40 flex flex-col items-center justify-center transition-all duration-300 ease-[var(--spring-easing)] w-full min-w-0 cursor-pointer relative min-h-[250px] sm:min-h-[270px] select-none" 
+                        onclick="triggerFileSelect(1, event)"
+                        onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); triggerFileSelect(1, event); }">
+                        
+                        <!-- Apple 44x44 Touch Target Remove Button -->
+                        <button id="btn-remove-1" 
+                                aria-label="Remove File"
+                                class="hidden hit-44 absolute top-2.5 right-2.5 w-9 h-9 items-center justify-center bg-slate-100 hover:bg-red-50 dark:bg-slate-800 dark:hover:bg-red-950/40 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/50 z-20 shadow-sm" 
+                                onclick="removeFile(1, event); event.stopPropagation();">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                        
+                        <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.01] transition-transform duration-200 pointer-events-none">
+                            <div id="dz-icon-1" class="mb-3 sm:mb-4 text-blue-600 dark:text-blue-400" aria-hidden="true">
+                                <svg class="w-11 h-11 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                            </div>
+                            <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1">
+                                <span data-i18n="drop_2" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 2 here</span>
+                            </div>
+                            <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[220px] mb-4 sm:mb-5">
+                                <p data-i18n="ui_supportedFormat" class="text-xs font-mono text-slate-400 dark:text-slate-500 mb-3 sm:mb-4">Supported format: .xml</p>
+                                <div class="flex items-center justify-center w-full">
+                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700/80"></div>
+                                    <span data-i18n="drop_or" class="px-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Or</span>
+                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700/80"></div>
+                                </div>
+                            </div>
+                            <div id="ui-btn-1" class="hit-44 h-10 sm:h-11 px-5 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:bg-blue-50 dark:group-hover:bg-blue-900/40 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-95 shadow-sm">
+                                <span data-i18n="drop_browse">Browse File</span>
+                            </div>
+                        </div>
+                        <input type="file" id="file-1" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
+                    </div>
+                </div>
 
                     <!-- Nota Equivalenza (HIG Footnote Standard - 100% Compliant) -->
                     <div class="mt-4 flex items-start justify-center gap-1.5 w-full flex-none text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 font-sans max-w-full">
