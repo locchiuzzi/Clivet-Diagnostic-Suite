@@ -36,6 +36,9 @@
             /* Apple HIG Standard Spring Easing */
             --spring-easing: cubic-bezier(0.25, 1, 0.5, 1);
             --smooth-easing: cubic-bezier(0.32, 0.72, 0, 1);
+            /* Apple HIG Dynamic Organic Spring (Critically Damped / Zero Edge-Gap) */
+            --hig-drawer-spring-in: cubic-bezier(0.22, 1, 0.36, 1);
+            --hig-drawer-spring-out: cubic-bezier(0.32, 0.72, 0, 1);
             --fs-app-title: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
         }
         
@@ -88,6 +91,8 @@
 
         /* Input Tabella (No Layout Shift) */
         .param-input { transition: all 0.2s ease; height: 1.75rem; padding-top: 0; padding-bottom: 0; border: 1px solid transparent; background-color: transparent; }
+        .param-input:hover:not(:focus):not(.is-invalid):not(.is-modified) { background-color: rgba(148, 163, 184, 0.14); border-color: rgba(148, 163, 184, 0.28); }
+        .dark .param-input:hover:not(:focus):not(.is-invalid):not(.is-modified) { background-color: rgba(148, 163, 184, 0.12); border-color: rgba(255, 255, 255, 0.12); }
         .param-input:focus { outline: none; box-shadow: 0 0 0 2px #3b82f6 !important; background-color: #ffffff !important; }
         .dark .param-input:focus { background-color: #0f172a !important; }
         
@@ -104,19 +109,25 @@
         mark.search-hl { background-color: #fef08a; color: #0f172a; padding: 0 2px; border-radius: 2px; transition: all 0.2s ease-in-out; }
         mark.search-hl.active-match { background-color: #fbbf24; color: #000; font-weight: bold; box-shadow: 0 0 0 2px #d97706; transform: scale(1.05); display: inline-block; position: relative; z-index: 10; }
 
-        /* Struttura Tabella (Scroll Nativo GPU a 60fps) */
+        /* Struttura Tabella (Dynamic Shrink-Wrap + Scroll Nativo GPU 120fps) */
         .sync-table-container { 
             background-color: #f1f5f9; 
-            overscroll-behavior-y: contain;
+            overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
         }
         .dark .sync-table-container { background-color: #334155; }
-        .sync-table-container table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+        .sync-table-container table { width: 100%; table-layout: auto; border-collapse: separate; border-spacing: 0; }
         .sync-table-container tbody { background-color: #ffffff; }
         .dark .sync-table-container tbody { background-color: #1e293b; }
-        .sync-table-container td { padding: 0.2rem 0.5rem !important; vertical-align: middle; word-wrap: break-word; }
-        .sync-table-container th { padding: 0.4rem 0.5rem !important; position: sticky !important; top: 0 !important; z-index: 30 !important; background-color: #f1f5f9 !important; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
-        .dark .sync-table-container th { background-color: #334155 !important; }
+        .sync-table-container td { padding: 0.25rem 0.5rem !important; vertical-align: middle; border-bottom: 1px solid rgba(226, 232, 240, 0.75); }
+        .dark .sync-table-container td { border-bottom-color: rgba(51, 65, 85, 0.55); }
+        .sync-table-container tbody tr:last-child td { border-bottom: none; }
+        .sync-table-container th { padding: 0.45rem 0.5rem !important; position: sticky !important; top: 0 !important; z-index: 30 !important; background-color: #f1f5f9 !important; box-shadow: inset 0 -1px 0 0 #e2e8f0, 0 1px 2px 0 rgba(0, 0, 0, 0.04); }
+        .dark .sync-table-container th { background-color: #334155 !important; box-shadow: inset 0 -1px 0 0 #475569, 0 1px 2px 0 rgba(0, 0, 0, 0.25); }
+        .sync-table-container th:first-child,
+        .sync-table-container td:first-child { padding-left: 0.875rem !important; }
+        .sync-table-container th:last-child,
+        .sync-table-container td:last-child { padding-right: 0.875rem !important; }
 
         /* Soppressione tasto Cancel nativo WebKit (Elimina il doppio tasto X) */
         input[type="search"]::-webkit-search-cancel-button,
@@ -155,8 +166,16 @@
             opacity: 1;
             pointer-events: auto;
         }
+        .hig-sync-wrapper {
+            height: 44px;
+            margin: -4px 0;
+            padding: 4px 0;
+            transition: width 0.35s var(--spring-easing), opacity 0.25s var(--smooth-easing), margin 0.35s var(--spring-easing), padding 0.35s var(--spring-easing);
+        }
         .hig-sync-wrapper.is-expanded {
-            margin-left: 0.5rem;
+            width: 44px;
+            padding: 4px;
+            margin: -4px -4px -4px calc(0.5rem - 4px);
         }
         
         /* Priorità assoluta in primo piano per i Corner Notification Badges (Apple HIG Badges) */
@@ -176,9 +195,7 @@
             pointer-events: none !important;
             visibility: hidden;
             opacity: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
             height: 24px;
             padding: 0 8px;
             border-radius: 6px;
@@ -186,8 +203,15 @@
             font-size: 11px;
             font-weight: 500;
             letter-spacing: -0.015em;
-            line-height: 1;
+            line-height: 22px;
+            text-align: center;
             white-space: nowrap;
+            max-width: calc(100vw - 16px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: calc(100vw - 16px);
+            overflow: hidden;
+            text-overflow: ellipsis;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -216,26 +240,174 @@
         #apple-hud-popover.hud-continuous {
             transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), opacity 0ms linear !important;
         }
-        /* Apple HIG Standalone Sync Toggle Active State */
+        /* Apple HIG Standalone Sync Toggle (100% GPU Compositor-Only) */
         .hig-sync-btn {
-            transition: all 0.2s var(--smooth-easing);
+            isolation: isolate;
+            touch-action: manipulation;
+            background-color: rgba(226, 232, 240, 0.6);
+            color: #64748b;
+            box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.09);
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            will-change: transform;
+            transition: transform 90ms cubic-bezier(0.2, 0, 0, 1);
+        }
+        .hig-sync-btn svg {
+            position: relative;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .hig-sync-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            z-index: 0;
+            background-color: #E3F0FF;
+            box-shadow: inset 0 0 0 1px rgba(0, 122, 255, 0.28),
+                        0 1px 2px rgba(0, 122, 255, 0.08);
+            opacity: 0;
+            transform: translate3d(0, 0, 0) scale3d(0.9, 0.9, 1);
+            backface-visibility: hidden;
+            will-change: opacity, transform;
+            transition: opacity 90ms linear,
+                        transform 130ms var(--spring-easing);
+        }
+        .hig-sync-btn:hover {
+            background-color: rgba(203, 213, 225, 0.65);
+            color: #1e293b;
+        }
+        .hig-sync-btn:active {
+            transform: translate3d(0, 0, 0) scale3d(0.92, 0.92, 1);
+        }
+        .dark .hig-sync-btn {
+            background-color: rgba(15, 23, 42, 0.6);
+            color: #94a3b8;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        .dark .hig-sync-btn::before {
+            background-color: #1A3A5C;
+            box-shadow: inset 0 0 0 1px rgba(10, 132, 255, 0.36),
+                        0 1px 2px rgba(0, 0, 0, 0.25);
+        }
+        .dark .hig-sync-btn:hover {
+            background-color: rgba(30, 41, 59, 0.85);
+            color: #f8fafc;
         }
         .hig-sync-btn.is-active {
-            background-color: #ffffff;
             color: #007AFF;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+        .hig-sync-btn.is-active::before {
+            opacity: 1;
+            transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+        }
+        .hig-sync-btn.is-active:hover::before {
+            background-color: #D6E9FF;
         }
         .dark .hig-sync-btn.is-active {
-            background-color: #3A3A3C;
             color: #0A84FF;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .dark .hig-sync-btn.is-active:hover::before {
+            background-color: #1F4770;
         }
 
-        /* Side Panel (Drawer - Apple HIG 350ms Synced Physics) */
-        #side-panel-overlay { transition: opacity 0.35s var(--smooth-easing); }
-        #side-panel { transition: transform 0.35s var(--spring-easing); will-change: transform; }
-        .panel-open { transform: translateX(0) !important; }
-        .panel-closed { transform: translateX(100%) !important; }
+        /* Apple HIG Log Drawer Toggle (100% GPU Compositor-Only) */
+        .hig-log-btn {
+            touch-action: manipulation;
+            background-color: rgba(226, 232, 240, 0.6);
+            color: #475569;
+            box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.09);
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            will-change: transform;
+            transition: transform 90ms cubic-bezier(0.2, 0, 0, 1);
+        }
+        .hig-log-btn:hover {
+            background-color: rgba(203, 213, 225, 0.65);
+            color: #0f172a;
+        }
+        .hig-log-btn:active {
+            transform: translate3d(0, 0, 0) scale3d(0.92, 0.92, 1);
+        }
+        .dark .hig-log-btn {
+            background-color: rgba(15, 23, 42, 0.6);
+            color: #cbd5e1;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+        .dark .hig-log-btn:hover {
+            background-color: rgba(30, 41, 59, 0.85);
+            color: #ffffff;
+        }
+
+        /* Side Panel (Drawer - Apple HIG Dynamic Organic Spring, 100% GPU Compositor-Only) */
+        #side-panel-overlay {
+            backface-visibility: hidden;
+            transform: translate3d(0, 0, 0);
+            contain: layout style paint;
+            transition: opacity 280ms var(--hig-drawer-spring-out), visibility 0s linear 280ms;
+        }
+        #side-panel-overlay.overlay-open {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+            transition: opacity 380ms var(--hig-drawer-spring-in), visibility 0s linear 0s;
+        }
+        #side-panel-overlay.overlay-closed {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        #side-panel {
+            backface-visibility: hidden;
+            contain: layout style;
+            transform: translate3d(100%, 0, 0);
+            transition: transform 300ms var(--hig-drawer-spring-out), visibility 0s linear 300ms;
+        }
+        #side-panel.panel-open {
+            transform: translate3d(0, 0, 0) !important;
+            visibility: visible;
+            pointer-events: auto;
+            transition: transform 440ms var(--hig-drawer-spring-in), visibility 0s linear 0s;
+        }
+        #side-panel.panel-closed {
+            transform: translate3d(100%, 0, 0) !important;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* Curva fisica spring reale (Newtonian critically damped, response 440ms, damping 1.0) */
+        @supports (transition-timing-function: linear(0, 1)) {
+            #side-panel.panel-open {
+                transition-timing-function: linear(0, 0.0755, 0.2278, 0.3913, 0.5378, 0.6583, 0.7523, 0.8232, 0.8754, 0.9131, 0.9401 50%, 0.9723 60%, 0.9878 70%, 0.9951 80%, 0.9985 90%, 1), linear;
+            }
+        }
+
+        /* Apple HIG Accessibility: Reduce Motion */
+        @media (prefers-reduced-motion: reduce) {
+            #side-panel,
+            #side-panel.panel-open,
+            #side-panel.panel-closed {
+                transform: translate3d(0, 0, 0) !important;
+                transition: opacity 180ms ease, visibility 0s linear 180ms !important;
+            }
+            #side-panel.panel-open {
+                opacity: 1 !important;
+                transition: opacity 180ms ease, visibility 0s linear 0s !important;
+            }
+            #side-panel.panel-closed {
+                opacity: 0 !important;
+            }
+            #side-panel-overlay,
+            #side-panel-overlay.overlay-open,
+            #side-panel-overlay.overlay-closed {
+                transition: opacity 180ms ease, visibility 0s linear 180ms !important;
+            }
+            #side-panel-overlay.overlay-open {
+                transition: opacity 180ms ease, visibility 0s linear 0s !important;
+            }
+        }
 
         /* Copy Feedback Motion */
         .copy-out > * { transition: opacity 100ms ease-in, transform 100ms ease-in; opacity: 0; transform: scale(0.7); }
@@ -355,106 +527,104 @@
             <div id="upload-scroll-container" class="flex-grow overflow-y-auto custom-scrollbar w-full flex flex-col items-center">
                 
                 <!-- Bounding Box HIG (max-w-4xl/5xl) con Optical Center bilanciato verso l'alto -->
-            <div id="upload-content-wrapper" class="w-full max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 my-auto pt-4 pb-14 sm:pt-6 sm:pb-20 flex flex-col flex-none transition-[padding] duration-300">
-                    
+                <div id="upload-content-wrapper" class="w-full max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 my-auto pt-4 pb-14 sm:pt-6 sm:pb-20 flex flex-col flex-none transition-[padding] duration-300">
+                        
                     <!-- Titoli (Apple HIG Large Title & Content Hierarchy) -->
-                    <div class="mb-6 sm:mb-8 text-center max-w-xl mx-auto flex-none font-sans">
-                        <h2 data-i18n="upload_title" class="text-2xl sm:text-[1.75rem] font-bold tracking-tight text-slate-900 dark:text-white mb-2 sm:mb-2.5 leading-snug">
+                    <div class="mb-6 sm:mb-8 text-center max-w-xl mx-auto flex-none font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Display','SF_Pro_Text',system-ui,sans-serif]">
+                        <h2 data-i18n="upload_title" class="text-[1.625rem] sm:text-[1.875rem] font-bold tracking-tight text-slate-900 dark:text-white mb-2 leading-tight subpixel-antialiased">
                             Load Configuration Files
                         </h2>
-                        <p data-i18n="upload_desc" class="text-[0.875rem] sm:text-[0.9375rem] text-slate-500 dark:text-slate-400 leading-relaxed max-w-lg mx-auto">
+                        <p data-i18n="upload_desc" class="text-[13px] sm:text-[14px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-md mx-auto font-normal antialiased">
                             Load a single XML to edit parameters, or load two XML files to visually compare and modify them simultaneously.
                         </p>
                     </div>
 
                     <!-- Dropzones (HIG Compliant 100%) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 w-full flex-none font-sans">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 w-full flex-none font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Text',system-ui,sans-serif]">
 
                         <!-- DROPZONE 1 -->
-                    <div id="dz-0" 
-                        role="button" 
-                        tabindex="0"
-                        aria-label="Dropzone for XML File 1"
-                        class="group bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-sm border-2 border-dashed border-slate-300 dark:border-slate-700/80 hover:border-blue-500 dark:hover:border-blue-400 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/40 flex flex-col items-center justify-center transition-all duration-300 ease-[var(--spring-easing)] w-full min-w-0 cursor-pointer relative min-h-[250px] sm:min-h-[270px] select-none">
-                        
-                        <!-- Apple HIG Dismiss Button (SF xmark standard) -->
-                        <button id="btn-remove-0" 
-                                type="button"
-                                aria-label="Remove File"
-                                class="hidden hit-44 absolute top-3 right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 dark:bg-slate-700/80 dark:hover:bg-slate-600 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 z-20 items-center justify-center active:scale-90 cursor-pointer shadow-xs">
-                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                        
-                        <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.01] transition-transform duration-200 pointer-events-none">
-                            <div id="dz-icon-0" class="mb-3 sm:mb-4 text-blue-600 dark:text-blue-400" aria-hidden="true">
-                                <svg class="w-11 h-11 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                            </div>
-                            <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1">
-                                <span data-i18n="drop_1" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 1 here</span>
-                            </div>
-                            <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[220px] mb-4 sm:mb-5">
-                                <p data-i18n="ui_supportedFormat" class="text-xs font-mono text-slate-400 dark:text-slate-500 mb-3 sm:mb-4">Supported format: .xml</p>
-                                <div class="flex items-center justify-center w-full">
-                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700/80"></div>
-                                    <span data-i18n="drop_or" class="px-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Or</span>
-                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700/80"></div>
+                        <div id="dz-0" 
+                            role="button" 
+                            tabindex="0"
+                            aria-label="Dropzone for XML File 1"
+                            class="group transform-gpu bg-white/70 dark:bg-slate-800/60 backdrop-blur-xl p-6 sm:p-8 rounded-[22px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.03)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_20px_40px_-8px_rgba(0,122,255,0.12),0_4px_12px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_20px_40px_-8px_rgba(0,0,0,0.6)] border-2 border-dashed border-slate-300/80 dark:border-slate-700/70 hover:border-[#007AFF] dark:hover:border-[#0A84FF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 flex flex-col items-center justify-center transition-all duration-300 ease-[var(--spring-easing)] w-full min-w-0 cursor-pointer relative min-h-[250px] sm:min-h-[270px] select-none will-change-transform hover:scale-[1.012] active:scale-[0.99]">
+                            
+                            <!-- Apple HIG Dismiss Button (SF xmark standard) -->
+                            <button id="btn-remove-0" 
+                                    type="button"
+                                    aria-label="Remove File"
+                                    class="hidden hit-44 absolute top-3.5 right-3.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200/70 hover:bg-slate-300/80 dark:bg-slate-700/70 dark:hover:bg-slate-600 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white backdrop-blur-md ring-1 ring-black/5 dark:ring-white/10 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/60 z-20 items-center justify-center active:scale-90 cursor-pointer shadow-xs">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            
+                            <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full transform-gpu group-hover:scale-[1.01] transition-transform duration-200 ease-[var(--spring-easing)] pointer-events-none">
+                                <div id="dz-icon-0" class="mb-3 sm:mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
+                                    <svg class="w-11 h-11 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                                </div>
+                                <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1">
+                                    <span data-i18n="drop_1" class="text-base sm:text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 1 here</span>
+                                </div>
+                                <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[220px] mb-4 sm:mb-5">
+                                    <p data-i18n="ui_supportedFormat" class="text-[11px] font-mono text-slate-400 dark:text-slate-500 mb-2.5">Supported format: .xml</p>
+                                    <div class="flex items-center justify-center w-full">
+                                        <div class="flex-grow h-px bg-slate-200/80 dark:bg-slate-700/60"></div>
+                                        <span data-i18n="drop_or" class="px-2.5 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Or</span>
+                                        <div class="flex-grow h-px bg-slate-200/80 dark:bg-slate-700/60"></div>
+                                    </div>
+                                </div>
+                                <div id="ui-btn-0" class="hit-44 h-10 sm:h-11 px-5 rounded-full bg-slate-100/90 dark:bg-slate-700/60 hover:bg-[#007AFF]/10 dark:hover:bg-[#0A84FF]/20 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[13px] tracking-tight ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-[#007AFF]/20 dark:hover:ring-[#0A84FF]/30 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-[0.96] shadow-xs">
+                                    <span data-i18n="drop_browse">Browse File</span>
                                 </div>
                             </div>
-                            <div id="ui-btn-0" class="hit-44 h-10 sm:h-11 px-5 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:bg-blue-50 dark:group-hover:bg-blue-900/40 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-95 shadow-sm">
-                                <span data-i18n="drop_browse">Browse File</span>
-                            </div>
+                            <input type="file" id="file-0" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
                         </div>
-                        <input type="file" id="file-0" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
-                    </div>
 
-                    <!-- DROPZONE 2 -->
-                    <div id="dz-1" 
-                        role="button" 
-                        tabindex="0"
-                        aria-label="Dropzone for XML File 2"
-                        class="group bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-2xl shadow-sm border-2 border-dashed border-slate-300 dark:border-slate-700/80 hover:border-blue-500 dark:hover:border-blue-400 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-500/40 flex flex-col items-center justify-center transition-all duration-300 ease-[var(--spring-easing)] w-full min-w-0 cursor-pointer relative min-h-[250px] sm:min-h-[270px] select-none">
-                        
-                        <!-- Apple HIG Dismiss Button (SF xmark standard) -->
-                        <button id="btn-remove-1" 
-                                type="button"
-                                aria-label="Remove File"
-                                class="hidden hit-44 absolute top-3 right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 dark:bg-slate-700/80 dark:hover:bg-slate-600 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 z-20 items-center justify-center active:scale-90 cursor-pointer shadow-xs">
-                            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                        
-                        <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full transform group-hover:scale-[1.01] transition-transform duration-200 pointer-events-none">
-                            <div id="dz-icon-1" class="mb-3 sm:mb-4 text-blue-600 dark:text-blue-400" aria-hidden="true">
-                                <svg class="w-11 h-11 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
-                            </div>
-                            <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1">
-                                <span data-i18n="drop_2" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 2 here</span>
-                            </div>
-                            <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[220px] mb-4 sm:mb-5">
-                                <p data-i18n="ui_supportedFormat" class="text-xs font-mono text-slate-400 dark:text-slate-500 mb-3 sm:mb-4">Supported format: .xml</p>
-                                <div class="flex items-center justify-center w-full">
-                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700/80"></div>
-                                    <span data-i18n="drop_or" class="px-3 text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Or</span>
-                                    <div class="flex-grow border-t border-slate-200 dark:border-slate-700/80"></div>
+                        <!-- DROPZONE 2 -->
+                        <div id="dz-1" 
+                            role="button" 
+                            tabindex="0"
+                            aria-label="Dropzone for XML File 2"
+                            class="group transform-gpu bg-white/70 dark:bg-slate-800/60 backdrop-blur-xl p-6 sm:p-8 rounded-[22px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.03)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_20px_40px_-8px_rgba(0,122,255,0.12),0_4px_12px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_20px_40px_-8px_rgba(0,0,0,0.6)] border-2 border-dashed border-slate-300/80 dark:border-slate-700/70 hover:border-[#007AFF] dark:hover:border-[#0A84FF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 flex flex-col items-center justify-center transition-all duration-300 ease-[var(--spring-easing)] w-full min-w-0 cursor-pointer relative min-h-[250px] sm:min-h-[270px] select-none will-change-transform hover:scale-[1.012] active:scale-[0.99]">
+                            
+                            <!-- Apple HIG Dismiss Button (SF xmark standard) -->
+                            <button id="btn-remove-1" 
+                                    type="button"
+                                    aria-label="Remove File"
+                                    class="hidden hit-44 absolute top-3.5 right-3.5 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-200/70 hover:bg-slate-300/80 dark:bg-slate-700/70 dark:hover:bg-slate-600 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white backdrop-blur-md ring-1 ring-black/5 dark:ring-white/10 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/60 z-20 items-center justify-center active:scale-90 cursor-pointer shadow-xs">
+                                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            
+                            <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full transform-gpu group-hover:scale-[1.01] transition-transform duration-200 ease-[var(--spring-easing)] pointer-events-none">
+                                <div id="dz-icon-1" class="mb-3 sm:mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
+                                    <svg class="w-11 h-11 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                                </div>
+                                <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1">
+                                    <span data-i18n="drop_2" class="text-base sm:text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 2 here</span>
+                                </div>
+                                <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[220px] mb-4 sm:mb-5">
+                                    <p data-i18n="ui_supportedFormat" class="text-[11px] font-mono text-slate-400 dark:text-slate-500 mb-2.5">Supported format: .xml</p>
+                                    <div class="flex items-center justify-center w-full">
+                                        <div class="flex-grow h-px bg-slate-200/80 dark:bg-slate-700/60"></div>
+                                        <span data-i18n="drop_or" class="px-2.5 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Or</span>
+                                        <div class="flex-grow h-px bg-slate-200/80 dark:bg-slate-700/60"></div>
+                                    </div>
+                                </div>
+                                <div id="ui-btn-1" class="hit-44 h-10 sm:h-11 px-5 rounded-full bg-slate-100/90 dark:bg-slate-700/60 hover:bg-[#007AFF]/10 dark:hover:bg-[#0A84FF]/20 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[13px] tracking-tight ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-[#007AFF]/20 dark:hover:ring-[#0A84FF]/30 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-[0.96] shadow-xs">
+                                    <span data-i18n="drop_browse">Browse File</span>
                                 </div>
                             </div>
-                            <div id="ui-btn-1" class="hit-44 h-10 sm:h-11 px-5 rounded-full bg-slate-100 dark:bg-slate-800 text-blue-600 dark:text-blue-400 font-semibold text-sm group-hover:bg-blue-50 dark:group-hover:bg-blue-900/40 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-95 shadow-sm">
-                                <span data-i18n="drop_browse">Browse File</span>
-                            </div>
+                            <input type="file" id="file-1" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
                         </div>
-                        <input type="file" id="file-1" accept=".xml" class="pointer-events-none hidden" tabindex="-1">
                     </div>
-                </div>
 
                     <!-- Nota Equivalenza (HIG Footnote Standard - 100% Compliant) -->
-                    <div class="mt-4 flex items-start justify-center gap-1.5 w-full flex-none text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 font-[system-ui,-apple-system,BlinkMacSystemFont,'SF_Pro_Text','Helvetica_Neue',sans-serif] antialiased max-w-full">
-                        <!-- Icona scalabile (rem), allineata strutturalmente alla baseline della prima riga tramite posizionamento relativo -->
-                        <svg aria-hidden="true" class="w-[0.875rem] h-[0.875rem] flex-shrink-0 relative top-[0.125rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10" stroke-linecap="round" stroke-linejoin="round"></circle>
-                            <path d="M12 16v-5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <div class="mt-5 flex items-center justify-center gap-1.5 w-full flex-none text-slate-500/80 dark:text-slate-400/80 font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Text',system-ui,sans-serif] antialiased max-w-full">
+                        <svg aria-hidden="true" class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+                            <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round"></circle>
+                            <path d="M12 16v-4" stroke-linecap="round" stroke-linejoin="round"></path>
                             <circle cx="12" cy="8" r="0.5" fill="currentColor" stroke="none"></circle>
                         </svg>
-                        <!-- Testo con unità di misura in rem per supportare nativamente l'ingrandimento del testo (Dynamic Type) -->
-                        <p data-i18n="drop_singleNote" class="text-[0.8125rem] leading-[1.125rem] tracking-[-0.006em] text-left font-normal m-0">
+                        <p data-i18n="drop_singleNote" class="text-[12px] sm:text-[12.5px] leading-normal tracking-[-0.01em] text-center font-normal m-0">
                             For single-file editing, you can upload your XML to either Slot 1 or Slot 2 interchangeably.
                         </p>
                     </div>
@@ -557,8 +727,8 @@
                         </div>
 
                         <!-- Standalone Sync Toggle (Hidden in Single File) -->
-                        <div id="sync-btn-wrapper" class="hig-dual-wrapper hig-sync-wrapper flex h-[36px]">
-                            <button type="button" id="toggleSyncBtn" aria-pressed="true" class="hit-44 hig-sync-btn is-active relative flex items-center justify-center h-[36px] w-[36px] rounded-[10px] bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 text-slate-500 dark:text-slate-400 hover:bg-slate-300/60 dark:hover:bg-slate-800/80 focus:outline-none flex-shrink-0" aria-label="Sync Scroll" data-i18n-aria="filter_sync" data-apple-hud="filter_sync">
+                        <div id="sync-btn-wrapper" class="hig-dual-wrapper hig-sync-wrapper flex items-center justify-center">
+                            <button type="button" id="toggleSyncBtn" aria-pressed="true" class="hit-44 hig-sync-btn is-active relative flex items-center justify-center h-[36px] w-[36px] rounded-[10px] focus:outline-none flex-shrink-0" aria-label="Sync Scroll" data-i18n-aria="filter_sync" data-apple-hud="filter_sync">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                             </button>
                         </div>
@@ -567,43 +737,43 @@
                         <div class="w-2 sm:w-3"></div>
                         
                         <!-- Log Drawer Button (Apple HIG - Independent Element) -->
-                        <button type="button" id="toggleLogBtn" class="hit-44 relative flex items-center justify-center h-[36px] w-[36px] rounded-[10px] bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 text-slate-600 dark:text-slate-300 hover:bg-slate-300/60 dark:hover:bg-slate-800/80 transition-all duration-200 focus:outline-none flex-shrink-0 group" aria-label="Session Modifications Log" data-i18n-aria="term_title" data-apple-hud="term_title">
-                            <svg aria-hidden="true" class="w-[18px] h-[18px] transition-transform duration-200 group-active:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <button type="button" id="toggleLogBtn" aria-expanded="false" aria-controls="side-panel" class="hit-44 hig-log-btn relative flex items-center justify-center h-[36px] w-[36px] rounded-[10px] focus:outline-none flex-shrink-0" aria-label="Session Modifications Log" data-i18n-aria="term_title" data-apple-hud="term_title">
+                            <svg aria-hidden="true" class="w-[18px] h-[18px] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             <!-- Notification Badge GPU-Accelerated (Protruding Cutout) -->
                             <span id="term-counter-badge" class="hidden absolute -top-1.5 -right-1.5 z-40 pointer-events-none px-1 h-[16px] min-w-[16px] text-[9px] font-bold font-sans tracking-tight bg-[#007AFF] text-white rounded-full items-center justify-center ring-2 ring-white dark:ring-slate-800 shadow-sm tabular-nums will-change-transform" style="transform: translate3d(0,0,0); backface-visibility: hidden;">0</span>
                         </button>
                     </div>
                 </div>
-            </div> <!-- Chiusura corretta della Toolbar Top -->
+            </div>
 
-            <!-- DUAL TABLES WORKSPACE (Sbloccato e vincolato a min-h-0) -->
+            <!-- DUAL TABLES WORKSPACE -->
             <div class="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 px-4 py-3 max-w-[1600px] mx-auto w-full overflow-hidden">
                 
                 <!-- CONTAINER 1 -->
                 <div id="col-0" class="isolate flex-1 min-h-0 flex flex-col bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden relative">
                     <!-- Header File 1 -->
                     <div class="bg-slate-50/90 dark:bg-slate-800/90 backdrop-blur-sm px-3.5 py-2 border-b border-slate-200/80 dark:border-white/10 flex justify-between items-center flex-none min-h-[52px]">
-                        <div class="flex flex-col min-w-0 flex-1 pr-3 justify-center">
+                        <div class="flex flex-col min-w-0 flex-1 pr-3 justify-center select-none font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Text',system-ui,sans-serif]">
                             <div class="flex items-center gap-2 min-w-0">
-                                <span id="fname-0" class="font-bold text-[13px] sm:text-sm text-slate-900 dark:text-white truncate" data-tip-title="File1.xml">File1.xml</span>
+                                <span id="fname-0" class="font-semibold text-[13px] sm:text-sm text-slate-900 dark:text-white truncate tracking-tight cursor-default" data-tip-title="" title="File1.xml">File1.xml</span>
                             </div>
-                            <div class="flex items-center gap-2 text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                                <span id="sn-wrapper-0" class="truncate" data-tip-title="S/N or Item: N/A"><span data-i18n="lbl_sn">S/N</span>: <span id="fsn-0" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
-                                <span class="opacity-40">&bull;</span>
-                                <span id="sw-wrapper-0" class="truncate" data-tip-title="SW: N/A">SW: <span id="fsw-0" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
-                                <span class="opacity-40">&bull;</span>
-                                <span id="total-wrapper-0" class="truncate" data-tip-title="Total parameters:">Qty: <span id="count-total-0" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
+                            <div class="flex items-center gap-1.5 text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 truncate antialiased">
+                                <span id="sn-wrapper-0" class="truncate cursor-default hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-150" data-tip-title="" title="S/N or Item: N/A"><span data-i18n="lbl_sn" class="font-normal opacity-80">S/N</span>: <span id="fsn-0" class="font-semibold text-slate-800 dark:text-slate-200">N/A</span></span>
+                                <span class="opacity-30 select-none" aria-hidden="true">•</span>
+                                <span id="sw-wrapper-0" class="truncate cursor-default hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-150" data-tip-title="" title="SW: N/A"><span class="font-normal opacity-80">SW:</span> <span id="fsw-0" class="font-semibold text-slate-800 dark:text-slate-200">N/A</span></span>
+                                <span class="opacity-30 select-none" aria-hidden="true">•</span>
+                                <span id="total-wrapper-0" class="truncate cursor-default hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-150" data-tip-title="" title="Total parameters: N/A"><span class="font-normal opacity-80">Qty:</span> <span id="count-total-0" class="font-semibold text-slate-800 dark:text-slate-200">N/A</span></span>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2 flex-shrink-0">
                             <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
-                                <button type="button" id="btn-undo-0" data-i18n-title="btn_undo" title="Undo" class="h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90">
-                                    <svg class="w-3.5 h-3.5 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                <button type="button" id="btn-undo-0" data-i18n-title="btn_undo" title="Undo" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90">
+                                    <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                                 </button>
-                                <div class="w-px h-3 bg-slate-300 dark:bg-slate-600 mx-0.5"></div>
-                                <button type="button" id="btn-restore-0" data-i18n-title="btn_restore" title="Restore All" class="h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90">
-                                    <svg class="w-3.5 h-3.5 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <div class="w-px h-3 bg-slate-300 dark:bg-slate-600 mx-0.5" aria-hidden="true"></div>
+                                    <button type="button" id="btn-restore-0" data-i18n-title="btn_restore" title="Restore All" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90">
+                                    <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 </button>
                             </div>
                             
@@ -613,20 +783,29 @@
                         </div>
                     </div>
                     
-                    <!-- Corpo scrollabile e Colonne Fixed -->
-                    <div id="scroll-0" class="sync-table-container flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar relative">
-                        <table class="w-full text-left text-xs table-fixed">
-                            <thead class="border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                    <!-- Corpo scrollabile e Colonne Elastiche -->
+                    <div id="scroll-0" class="sync-table-container flex-1 min-h-0 overflow-y-auto overflow-x-auto overscroll-contain custom-scrollbar relative transform-gpu will-change-scroll [backface-visibility:hidden]">
+                        <table class="w-full text-left text-xs table-auto">
+                            <thead class="sticky top-0 z-30 transform-gpu will-change-transform [backface-visibility:hidden] border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                                 <tr>
-                                    <th data-i18n="col_idx" class="w-[10%] bg-slate-100 dark:bg-slate-700">Index</th>
-                                    <th data-i18n="col_desc" class="w-[35%] bg-slate-100 dark:bg-slate-700">Description</th>
-                                    <th data-i18n="col_val" class="w-[18%] text-center bg-slate-100 dark:bg-slate-700">Value</th>
-                                    <th data-i18n="col_um" class="w-[10%] bg-slate-100 dark:bg-slate-700">U.M.</th>
-                                    <th data-i18n="col_range" class="w-[15%] bg-slate-100 dark:bg-slate-700">Range</th>
-                                    <th class="w-[12%] bg-slate-100 dark:bg-slate-700">
-                                        <div class="flex items-center space-x-1">
+                                    <th data-i18n="col_idx" class="w-px whitespace-nowrap text-left tabular-nums bg-slate-100 dark:bg-slate-700">Index</th>
+                                    <th data-i18n="col_desc" class="w-full min-w-[120px] whitespace-nowrap text-left bg-slate-100 dark:bg-slate-700">Description</th>
+                                    <th data-i18n="col_val" class="w-px min-w-[76px] whitespace-nowrap text-center tabular-nums bg-slate-100 dark:bg-slate-700">Value</th>
+                                    <th data-i18n="col_um" class="w-px whitespace-nowrap text-center bg-slate-100 dark:bg-slate-700">U.M.</th>
+                                    <th data-i18n="col_range" class="w-px whitespace-nowrap text-center tabular-nums bg-slate-100 dark:bg-slate-700">Range</th>
+                                    <th class="w-px whitespace-nowrap text-right tabular-nums bg-slate-100 dark:bg-slate-700">
+                                        <div class="flex items-center justify-end space-x-1 whitespace-nowrap">
                                             <span data-i18n="col_addr">Addr</span>
-                                            <button type="button" aria-label="Address Info" aria-haspopup="dialog" data-info-key="infoAddr" class="info-icon text-slate-400 hover:text-blue-500 transition focus:outline-none"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                                            <button type="button" 
+                                                    aria-label="Address Info" 
+                                                    aria-haspopup="dialog" 
+                                                    data-info-key="infoAddr" 
+                                                    onclick="toggleInfo(event, 'infoAddr')"
+                                                    class="hit-44 info-icon relative inline-flex flex-shrink-0 items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:text-[#007AFF] dark:hover:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 transition-[color,background-color,transform] duration-150 ease-[var(--spring-easing)] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-800">
+                                                <svg aria-hidden="true" class="w-3.5 h-3.5 pointer-events-none stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                            </button>
                                         </div>
                                     </th>
                                 </tr>
@@ -642,27 +821,27 @@
                 <div id="col-1" class="isolate hidden flex-1 min-h-0 flex-col bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden relative">
                     <!-- Header File 2 -->
                     <div class="bg-slate-50/90 dark:bg-slate-800/90 backdrop-blur-sm px-3.5 py-2 border-b border-slate-200/80 dark:border-white/10 flex justify-between items-center flex-none min-h-[52px]">
-                        <div class="flex flex-col min-w-0 flex-1 pr-3 justify-center">
+                        <div class="flex flex-col min-w-0 flex-1 pr-3 justify-center select-none font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Text',system-ui,sans-serif]">
                             <div class="flex items-center gap-2 min-w-0">
-                                <span id="fname-1" class="font-bold text-[13px] sm:text-sm text-slate-900 dark:text-white truncate" data-tip-title="File2.xml">File2.xml</span>
+                                <span id="fname-1" class="font-semibold text-[13px] sm:text-sm text-slate-900 dark:text-white truncate tracking-tight cursor-default" data-tip-title="" title="File2.xml">File2.xml</span>
                             </div>
-                            <div class="flex items-center gap-2 text-[10px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 truncate">
-                                <span id="sn-wrapper-1" class="truncate" data-tip-title="S/N or Item: N/A"><span data-i18n="lbl_sn">S/N</span>: <span id="fsn-1" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
-                                <span class="opacity-40">&bull;</span>
-                                <span id="sw-wrapper-1" class="truncate" data-tip-title="SW: N/A">SW: <span id="fsw-1" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
-                                <span class="opacity-40">&bull;</span>
-                                <span id="total-wrapper-1" class="truncate" data-tip-title="Total parameters">Qty: <span id="count-total-1" class="font-bold text-slate-700 dark:text-slate-300">N/A</span></span>
+                            <div class="flex items-center gap-1.5 text-[11px] font-mono text-slate-500 dark:text-slate-400 mt-0.5 truncate antialiased">
+                                <span id="sn-wrapper-1" class="truncate cursor-default hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-150" data-tip-title="" title="S/N or Item: N/A"><span data-i18n="lbl_sn" class="font-normal opacity-80">S/N</span>: <span id="fsn-1" class="font-semibold text-slate-800 dark:text-slate-200">N/A</span></span>
+                                <span class="opacity-30 select-none" aria-hidden="true">•</span>
+                                <span id="sw-wrapper-1" class="truncate cursor-default hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-150" data-tip-title="" title="SW: N/A"><span class="font-normal opacity-80">SW:</span> <span id="fsw-1" class="font-semibold text-slate-800 dark:text-slate-200">N/A</span></span>
+                                <span class="opacity-30 select-none" aria-hidden="true">•</span>
+                                <span id="total-wrapper-1" class="truncate cursor-default hover:text-slate-800 dark:hover:text-slate-200 transition-colors duration-150" data-tip-title="" title="Total parameters: N/A"><span class="font-normal opacity-80">Qty:</span> <span id="count-total-1" class="font-semibold text-slate-800 dark:text-slate-200">N/A</span></span>
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2 flex-shrink-0">
                             <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
-                                <button type="button" id="btn-undo-1" data-i18n-title="btn_undo" title="Undo" class="h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90">
-                                    <svg class="w-3.5 h-3.5 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                <button type="button" id="btn-undo-1" data-i18n-title="btn_undo" title="Undo" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90">
+                                    <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                                 </button>
-                                <div class="w-px h-3 bg-slate-300 dark:bg-slate-600 mx-0.5"></div>
-                                <button type="button" id="btn-restore-1" data-i18n-title="btn_restore" title="Restore All" class="h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90">
-                                    <svg class="w-3.5 h-3.5 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                <div class="w-px h-3 bg-slate-300 dark:bg-slate-600 mx-0.5" aria-hidden="true"></div>
+                                    <button type="button" id="btn-restore-1" data-i18n-title="btn_restore" title="Restore All" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90">
+                                    <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 </button>
                             </div>
                             
@@ -672,20 +851,29 @@
                         </div>
                     </div>
                     
-                    <!-- Corpo scrollabile e Colonne Fixed -->
-                    <div id="scroll-1" class="sync-table-container flex-1 min-h-0 overflow-y-auto overflow-x-hidden custom-scrollbar relative">
-                        <table class="w-full text-left text-xs table-fixed">
-                            <thead class="border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                    <!-- Corpo scrollabile e Colonne Elastiche -->
+                    <div id="scroll-1" class="sync-table-container flex-1 min-h-0 overflow-y-auto overflow-x-auto overscroll-contain custom-scrollbar relative transform-gpu will-change-scroll [backface-visibility:hidden]">
+                        <table class="w-full text-left text-xs table-auto">
+                            <thead class="sticky top-0 z-30 transform-gpu will-change-transform [backface-visibility:hidden] border-b border-slate-200 dark:border-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                                 <tr>
-                                    <th data-i18n="col_idx" class="w-[10%] bg-slate-100 dark:bg-slate-700">Index</th>
-                                    <th data-i18n="col_desc" class="w-[35%] bg-slate-100 dark:bg-slate-700">Description</th>
-                                    <th data-i18n="col_val" class="w-[18%] text-center bg-slate-100 dark:bg-slate-700">Value</th>
-                                    <th data-i18n="col_um" class="w-[10%] bg-slate-100 dark:bg-slate-700">U.M.</th>
-                                    <th data-i18n="col_range" class="w-[15%] bg-slate-100 dark:bg-slate-700">Range</th>
-                                    <th class="w-[12%] bg-slate-100 dark:bg-slate-700">
-                                        <div class="flex items-center space-x-1">
+                                    <th data-i18n="col_idx" class="w-px whitespace-nowrap text-left tabular-nums bg-slate-100 dark:bg-slate-700">Index</th>
+                                    <th data-i18n="col_desc" class="w-full min-w-[120px] whitespace-nowrap text-left bg-slate-100 dark:bg-slate-700">Description</th>
+                                    <th data-i18n="col_val" class="w-px min-w-[76px] whitespace-nowrap text-center tabular-nums bg-slate-100 dark:bg-slate-700">Value</th>
+                                    <th data-i18n="col_um" class="w-px whitespace-nowrap text-center bg-slate-100 dark:bg-slate-700">U.M.</th>
+                                    <th data-i18n="col_range" class="w-px whitespace-nowrap text-center tabular-nums bg-slate-100 dark:bg-slate-700">Range</th>
+                                    <th class="w-px whitespace-nowrap text-right tabular-nums bg-slate-100 dark:bg-slate-700">
+                                        <div class="flex items-center justify-end space-x-1 whitespace-nowrap">
                                             <span data-i18n="col_addr">Addr</span>
-                                            <button type="button" aria-label="Address Info" aria-haspopup="dialog" data-info-key="infoAddr" class="info-icon text-slate-400 hover:text-blue-500 transition focus:outline-none"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                                            <button type="button" 
+                                                    aria-label="Address Info" 
+                                                    aria-haspopup="dialog" 
+                                                    data-info-key="infoAddr" 
+                                                    onclick="toggleInfo(event, 'infoAddr')"
+                                                    class="hit-44 info-icon relative inline-flex flex-shrink-0 items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:text-[#007AFF] dark:hover:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 transition-[color,background-color,transform] duration-150 ease-[var(--spring-easing)] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-800">
+                                                <svg aria-hidden="true" class="w-3.5 h-3.5 pointer-events-none stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                            </button>
                                         </div>
                                     </th>
                                 </tr>
@@ -700,8 +888,8 @@
             </div>
 
             <!-- SIDE PANEL (LOG DRAWER - Apple HIG Docked Inspector) -->
-            <div id="side-panel-overlay" class="fixed top-16 inset-x-0 bottom-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden opacity-0 transition-opacity duration-300 no-print cursor-default" onclick="closeSidePanel()"></div>
-            <div id="side-panel" class="fixed top-16 bottom-0 right-0 w-full sm:w-[clamp(28rem,40vw,52rem)] h-[calc(100dvh-4rem)] bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl shadow-2xl z-[110] flex flex-col panel-closed border-l border-slate-200/80 dark:border-white/10 no-print overscroll-contain">
+            <div id="side-panel-overlay" aria-hidden="true" class="fixed top-16 inset-x-0 bottom-0 bg-slate-900/40 z-[100] overlay-closed no-print cursor-default"></div>
+            <div id="side-panel" role="dialog" aria-modal="false" aria-hidden="true" aria-label="Session Modifications Log" tabindex="-1" class="fixed top-16 bottom-0 right-0 w-full sm:w-[clamp(28rem,40vw,52rem)] h-[calc(100dvh-4rem)] bg-white/[0.97] dark:bg-slate-900/[0.97] backdrop-blur-md shadow-2xl z-[110] flex flex-col panel-closed border-l border-slate-200/80 dark:border-white/10 no-print overscroll-contain focus:outline-none">
                 
                 <!-- Panel Header (HIG Compliant Header) -->
                 <div class="h-14 px-4 sm:px-5 border-b border-slate-200/80 dark:border-white/10 bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-md flex items-center justify-between flex-shrink-0">
@@ -729,7 +917,7 @@
                         <div class="px-3.5 py-2.5 bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200/70 dark:border-white/5 flex justify-between items-center flex-shrink-0 gap-2">
                             <div class="flex items-center gap-2 min-w-0 flex-1">
                                 <span class="w-2 h-2 rounded-full bg-[#007AFF] flex-shrink-0"></span>
-                                <span id="term-label-0" class="font-semibold text-[13px] text-slate-900 dark:text-slate-100 tracking-tight truncate select-text">File 1</span>
+                                <span id="term-label-0" data-tip-title="" class="font-semibold text-[13px] text-slate-900 dark:text-slate-100 tracking-tight truncate select-text">File 1</span>
                             </div>
                             <span id="term-count-0" class="flex-shrink-0 whitespace-nowrap inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-semibold leading-none bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400 tabular-nums select-none">0 mod.</span>
                         </div>
@@ -741,7 +929,7 @@
                         <div class="px-3.5 py-2.5 bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200/70 dark:border-white/5 flex justify-between items-center flex-shrink-0 gap-2">
                             <div class="flex items-center gap-2 min-w-0 flex-1">
                                 <span class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></span>
-                                <span id="term-label-1" class="font-semibold text-[13px] text-slate-900 dark:text-slate-100 tracking-tight truncate select-text">File 2</span>
+                                <span id="term-label-1" data-tip-title="" class="font-semibold text-[13px] text-slate-900 dark:text-slate-100 tracking-tight truncate select-text">File 2</span>
                             </div>
                             <span id="term-count-1" class="flex-shrink-0 whitespace-nowrap inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-semibold leading-none bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400 tabular-nums select-none">0 mod.</span>
                         </div>
@@ -1046,7 +1234,7 @@
                 theme_light: "Chiaro", theme_dark: "Scuro", theme_sys: "Sistema", misc_fav: "Preferiti", misc_allLangs: "Tutte le lingue",
                 search_plc: "Cerca parametri...", filter_diff: "Mostra solo differenze", filter_err: "Mostra solo errori", filter_sync: "Scorrimento Sincrono",
                 btn_export: "Esporta XML", btn_restore: "Ripristina Tutto", btn_undo: "Annulla", ui_closePanel: "Chiudi pannello", ui_copySysInfo: "Copia Info per il Supporto",
-                col_idx: "Indice", col_desc: "Descrizione", col_val: "Valore", col_um: "U.M.", col_range: "Range", col_addr: "Indirizzo", lbl_total: "Parametri totali:",
+                col_idx: "Indice", col_desc: "Descrizione", col_val: "Valore", col_um: "U.M.", col_range: "Range", col_addr: "Addr", lbl_total: "Parametri totali:",
                 err_missing: "Parametro mancante in questo file", err_nan: "Valore non valido", err_range: "Fuori limite",
                 warn_affTitle: "Avviso di Bassa Affinità", warn_affDesc: "I file caricati hanno meno del 10% di parametri in comune. Potrebbero appartenere a sistemi completamente diversi. Vuoi forzare il confronto?",
                 warn_swDesc: "Le liste parametri caricate differiscono per oltre il 10% nel numero di parametri. Potrebbero appartenere a versioni software differenti. Vuoi forzare il confronto?",
@@ -1068,7 +1256,7 @@
                 theme_light: "Hell", theme_dark: "Dunkel", theme_sys: "System", misc_fav: "Favoriten", misc_allLangs: "Alle Sprachen",
                 search_plc: "Parameter suchen...", filter_diff: "Nur Unterschiede anzeigen", filter_err: "Nur Fehler anzeigen", filter_sync: "Synchron scrollen",
                 btn_export: "XML exportieren", btn_restore: "Alles wiederherstellen", btn_undo: "Rückgängig", ui_closePanel: "Bereich schließen", ui_copySysInfo: "Infos für den Support kopieren",
-                col_idx: "Index", col_desc: "Beschreibung", col_val: "Wert", col_um: "Einh.", col_range: "Bereich", col_addr: "Adresse", lbl_total: "Gesamtparameter:",
+                col_idx: "Index", col_desc: "Beschreibung", col_val: "Wert", col_um: "Einh.", col_range: "Bereich", col_addr: "Addr", lbl_total: "Gesamtparameter:",
                 err_missing: "Parameter fehlt in dieser Datei", err_nan: "Ungültiger Wert", err_range: "Außerhalb des Bereichs",
                 warn_affTitle: "Warnung: Geringe Affinität", warn_affDesc: "Die hochgeladenen Dateien haben weniger als 10 % gemeinsame Parameter. Sie stammen möglicherweise von völlig unterschiedlichen Systemen. Möchten Sie den Vergleich erzwingen?",
                 warn_swDesc: "Die Parameterlisten unterscheiden sich um mehr als 10 % in der Parameteranzahl. Sie gehören möglicherweise zu verschiedenen Softwareversionen. Möchten Sie den Vergleich erzwingen?",
@@ -1090,7 +1278,7 @@
                 theme_light: "Clair", theme_dark: "Sombre", theme_sys: "Système", misc_fav: "Favoris", misc_allLangs: "Toutes les langues",
                 search_plc: "Rechercher des paramètres...", filter_diff: "Afficher uniquement les différences", filter_err: "Afficher uniquement les erreurs", filter_sync: "Défilement synchronisé",
                 btn_export: "Exporter XML", btn_restore: "Tout restaurer", btn_undo: "Annuler", ui_closePanel: "Fermer le panneau", ui_copySysInfo: "Copier les Infos pour le Support",
-                col_idx: "Indice", col_desc: "Description", col_val: "Valeur", col_um: "U.M.", col_range: "Plage", col_addr: "Adresse", lbl_total: "Paramètres totaux :",
+                col_idx: "Indice", col_desc: "Description", col_val: "Valeur", col_um: "U.M.", col_range: "Plage", col_addr: "Addr", lbl_total: "Paramètres totaux :",
                 err_missing: "Paramètre manquant dans ce fichier", err_nan: "Valeur invalide", err_range: "Hors limites",
                 warn_affTitle: "Avertissement de faible affinité", warn_affDesc: "Les fichiers chargés ont moins de 10 % de paramètres en commun. Ils peuvent provenir de systèmes complètement différents. Voulez-vous forcer la comparaison ?",
                 warn_swDesc: "Les listes de paramètres diffèrent de plus de 10 % en nombre de paramètres. Elles peuvent appartenir à des versions logicielles différentes. Voulez-vous forcer la comparaison ?",
@@ -1112,7 +1300,7 @@
                 theme_light: "Claro", theme_dark: "Oscuro", theme_sys: "Sistema", misc_fav: "Favoritos", misc_allLangs: "Todos los idiomas",
                 search_plc: "Buscar parámetros...", filter_diff: "Mostrar solo diferencias", filter_err: "Mostrar solo errores", filter_sync: "Desplazamiento sincrónico",
                 btn_export: "Exportar XML", btn_restore: "Restaurar todo", btn_undo: "Deshacer", ui_closePanel: "Cerrar panel", ui_copySysInfo: "Copiar Información para Soporte",
-                col_idx: "Índice", col_desc: "Descripción", col_val: "Valor", col_um: "U.M.", col_range: "Rango", col_addr: "Dirección", lbl_total: "Parámetros totales:",
+                col_idx: "Índice", col_desc: "Descripción", col_val: "Valor", col_um: "U.M.", col_range: "Rango", col_addr: "Addr", lbl_total: "Parámetros totales:",
                 err_missing: "Parámetro faltante en este archivo", err_nan: "Valor inválido", err_range: "Fuera de límites",
                 warn_affTitle: "Advertencia de baja afinidad", warn_affDesc: "Los archivos cargados tienen menos del 10% de parámetros en común. Podrían pertenecer a sistemas completamente diferentes. ¿Desea forzar la comparación?",
                 warn_swDesc: "Las listas de parámetros difieren en más del 10% en el número de parámetros. Podrían pertenecer a versiones de software diferentes. ¿Desea forzar la comparación?",
@@ -1156,7 +1344,7 @@
                 theme_light: "Claro", theme_dark: "Escuro", theme_sys: "Sistema", misc_fav: "Favoritos", misc_allLangs: "Todos os idiomas",
                 search_plc: "Procurar parâmetros...", filter_diff: "Mostrar apenas diferenças", filter_err: "Mostrar apenas erros", filter_sync: "Rolagem sincronizada",
                 btn_export: "Exportar XML", btn_restore: "Restaurar Tudo", btn_undo: "Voltar", ui_closePanel: "Fechar painel", ui_copySysInfo: "Copiar Informações para o Suporte",
-                col_idx: "Índice", col_desc: "Descrição", col_val: "Valor", col_um: "U.M.", col_range: "Faixa", col_addr: "Ender.", lbl_total: "Parâmetros totais:",
+                col_idx: "Índice", col_desc: "Descrição", col_val: "Valor", col_um: "U.M.", col_range: "Faixa", col_addr: "Addr", lbl_total: "Parâmetros totais:",
                 err_missing: "Parâmetro em falta neste ficheiro", err_nan: "Valor inválido", err_range: "Fora dos limites",
                 warn_affTitle: "Aviso de baixa afinidade", warn_affDesc: "Os ficheiros carregados têm menos de 10% de parâmetros em comum. Podem pertencer a sistemas completamente diferentes. Deseja forçar a comparação?",
                 warn_swDesc: "As listas de parâmetros diferem em mais de 10% no número de parâmetros. Podem pertencer a versões de software diferentes. Deseja forçar a comparação?",
@@ -1651,7 +1839,13 @@
             });
 
             const spOverlay = document.getElementById('side-panel-overlay');
-            if (spOverlay) spOverlay.addEventListener('click', toggleSidePanel);
+            if (spOverlay) {
+                spOverlay.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    closeSidePanel();
+                });
+            }
             const btnExpLog = document.getElementById('btn-export-log');
             if (btnExpLog) btnExpLog.addEventListener('click', exportLog);
             const btnCloseSide = document.getElementById('btn-close-side-panel');
@@ -1771,16 +1965,6 @@
 
             // Inizializzazione Apple Instant HUD Tooltip
             AppleHUD.init();
-
-            // Aggancio infallibile Light Dismiss per Side Panel (Apple HIG)
-            const sideOverlay = document.getElementById('side-panel-overlay');
-            if (sideOverlay) {
-                sideOverlay.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    closeSidePanel();
-                });
-            }
 
             try {
                 const storedFile0 = sessionStorage.getItem('clivet_file0');
@@ -2595,13 +2779,7 @@
             const btn = document.getElementById('toggleSyncBtn');
             if (btn) {
                 btn.setAttribute('aria-pressed', String(isSyncScrollActive));
-                if (isSyncScrollActive) {
-                    btn.classList.add('is-active');
-                    btn.classList.remove('bg-slate-200/60', 'dark:bg-slate-900/60', 'hover:bg-slate-300/60', 'dark:hover:bg-slate-800/80');
-                } else {
-                    btn.classList.remove('is-active');
-                    btn.classList.add('bg-slate-200/60', 'dark:bg-slate-900/60', 'hover:bg-slate-300/60', 'dark:hover:bg-slate-800/80');
-                }
+                btn.classList.toggle('is-active', isSyncScrollActive);
             }
         }
                    
@@ -2805,7 +2983,7 @@
                     }
                 }, true);
 
-                window.addEventListener('scroll', () => { if (isVisible) hide(true); }, { passive: true });
+                document.addEventListener('scroll', () => { if (isVisible) hide(true); }, { passive: true, capture: true });
             }
 
             return { init, hide: () => hide(true) };
@@ -2864,7 +3042,10 @@
                 const countEl0 = document.getElementById('count-total-0');
                 const wrapperEl0 = document.getElementById('total-wrapper-0');
                 if (countEl0) countEl0.innerText = total0;
-                if (wrapperEl0) wrapperEl0.title = `Total parameters: ${total0}`;
+                if (wrapperEl0) {
+                    wrapperEl0.setAttribute('data-tip-title', `Total parameters: ${total0}`);
+                    wrapperEl0.removeAttribute('title');
+                }
             }
             if(filesData[1]) {
                 Array.from(filesData[1].params.keys()).forEach(k => allSet.add(k));
@@ -2872,7 +3053,10 @@
                 const countEl1 = document.getElementById('count-total-1');
                 const wrapperEl1 = document.getElementById('total-wrapper-1');
                 if (countEl1) countEl1.innerText = total1;
-                if (wrapperEl1) wrapperEl1.title = `Total parameters: ${total1}`;
+                if (wrapperEl1) {
+                    wrapperEl1.setAttribute('data-tip-title', `Total parameters: ${total1}`);
+                    wrapperEl1.removeAttribute('title');
+                }
             }
             
             unifiedKeys = Array.from(allSet).sort((a, b) => {
@@ -2926,6 +3110,15 @@
             document.getElementById(`col-${idx}`).classList.remove('flex');
         }
 
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function renderColumn(idx) {
             const col = document.getElementById(`col-${idx}`);
             if(!col) return;
@@ -2936,21 +3129,28 @@
             const fnameEl = document.getElementById(`fname-${idx}`);
             if(fnameEl) {
                 fnameEl.innerText = fd.filename;
-                fnameEl.title = fd.filename;
+                fnameEl.setAttribute('data-tip-title', fd.filename);
+                fnameEl.removeAttribute('title');
             }
             
             const fsnEl = document.getElementById(`fsn-${idx}`);
             if(fsnEl) {
                 fsnEl.innerText = fd.sn;
                 const wrapper = document.getElementById(`sn-wrapper-${idx}`);
-                if(wrapper) wrapper.title = `S/N or Item: ${fd.sn}`;
+                if(wrapper) {
+                    wrapper.setAttribute('data-tip-title', `S/N or Item: ${fd.sn}`);
+                    wrapper.removeAttribute('title');
+                }
             }
 
             const fswEl = document.getElementById(`fsw-${idx}`);
             if(fswEl) {
                 fswEl.innerText = fd.sw;
                 const wrapper = document.getElementById(`sw-wrapper-${idx}`);
-                if(wrapper) wrapper.title = `SW: ${fd.sw}`;
+                if(wrapper) {
+                    wrapper.setAttribute('data-tip-title', `SW: ${fd.sw}`);
+                    wrapper.removeAttribute('title');
+                }
             }
 
             const tbody = document.getElementById(`tbody-${idx}`);
@@ -2973,23 +3173,33 @@
                         errMsg = `${ClivetI18n.get('err_range')} (${p.min} / ${p.max})`;
                         errClass = "";
                     }
+
+                    const safeIdx = escapeHtml(p.display_index);
+                    const safeDesc = escapeHtml(p.desc);
+                    const safeVal = escapeHtml(valToPrint);
+                    const safeUm = escapeHtml(p.u_m === 'nessuna' || /^-+$/.test(p.u_m) ? '-' : p.u_m);
+                    const safeMin = escapeHtml(p.min);
+                    const safeMax = escapeHtml(p.max);
+                    const safeAddr = escapeHtml(p.addr_write);
                     
                     html += `
-                    <tr id="row-${idx}-${k}" class="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors search-row diff-row">
-                        <td class="w-[10%] px-2 py-1 align-middle"><span class="font-bold text-blue-600 dark:text-blue-400 truncate block">P${p.display_index}</span></td>
-                        <td class="w-[35%] px-2 py-1 align-middle"><span id="desc-${idx}-${k}" class="text-xs font-medium text-slate-700 dark:text-slate-300 max-h-[28px] overflow-hidden text-ellipsis leading-tight block" title="${p.desc}">${p.desc}</span></td>
-                        <td class="w-[18%] px-2 py-1 align-middle text-center relative">
-                            <input type="text" id="input-${idx}-${k}" data-param-key="${k}" value="${valToPrint}" class="param-input w-full px-2 rounded-lg text-xs text-center font-bold text-slate-900 dark:text-white ${inputClass}">
+                    <tr id="row-${idx}-${k}" class="hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors search-row diff-row">
+                        <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-left tabular-nums"><span class="font-bold font-mono text-blue-600 dark:text-blue-400 whitespace-nowrap block">P${safeIdx}</span></td>
+                        <td class="w-full max-w-0 overflow-hidden px-2 py-1 align-middle text-left"><span id="desc-${idx}-${k}" class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate leading-5 block" title="${safeDesc}">${safeDesc}</span></td>
+                        <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center relative">
+                            <div class="inline-grid w-full min-w-[60px] items-center after:content-[attr(data-val)] after:col-start-1 after:row-start-1 after:invisible after:px-2 after:text-xs after:font-bold after:tabular-nums after:whitespace-nowrap after:pointer-events-none after:h-0 after:overflow-hidden" data-val="${safeVal}">
+                                <input type="text" size="1" id="input-${idx}-${k}" data-param-key="${k}" value="${safeVal}" class="col-start-1 row-start-1 param-input w-full min-w-0 px-2 rounded-lg text-xs text-center font-bold tabular-nums text-slate-900 dark:text-white ${inputClass}">
+                            </div>
                             <span id="err-${idx}-${k}" class="${errClass} absolute top-full left-1/2 transform -translate-x-1/2 mt-0.5 text-[9px] font-bold text-red-500 whitespace-nowrap z-10 bg-white dark:bg-slate-800 px-1 border border-red-200 dark:border-red-900 rounded shadow-sm leading-none">${errMsg}</span>
                         </td>
-                        <td class="w-[10%] px-2 py-1 align-middle"><span class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 max-h-[28px] overflow-hidden leading-tight block">${p.u_m}</span></td>
-                        <td class="w-[15%] px-2 py-1 align-middle"><span class="text-[9px] sm:text-[10px] font-mono text-slate-400 dark:text-slate-500 truncate block">${p.min} / ${p.max}</span></td>
-                        <td class="w-[12%] px-2 py-1 align-middle"><span id="addr-${idx}-${k}" class="text-[10px] sm:text-xs font-mono text-slate-400 dark:text-slate-500 truncate block">${p.addr_write}</span></td>
+                        <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center"><span class="font-bold font-mono text-blue-600 dark:text-blue-400 whitespace-nowrap block">${safeUm}</span></td>
+                        <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center tabular-nums"><span class="text-[10px] font-mono tabular-nums text-slate-400 dark:text-slate-500 whitespace-nowrap block">${safeMin} / ${safeMax}</span></td>
+                        <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center tabular-nums"><span id="addr-${idx}-${k}" class="text-[10px] sm:text-xs font-mono tabular-nums text-slate-400 dark:text-slate-500 whitespace-nowrap block">${safeAddr}</span></td>
                     </tr>`;
                 } else {
                     html += `
-                    <tr id="row-${idx}-${k}" class="border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/40 transition-colors search-row diff-row">
-                        <td colspan="6" class="p-1 align-middle">
+                    <tr id="row-${idx}-${k}" class="bg-slate-50/50 dark:bg-slate-800/40 transition-colors search-row diff-row">
+                        <td colspan="6" class="p-1 align-middle max-w-0">
                             <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg w-full h-[26px] flex items-center justify-center text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs italic font-medium px-2 truncate">${ClivetI18n.get('err_missing')} (P${k})</div>
                         </td>
                     </tr>`;
@@ -3091,26 +3301,90 @@
         function openSidePanel() {
             const panel = document.getElementById('side-panel');
             const overlay = document.getElementById('side-panel-overlay');
+            const toggleBtn = document.getElementById('toggleLogBtn');
             if (!panel || !overlay) return;
-            clearTimeout(overlay._hideTimer);
-            overlay.classList.remove('hidden');
-            void overlay.offsetWidth; // trigger reflow hardware
-            overlay.classList.remove('opacity-0');
+
+            clearTimeout(panel._animTimer);
+            if (panel._onTransitionEnd) {
+                panel.removeEventListener('transitionend', panel._onTransitionEnd);
+            }
+
+            panel._lastTrigger = document.activeElement;
+            panel.style.willChange = 'transform';
+            overlay.style.willChange = 'opacity';
+
+            overlay.classList.remove('overlay-closed');
+            overlay.classList.add('overlay-open');
+            overlay.setAttribute('aria-hidden', 'false');
+
             panel.classList.remove('panel-closed');
             panel.classList.add('panel-open');
+            panel.setAttribute('aria-hidden', 'false');
+
+            if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
+
+            panel._onTransitionEnd = (e) => {
+                if (e && (e.target !== panel || e.propertyName !== 'transform')) return;
+                panel.removeEventListener('transitionend', panel._onTransitionEnd);
+                panel._onTransitionEnd = null;
+                clearTimeout(panel._animTimer);
+                if (panel.classList.contains('panel-open')) {
+                    panel.style.willChange = 'auto';
+                    overlay.style.willChange = 'auto';
+                }
+            };
+            panel.addEventListener('transitionend', panel._onTransitionEnd);
+            panel._animTimer = setTimeout(() => panel._onTransitionEnd && panel._onTransitionEnd(null), 480);
+
+            panel.focus({ preventScroll: true });
         }
 
         function closeSidePanel() {
             const panel = document.getElementById('side-panel');
             const overlay = document.getElementById('side-panel-overlay');
+            const toggleBtn = document.getElementById('toggleLogBtn');
             if (!panel || !overlay) return;
-            clearTimeout(overlay._hideTimer);
-            overlay.classList.add('opacity-0');
+
+            clearTimeout(panel._animTimer);
+            if (panel._onTransitionEnd) {
+                panel.removeEventListener('transitionend', panel._onTransitionEnd);
+            }
+
+            const focusWasInside = panel.contains(document.activeElement);
+
+            panel.style.willChange = 'transform';
+            overlay.style.willChange = 'opacity';
+
+            overlay.classList.remove('overlay-open');
+            overlay.classList.add('overlay-closed');
+            overlay.setAttribute('aria-hidden', 'true');
+
             panel.classList.remove('panel-open');
             panel.classList.add('panel-closed');
-            overlay._hideTimer = setTimeout(() => {
-                overlay.classList.add('hidden');
-            }, 350);
+            panel.setAttribute('aria-hidden', 'true');
+
+            if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+
+            if (focusWasInside) {
+                const target = (panel._lastTrigger && document.contains(panel._lastTrigger)) ? panel._lastTrigger : toggleBtn;
+                if (target && typeof target.focus === 'function') {
+                    target.focus({ preventScroll: true });
+                }
+            }
+            panel._lastTrigger = null;
+
+            panel._onTransitionEnd = (e) => {
+                if (e && (e.target !== panel || e.propertyName !== 'transform')) return;
+                panel.removeEventListener('transitionend', panel._onTransitionEnd);
+                panel._onTransitionEnd = null;
+                clearTimeout(panel._animTimer);
+                if (panel.classList.contains('panel-closed')) {
+                    panel.style.willChange = 'auto';
+                    overlay.style.willChange = 'auto';
+                }
+            };
+            panel.addEventListener('transitionend', panel._onTransitionEnd);
+            panel._animTimer = setTimeout(() => panel._onTransitionEnd && panel._onTransitionEnd(null), 340);
         }
 
         function toggleSidePanel() {
@@ -3178,11 +3452,13 @@
             // Binding dinamico con i nomi reali dei file XML
             if (label0 && filesData[0]) {
                 label0.innerText = filesData[0].filename;
-                label0.title = filesData[0].filename;
+                label0.setAttribute('data-tip-title', filesData[0].filename);
+                label0.removeAttribute('title');
             }
             if (label1 && filesData[1]) {
                 label1.innerText = filesData[1].filename;
-                label1.title = filesData[1].filename;
+                label1.setAttribute('data-tip-title', filesData[1].filename);
+                label1.removeAttribute('title');
             }
 
             // Calcolo conteggio per singolo file
@@ -3252,13 +3528,16 @@
             sortedLogs.forEach(([key, log]) => {
                 const paramKey = key.replace(`${log.fileIdx}-`, '');
                 const undoTip = ClivetI18n.get('term_undo') || "Undo";
+                const safeDetails = typeof escapeHtml === 'function'
+                    ? escapeHtml(log.details)
+                    : String(log.details ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
                 
                 let str = `
                 <div class="group relative flex items-center justify-between p-2 sm:p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 border border-slate-200/70 dark:border-white/10 transition-colors gap-2.5 font-sans">
                     <div class="flex items-center gap-2 min-w-0 flex-1 pr-1">
                         <span class="text-[11px] font-mono font-medium text-slate-400 dark:text-slate-500 tabular-nums flex-shrink-0 leading-none">${log.time}</span>
                         <span class="px-1.5 py-0.5 rounded-[6px] text-[11px] font-bold font-mono tracking-tight bg-blue-50 text-[#007AFF] dark:bg-blue-950/60 dark:text-[#0A84FF] border border-blue-200/60 dark:border-blue-800/50 flex-shrink-0 leading-none">${log.reg}</span>
-                        <span class="text-[12px] font-medium text-slate-900 dark:text-slate-100 truncate tracking-tight leading-snug" title="${log.details}">${log.details}</span>
+                        <span class="text-[12px] font-medium text-slate-900 dark:text-slate-100 truncate tracking-tight leading-snug" data-tip-title="${safeDetails}">${safeDetails}</span>
                     </div>
                     <button onclick="undoLastModification(${log.fileIdx}, '${paramKey}')" aria-label="${undoTip}" data-apple-hud="term_undo" class="hit-44 flex items-center justify-center w-7 h-7 rounded-[7px] bg-white dark:bg-slate-700/80 border border-slate-200/80 dark:border-white/10 text-slate-400 hover:text-[#FF3B30] dark:hover:text-[#FF453A] hover:bg-red-50 dark:hover:bg-red-950/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90 flex-shrink-0 shadow-2xs">
                         <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"></path></svg>
@@ -3692,7 +3971,14 @@
             const uiFname = document.getElementById(`fname-${idx}`);
             if (uiFname) {
                 uiFname.innerText = newXmlName;
-                uiFname.title = newXmlName;
+                uiFname.setAttribute('data-tip-title', newXmlName);
+                uiFname.removeAttribute('title');
+            }
+            const termLabel = document.getElementById(`term-label-${idx}`);
+            if (termLabel) {
+                termLabel.innerText = newXmlName;
+                termLabel.setAttribute('data-tip-title', newXmlName);
+                termLabel.removeAttribute('title');
             }
 
             const blobXml = new Blob([raw], { type: 'text/xml' });
