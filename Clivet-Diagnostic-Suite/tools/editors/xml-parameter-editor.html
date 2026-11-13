@@ -777,7 +777,7 @@
                                 </button>
                             </div>
                             
-                            <button type="button" id="btn-export-0" disabled onclick="promptExport(0)" aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 bg-[#007AFF] hover:bg-[#0071E3] dark:bg-[#0A84FF] dark:hover:bg-[#0077ED] text-white rounded-[8px] shadow-sm hover:shadow ring-1 ring-white/15 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 opacity-40 cursor-not-allowed flex items-center justify-center active:scale-95 flex-shrink-0">
+                            <button type="button" id="btn-export-0" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 hig-export-btn h-7 w-7 rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             </button>
                         </div>
@@ -845,7 +845,7 @@
                                 </button>
                             </div>
                             
-                            <button type="button" id="btn-export-1" disabled onclick="promptExport(1)" aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 bg-[#007AFF] hover:bg-[#0071E3] dark:bg-[#0A84FF] dark:hover:bg-[#0077ED] text-white rounded-[8px] shadow-sm hover:shadow ring-1 ring-white/15 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 opacity-40 cursor-not-allowed flex items-center justify-center active:scale-95 flex-shrink-0">
+                            <button type="button" id="btn-export-1" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 hig-export-btn h-7 w-7 rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             </button>
                         </div>
@@ -2475,6 +2475,7 @@
                         if (isErr) parsedData.errors.add(dIndex);
 
                         parsedData.params.set(dIndex, {
+                            xmlIndex: i,
                             display_index: dIndex,
                             desc: node.getAttribute('desc') || "Unknown",
                             value: vStr,
@@ -3920,38 +3921,128 @@
         }
 
         // --- EXPORT ENGINE ---
-        function executeExport(withLog) {
-            const m = document.getElementById('export-modal');
-            const bg = document.getElementById('export-modal-bg');
-            const c = document.getElementById('export-modal-content');
-            if (bg) bg.classList.add('opacity-0');
-            if (c) {
-                c.classList.remove('translate-y-0', 'scale-100', 'opacity-100');
-                c.classList.add('translate-y-10', 'scale-95', 'opacity-0');
+        function escapeXmlAttr(str, quoteChar = '"') {
+            const escaped = String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            return quoteChar === "'"
+                ? escaped.replace(/'/g, '&apos;')
+                : escaped.replace(/"/g, '&quot;');
+        }
+
+        function decodeXmlEntities(str) {
+            return String(str ?? '')
+                .replace(/&quot;/g, '"')
+                .replace(/&apos;/g, "'")
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&amp;/g, '&');
+        }
+
+        function patchVariabileTagValue(tag, newVal) {
+            const parts = tag.match(/^<VARIABILE\b([\s\S]*?)(\/?)>$/);
+            if (!parts) return tag;
+
+            const attrs = parts[1];
+            const closingSlash = parts[2];
+            let replaced = false;
+
+            const updatedAttrs = attrs.replace(
+                /(\s*)([A-Za-z_:][\w:.-]*)(\s*=\s*)(?:"([^"]*)"|'([^']*)')/g,
+                (attrMatch, ws, name, eq, dq) => {
+                    if (name !== 'value') return attrMatch;
+                    replaced = true;
+                    const quoteChar = dq !== undefined ? '"' : "'";
+                    return `${ws}${name}${eq}${quoteChar}${escapeXmlAttr(newVal, quoteChar)}${quoteChar}`;
+                }
+            );
+
+            if (replaced) {
+                return `<VARIABILE${updatedAttrs}${closingSlash}>`;
             }
-            setTimeout(() => { m.classList.add('hidden'); m.style.display = 'none'; }, 300);
+
+            const trailingWsMatch = attrs.match(/(\s*)$/);
+            const trailingWs = trailingWsMatch ? trailingWsMatch[0] : '';
+            const leadingAttrs = attrs.slice(0, attrs.length - trailingWs.length);
+            return `<VARIABILE${leadingAttrs} value="${escapeXmlAttr(newVal, '"')}"${trailingWs}${closingSlash}>`;
+        }
+
+        function triggerBlobDownload(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
+        function executeExport(withLog) {
+            closeExportModal();
 
             if (currentExportIdx === -1) return;
             
             const idx = currentExportIdx;
             const fd = filesData[idx];
-            if (!fd || fd.modified.size === 0) return;
+            if (!fd || fd.modified.size === 0) {
+                currentExportIdx = -1;
+                return;
+            }
             
-            let raw = fd.rawText;
-            
+            const modByXmlIndex = new Map();
+            const fallbackMods = [];
+
             for (const [k, newVal] of fd.modified.entries()) {
                 const p = fd.params.get(k);
-                if(!p) continue;
-                const addr = p.addr_write;
-                const tagRegex = new RegExp(`<VARIABILE[^>]*?display_index="${k}"[^>]*?>`, 'g');
-                
-                raw = raw.replace(tagRegex, (match) => {
-                    if (addr === "-" || match.includes(`addr_write="${addr}"`)) {
-                        return match.replace(/\bvalue="[^"]*"/, `value="${newVal}"`);
-                    }
-                    return match;
-                });
+                if (!p) continue;
+                if (typeof p.xmlIndex === 'number') {
+                    modByXmlIndex.set(p.xmlIndex, newVal);
+                } else {
+                    fallbackMods.push({ key: k, param: p, newVal });
+                }
             }
+
+            let varIdx = 0;
+            const raw = fd.rawText.replace(
+                /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<VARIABILE\b(?:"[^"]*"|'[^']*'|[^>"'])*>/g,
+                (token) => {
+                    if (!token.startsWith('<VARIABILE')) return token;
+
+                    const currentIdx = varIdx++;
+                    if (modByXmlIndex.has(currentIdx)) {
+                        return patchVariabileTagValue(token, modByXmlIndex.get(currentIdx));
+                    }
+
+                    if (fallbackMods.length > 0) {
+                        let tagDisplayIdx = null;
+                        let tagAddrWrite = null;
+                        const attrScan = /([A-Za-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+                        let mAttr;
+                        while ((mAttr = attrScan.exec(token)) !== null) {
+                            const attrName = mAttr[1];
+                            const attrVal = decodeXmlEntities(mAttr[2] !== undefined ? mAttr[2] : mAttr[3]);
+                            if (attrName === 'display_index') tagDisplayIdx = attrVal;
+                            else if (attrName === 'addr_write') tagAddrWrite = attrVal;
+                        }
+
+                        for (let i = 0; i < fallbackMods.length; i++) {
+                            const item = fallbackMods[i];
+                            const matchesDisplay = tagDisplayIdx !== null
+                                ? tagDisplayIdx === item.param.display_index
+                                : item.key === `IDX${currentIdx}`;
+                            const matchesAddr = item.param.addr_write === '-' || tagAddrWrite === item.param.addr_write;
+                            if (matchesDisplay && matchesAddr) {
+                                return patchVariabileTagValue(token, item.newVal);
+                            }
+                        }
+                    }
+
+                    return token;
+                }
+            );
             
             const extMatch = fd.filename.match(/\.[^.]+$/);
             const extension = extMatch ? extMatch[0] : '.xml';
@@ -3960,7 +4051,7 @@
             
             const revisionMatch = baseFilename.match(/_R(\d+)$/);
             if (revisionMatch) {
-                revisionNum = parseInt(revisionMatch[1]) + 1;
+                revisionNum = parseInt(revisionMatch[1], 10) + 1;
                 baseFilename = baseFilename.replace(/_R\d+$/, ''); 
             }
             
@@ -3981,26 +4072,13 @@
                 termLabel.removeAttribute('title');
             }
 
-            const blobXml = new Blob([raw], { type: 'text/xml' });
-            const urlXml = URL.createObjectURL(blobXml);
-            const aXml = document.createElement('a');
-            aXml.href = urlXml;
-            aXml.download = newXmlName;
-            aXml.click();
-            URL.revokeObjectURL(urlXml);
+            triggerBlobDownload(new Blob([raw], { type: 'text/xml' }), newXmlName);
 
             if (withLog) {
                 const sortedLogs = Array.from(liveLogMap.values()).filter(l => l.fileIdx === idx).sort((a,b) => a.ts - b.ts);
                 if (sortedLogs.length > 0) {
                     const logText = sortedLogs.map(l => `[${l.time}] ${l.reg} | ${l.action} | ${l.details}`).join('\n');
-                    const blobLog = new Blob([logText], { type: 'text/plain' });
-                    const urlLog = URL.createObjectURL(blobLog);
-                    
-                    const aLog = document.createElement('a');
-                    aLog.href = urlLog;
-                    aLog.download = newLogName;
-                    aLog.click();
-                    URL.revokeObjectURL(urlLog);
+                    triggerBlobDownload(new Blob([logText], { type: 'text/plain' }), newLogName);
                 }
             }
             currentExportIdx = -1;
