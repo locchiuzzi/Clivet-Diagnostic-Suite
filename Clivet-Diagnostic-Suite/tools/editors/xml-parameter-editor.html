@@ -121,6 +121,7 @@
         .dark .sync-table-container tbody { background-color: #1e293b; }
         .sync-table-container td { padding: 0.25rem 0.5rem !important; vertical-align: middle; border-bottom: 1px solid rgba(226, 232, 240, 0.75); }
         .dark .sync-table-container td { border-bottom-color: rgba(51, 65, 85, 0.55); }
+        .sync-table-container tbody tr.search-row { contain: layout style; }
         .sync-table-container tbody tr:last-child td { border-bottom: none; }
         .sync-table-container th { padding: 0.45rem 0.5rem !important; position: sticky !important; top: 0 !important; z-index: 30 !important; background-color: #f1f5f9 !important; box-shadow: inset 0 -1px 0 0 #e2e8f0, 0 1px 2px 0 rgba(0, 0, 0, 0.04); }
         .dark .sync-table-container th { background-color: #334155 !important; box-shadow: inset 0 -1px 0 0 #475569, 0 1px 2px 0 rgba(0, 0, 0, 0.25); }
@@ -139,10 +140,24 @@
             display: none !important;
         }
 
-        /* Floating Tooltip / Popover (Apple HIG Organic Spring) */
+        /* Floating Tooltip / Popover (Apple HIG Organic Spring - 100% GPU Compositor-Only) */
         #global-tooltip {
-            transition: transform 0.25s var(--spring-easing), opacity 0.2s ease-out;
+            top: 0;
+            left: 0;
+            contain: layout style;
+            transform: translate3d(var(--tip-x, 0px), var(--tip-y, 0px), 0) scale3d(0.95, 0.95, 1);
+            transition: transform 0.24s var(--spring-easing), opacity 0.18s ease-out;
             will-change: transform, opacity;
+            backface-visibility: hidden;
+        }
+        #global-tooltip.tip-open {
+            transform: translate3d(var(--tip-x, 0px), var(--tip-y, 0px), 0) scale3d(1, 1, 1);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #global-tooltip {
+                transition: opacity 0.15s ease;
+                transform: translate3d(var(--tip-x, 0px), var(--tip-y, 0px), 0) scale3d(1, 1, 1);
+            }
         }
         
         /* Apple HIG Segmented Control & Standalone Toggles */
@@ -209,9 +224,6 @@
             max-width: calc(100vw - 16px);
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: calc(100vw - 16px);
-            overflow: hidden;
-            text-overflow: ellipsis;
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -222,9 +234,10 @@
             border: 1px solid rgba(0, 0, 0, 0.08);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            transform: translate3d(0, 4px, 0) scale(0.96);
+            transform: translate3d(var(--hud-x, 0px), calc(var(--hud-y, 0px) + 4px), 0) scale3d(0.96, 0.96, 1);
             transition: opacity 120ms var(--smooth-easing), transform 160ms var(--spring-easing), visibility 120ms;
             will-change: transform, opacity;
+            backface-visibility: hidden;
         }
         .dark #apple-hud-popover {
             background-color: rgba(15, 23, 42, 0.88);
@@ -235,7 +248,7 @@
         #apple-hud-popover.hud-active {
             visibility: visible;
             opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
+            transform: translate3d(var(--hud-x, 0px), var(--hud-y, 0px), 0) scale3d(1, 1, 1);
         }
         #apple-hud-popover.hud-continuous {
             transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), opacity 0ms linear !important;
@@ -452,7 +465,7 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex flex-col relative h-screen">
     <!-- TOOLTIP INFO GLOBALE (Ancorato GPU - Stile Hub) -->
-    <div id="global-tooltip" role="tooltip" class="hidden fixed z-[150] w-[300px] sm:w-[340px] max-h-[85vh] overflow-y-auto custom-scrollbar p-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl border border-slate-200/80 dark:border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.25)] dark:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-slate-900/5 dark:ring-white/10 pointer-events-auto transition-[opacity,transform] duration-300 ease-[var(--spring-easing)] transform scale-95 opacity-0"></div>
+    <div id="global-tooltip" role="dialog" aria-modal="false" aria-labelledby="info-popover-title" tabindex="-1" class="hidden fixed z-[150] w-[300px] sm:w-[340px] max-h-[85vh] overflow-y-auto custom-scrollbar p-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl border border-slate-200/80 dark:border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.25)] dark:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-slate-900/5 dark:ring-white/10 pointer-events-auto opacity-0 focus:outline-none"></div>
 
     <!-- APPLE INSTANT HUD TOOLTIP (Zero-Latency Micro Popover - HIG Compliant) -->
     <div id="apple-hud-popover" role="tooltip" aria-hidden="true" class="hud-hidden"></div>
@@ -800,7 +813,6 @@
                                                     aria-label="Address Info" 
                                                     aria-haspopup="dialog" 
                                                     data-info-key="infoAddr" 
-                                                    onclick="toggleInfo(event, 'infoAddr')"
                                                     class="hit-44 info-icon relative inline-flex flex-shrink-0 items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:text-[#007AFF] dark:hover:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 transition-[color,background-color,transform] duration-150 ease-[var(--spring-easing)] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-800">
                                                 <svg aria-hidden="true" class="w-3.5 h-3.5 pointer-events-none stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -868,7 +880,6 @@
                                                     aria-label="Address Info" 
                                                     aria-haspopup="dialog" 
                                                     data-info-key="infoAddr" 
-                                                    onclick="toggleInfo(event, 'infoAddr')"
                                                     class="hit-44 info-icon relative inline-flex flex-shrink-0 items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:text-[#007AFF] dark:hover:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 transition-[color,background-color,transform] duration-150 ease-[var(--spring-easing)] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-800">
                                                 <svg aria-hidden="true" class="w-3.5 h-3.5 pointer-events-none stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -1767,7 +1778,14 @@
         // --- EVENT BINDING ENGINE (Modulo A.2 Centralizzato) ---
         function initEventBindings() {
             const gt = document.getElementById('global-tooltip');
-            if (gt) gt.addEventListener('click', e => e.stopPropagation());
+            if (gt) {
+                gt.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (e.target.closest('[data-close-info]')) {
+                        closeInfoPopover(true);
+                    }
+                });
+            }
 
             const btnOpenMenu = document.getElementById('btn-open-menu');
             if (btnOpenMenu) btnOpenMenu.addEventListener('click', openMenuModal);
@@ -1890,7 +1908,7 @@
             // Delegation per Icone Info Indirizzo Modbus
             document.addEventListener('click', (e) => {
                 const infoBtn = e.target.closest('[data-info-key]');
-                if (infoBtn) toggleInfo(e, infoBtn.getAttribute('data-info-key'));
+                if (infoBtn) toggleInfo(e, infoBtn.getAttribute('data-info-key'), infoBtn);
             });
 
             // Delegation per Selezione Lingua
@@ -1959,8 +1977,29 @@
             const s0 = document.getElementById('scroll-0');
             const s1 = document.getElementById('scroll-1');
             if(s0 && s1) {
-                s0.addEventListener('scroll', function() { if(!isSyncScrollActive) return; if(!window.isSyncing0) { window.isSyncing1 = true; s1.scrollTop = this.scrollTop; } window.isSyncing0 = false; });
-                s1.addEventListener('scroll', function() { if(!isSyncScrollActive) return; if(!window.isSyncing1) { window.isSyncing0 = true; s0.scrollTop = this.scrollTop; } window.isSyncing1 = false; });
+                let rafSync0 = 0, rafSync1 = 0;
+                s0.addEventListener('scroll', function() {
+                    if(!isSyncScrollActive) return;
+                    if(window.isSyncing0) { window.isSyncing0 = false; return; }
+                    if(rafSync0) cancelAnimationFrame(rafSync0);
+                    const top = this.scrollTop;
+                    rafSync0 = requestAnimationFrame(() => {
+                        window.isSyncing1 = true;
+                        s1.scrollTop = top;
+                        rafSync0 = 0;
+                    });
+                }, { passive: true });
+                s1.addEventListener('scroll', function() {
+                    if(!isSyncScrollActive) return;
+                    if(window.isSyncing1) { window.isSyncing1 = false; return; }
+                    if(rafSync1) cancelAnimationFrame(rafSync1);
+                    const top = this.scrollTop;
+                    rafSync1 = requestAnimationFrame(() => {
+                        window.isSyncing0 = true;
+                        s0.scrollTop = top;
+                        rafSync1 = 0;
+                    });
+                }, { passive: true });
             }
 
             // Inizializzazione Apple Instant HUD Tooltip
@@ -2110,7 +2149,7 @@
         }
 
         // --- SMART FLOATING POPOVER (Apple HIG Organic Spring) ---
-        function toggleInfo(e, key) {
+        function toggleInfo(e, key, explicitTrigger = null) {
             if (e) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -2118,19 +2157,33 @@
             const tooltip = document.getElementById('global-tooltip');
             if (!tooltip) return;
 
-            const isCollapsed = tooltip.classList.contains('hidden') || tooltip.dataset.currentKey !== key;
+            const trigger = explicitTrigger || (e && e.target && e.target.closest ? e.target.closest('[data-info-key]') : null) || (e ? e.currentTarget : null);
+            if (!trigger || typeof trigger.getBoundingClientRect !== 'function') return;
+
+            const isCollapsed = tooltip.classList.contains('hidden') || tooltip.dataset.currentKey !== key || tooltip._anchor !== trigger;
 
             if (isCollapsed) {
+                clearTimeout(tooltip._closeTimer);
+                if (tooltip._anchor && tooltip._anchor !== trigger) {
+                    tooltip._anchor.setAttribute('aria-expanded', 'false');
+                }
+
                 let htmlContent = '';
                 if (key === 'infoAddr') {
                     const addrText = ClivetI18n.get('info_addr') || "This value corresponds to the 'addr_write' attribute in the XML file.";
+                    const closeLabel = ClivetI18n.get('ui_closePanel') || "Close";
                     htmlContent = `
                     <div class="flex flex-col gap-2">
-                        <div class="flex items-center gap-2 border-b border-slate-200/80 dark:border-white/10 pb-2">
-                            <div class="p-1 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <div class="flex items-center justify-between gap-2 border-b border-slate-200/80 dark:border-white/10 pb-2">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <div class="p-1 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 text-[#007AFF] dark:text-[#0A84FF] flex-shrink-0">
+                                    <svg aria-hidden="true" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                </div>
+                                <h4 id="info-popover-title" class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider truncate">Modbus Address</h4>
                             </div>
-                            <h4 class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider">Modbus Address</h4>
+                            <button type="button" data-close-info="1" aria-label="${escapeHtml(closeLabel)}" class="hit-44 flex-shrink-0 w-6 h-6 rounded-full bg-slate-200/70 hover:bg-slate-300/80 dark:bg-slate-700/70 dark:hover:bg-slate-600 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white ring-1 ring-black/5 dark:ring-white/10 transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]">
+                                <svg aria-hidden="true" class="w-3.5 h-3.5 stroke-[2.5] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
                         </div>
                         <p class="text-[12px] text-slate-600 dark:text-slate-300 leading-relaxed">${addrText}</p>
                     </div>`;
@@ -2138,19 +2191,19 @@
                 
                 tooltip.innerHTML = htmlContent;
                 tooltip.dataset.currentKey = key;
-                tooltip.classList.remove('hidden', 'scale-100', 'opacity-100');
+                tooltip.classList.remove('hidden', 'tip-open', 'opacity-100');
                 tooltip.style.display = 'block';
-                tooltip.classList.add('scale-95', 'opacity-0');
+                tooltip.classList.add('opacity-0');
 
-                const trigger = e.currentTarget || e.target;
                 tooltip._anchor = trigger;
+                trigger.setAttribute('aria-expanded', 'true');
                 positionInfoPopover(tooltip, trigger);
 
                 requestAnimationFrame(() => {
                     requestAnimationFrame(() => {
                         positionInfoPopover(tooltip, trigger);
-                        tooltip.classList.remove('scale-95', 'opacity-0');
-                        tooltip.classList.add('scale-100', 'opacity-100');
+                        tooltip.classList.remove('opacity-0');
+                        tooltip.classList.add('tip-open', 'opacity-100');
                     });
                 });
             } else {
@@ -2172,34 +2225,61 @@
                 topPos = Math.max(margin, rect.top - tooltipHeight - gap);
             }
             
-            tooltip.style.left = `${Math.round(leftPos)}px`;
-            tooltip.style.top = `${Math.round(topPos)}px`;
+            tooltip.style.setProperty('--tip-x', `${Math.round(leftPos)}px`);
+            tooltip.style.setProperty('--tip-y', `${Math.round(topPos)}px`);
         }
 
-        function closeInfoPopover() {
+        function closeInfoPopover(restoreFocusToTrigger = false) {
             const tooltip = document.getElementById('global-tooltip');
             if (!tooltip || tooltip.classList.contains('hidden')) return false;
-            tooltip.classList.remove('scale-100', 'opacity-100');
-            tooltip.classList.add('scale-95', 'opacity-0');
+
+            clearTimeout(tooltip._closeTimer);
+            const anchor = tooltip._anchor;
+            if (anchor) {
+                anchor.setAttribute('aria-expanded', 'false');
+            }
+
+            tooltip.classList.remove('tip-open', 'opacity-100');
+            tooltip.classList.add('opacity-0');
             tooltip._anchor = null;
-            setTimeout(() => {
-                tooltip.classList.add('hidden');
-                tooltip.style.display = 'none';
-                tooltip.dataset.currentKey = '';
-            }, 200);
+
+            if (restoreFocusToTrigger && anchor && typeof anchor.focus === 'function' && document.contains(anchor)) {
+                anchor.focus({ preventScroll: true });
+            }
+
+            tooltip._closeTimer = setTimeout(() => {
+                if (!tooltip.classList.contains('tip-open')) {
+                    tooltip.classList.add('hidden');
+                    tooltip.style.display = 'none';
+                    tooltip.dataset.currentKey = '';
+                }
+            }, 220);
             return true;
         }
 
         document.addEventListener('click', (e) => {
             const tooltip = document.getElementById('global-tooltip');
-            if (tooltip && !tooltip.classList.contains('hidden') && !tooltip.contains(e.target)) {
+            if (tooltip && !tooltip.classList.contains('hidden') && !tooltip.contains(e.target) && !e.target.closest('[data-info-key]')) {
                 closeInfoPopover();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            closeInfoPopover();
+        }, { passive: true });
+
+        ['scroll-0', 'scroll-1'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('scroll', () => {
+                    closeInfoPopover();
+                }, { passive: true });
             }
         });
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                closeInfoPopover();
+                closeInfoPopover(true);
                 closeMenuModal();
                 closeExportModal();
                 const panel = document.getElementById('side-panel');
@@ -2319,8 +2399,9 @@
             const container = document.getElementById(`ui-drop${idx+1}-container`);
             const loadedTxt = ClivetI18n.get('drop_loaded') || "Loaded:";
             if(container) {
+                const safeFname = escapeHtml(fname);
                 container.className = "flex flex-col items-center justify-center min-h-[48px] mb-1 dz-spring-slide";
-                container.innerHTML = `<span class="text-[0.8125rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-1">${loadedTxt}</span><span class="text-[#007AFF] dark:text-[#0A84FF] font-[ui-monospace,SFMono-Regular,monospace] text-[0.9375rem] sm:text-[1rem] font-semibold break-all px-4" title="${fname}">${fname}</span>`;
+                container.innerHTML = `<span class="text-[0.8125rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-1">${loadedTxt}</span><span class="text-[#007AFF] dark:text-[#0A84FF] font-[ui-monospace,SFMono-Regular,monospace] text-[0.9375rem] sm:text-[1rem] font-semibold break-all px-4" title="${safeFname}">${safeFname}</span>`;
             }
             
             const orEl = document.getElementById(`ui-or-${idx}`);
@@ -2681,6 +2762,7 @@
         }
 
         // --- APPLE HIG SEARCH CONTROLLER ---
+        let searchDebounceTimer = null;
         function handleSearchInput(input) {
             const query = input.value.trim();
             const clearBtn = document.getElementById('searchClearBtn');
@@ -2693,10 +2775,12 @@
                     clearBtn.classList.add('opacity-0', 'pointer-events-none', 'scale-90');
                 }
             }
-            runSearch(false);
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => runSearch(false), 60);
         }
 
         function clearSearchInput() {
+            clearTimeout(searchDebounceTimer);
             const input = document.getElementById('searchInput');
             const clearBtn = document.getElementById('searchClearBtn');
             if (input) {
@@ -2843,9 +2927,9 @@
                     top = Math.round(rect.bottom + 12);
                 }
 
-                // Posizionamento GPU hardware-accelerated a 60/120fps
-                h.style.left = `${left}px`;
-                h.style.top = `${top}px`;
+                // Posizionamento GPU hardware-accelerated a 60/120fps (compositor-only)
+                h.style.setProperty('--hud-x', `${left}px`);
+                h.style.setProperty('--hud-y', `${top}px`);
 
                 if (isContinuous) {
                     h.classList.add('hud-continuous');
@@ -3035,6 +3119,7 @@
 
 		function buildTables() {
             unifiedKeys = [];
+            window.activeDiffs.clear();
             const allSet = new Set();
             
             if(filesData[0]) {
@@ -3061,9 +3146,9 @@
             }
             
             unifiedKeys = Array.from(allSet).sort((a, b) => {
-                const numA = parseInt(a.replace(/\D/g, '')) || 0;
-                const numB = parseInt(b.replace(/\D/g, '')) || 0;
-                return numA - numB;
+                const numA = parseInt(a.replace(/\D/g, ''), 10) || 0;
+                const numB = parseInt(b.replace(/\D/g, ''), 10) || 0;
+                return numA !== numB ? numA - numB : a.localeCompare(b);
             });
 
             if (filesData[0]) renderColumn(0); else hideColumn(0);
@@ -3171,10 +3256,14 @@
                     let errMsg = "";
                     let errClass = "hidden";
                     if(isInitialErr) {
-                        errMsg = `${ClivetI18n.get('err_range')} (${p.min} / ${p.max})`;
+                        const initNum = parseFloat(String(valToPrint).trim().replace(',', '.'));
+                        errMsg = isNaN(initNum)
+                            ? ClivetI18n.get('err_nan')
+                            : `${ClivetI18n.get('err_range')} (${p.min} / ${p.max})`;
                         errClass = "";
                     }
 
+                    const safeKey = escapeHtml(k);
                     const safeIdx = escapeHtml(p.display_index);
                     const safeDesc = escapeHtml(p.desc);
                     const safeVal = escapeHtml(valToPrint);
@@ -3184,24 +3273,25 @@
                     const safeAddr = escapeHtml(p.addr_write);
                     
                     html += `
-                    <tr id="row-${idx}-${k}" class="hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors search-row diff-row">
+                    <tr id="row-${idx}-${safeKey}" class="hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors search-row diff-row">
                         <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-left tabular-nums"><span class="font-bold font-mono text-blue-600 dark:text-blue-400 whitespace-nowrap block">P${safeIdx}</span></td>
-                        <td class="w-full max-w-0 overflow-hidden px-2 py-1 align-middle text-left"><span id="desc-${idx}-${k}" class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate leading-5 block" title="${safeDesc}">${safeDesc}</span></td>
+                        <td class="w-full max-w-0 overflow-hidden px-2 py-1 align-middle text-left"><span id="desc-${idx}-${safeKey}" class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate leading-5 block" title="${safeDesc}">${safeDesc}</span></td>
                         <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center relative">
                             <div class="inline-grid w-full min-w-[60px] items-center after:content-[attr(data-val)] after:col-start-1 after:row-start-1 after:invisible after:px-2 after:text-xs after:font-bold after:tabular-nums after:whitespace-nowrap after:pointer-events-none after:h-0 after:overflow-hidden" data-val="${safeVal}">
-                                <input type="text" size="1" id="input-${idx}-${k}" data-param-key="${k}" value="${safeVal}" class="col-start-1 row-start-1 param-input w-full min-w-0 px-2 rounded-lg text-xs text-center font-bold tabular-nums text-slate-900 dark:text-white ${inputClass}">
+                                <input type="text" size="1" id="input-${idx}-${safeKey}" data-param-key="${safeKey}" value="${safeVal}" class="col-start-1 row-start-1 param-input w-full min-w-0 px-2 rounded-lg text-xs text-center font-bold tabular-nums text-slate-900 dark:text-white ${inputClass}">
                             </div>
-                            <span id="err-${idx}-${k}" class="${errClass} absolute top-full left-1/2 transform -translate-x-1/2 mt-0.5 text-[9px] font-bold text-red-500 whitespace-nowrap z-10 bg-white dark:bg-slate-800 px-1 border border-red-200 dark:border-red-900 rounded shadow-sm leading-none">${errMsg}</span>
+                            <span id="err-${idx}-${safeKey}" class="${errClass} absolute top-full left-1/2 transform -translate-x-1/2 mt-0.5 text-[9px] font-bold text-red-500 whitespace-nowrap z-10 bg-white dark:bg-slate-800 px-1 border border-red-200 dark:border-red-900 rounded shadow-sm leading-none">${errMsg}</span>
                         </td>
                         <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center"><span class="font-bold font-mono text-blue-600 dark:text-blue-400 whitespace-nowrap block">${safeUm}</span></td>
                         <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center tabular-nums"><span class="text-[10px] font-mono tabular-nums text-slate-400 dark:text-slate-500 whitespace-nowrap block">${safeMin} / ${safeMax}</span></td>
-                        <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center tabular-nums"><span id="addr-${idx}-${k}" class="text-[10px] sm:text-xs font-mono tabular-nums text-slate-400 dark:text-slate-500 whitespace-nowrap block">${safeAddr}</span></td>
+                        <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center tabular-nums"><span id="addr-${idx}-${safeKey}" class="text-[10px] sm:text-xs font-mono tabular-nums text-slate-400 dark:text-slate-500 whitespace-nowrap block">${safeAddr}</span></td>
                     </tr>`;
                 } else {
+                    const safeKey = escapeHtml(k);
                     html += `
-                    <tr id="row-${idx}-${k}" class="bg-slate-50/50 dark:bg-slate-800/40 transition-colors search-row diff-row">
+                    <tr id="row-${idx}-${safeKey}" class="bg-slate-50/50 dark:bg-slate-800/40 transition-colors search-row diff-row">
                         <td colspan="6" class="p-1 align-middle max-w-0">
-                            <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg w-full h-[26px] flex items-center justify-center text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs italic font-medium px-2 truncate">${ClivetI18n.get('err_missing')} (P${k})</div>
+                            <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg w-full h-[26px] flex items-center justify-center text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs italic font-medium px-2 truncate">${ClivetI18n.get('err_missing')} (P${safeKey})</div>
                         </td>
                     </tr>`;
                 }
@@ -3217,6 +3307,11 @@
             
             const inputEl = document.getElementById(`input-${idx}-${k}`);
             const errEl = document.getElementById(`err-${idx}-${k}`);
+            if (!inputEl || !errEl) return;
+
+            if (inputEl.parentElement) {
+                inputEl.parentElement.dataset.val = inputEl.value;
+            }
 
             let rawStr = inputEl.value.trim().replace(',', '.');
             let num = parseFloat(rawStr);
@@ -3229,11 +3324,9 @@
             if (rawStr === "" || isNaN(num)) {
                 isValid = false;
                 errMsg = ClivetI18n.get('err_nan');
-            } else if (!isNaN(min) && !isNaN(max)) {
-                if (num < min || num > max) {
-                    isValid = false;
-                    errMsg = `${ClivetI18n.get('err_range')} (${p.min} / ${p.max})`;
-                }
+            } else if ((!isNaN(min) && num < min) || (!isNaN(max) && num > max)) {
+                isValid = false;
+                errMsg = `${ClivetI18n.get('err_range')} (${p.min} / ${p.max})`;
             }
             
             let logKey = `${idx}-${k}`;
@@ -3540,7 +3633,7 @@
                         <span class="px-1.5 py-0.5 rounded-[6px] text-[11px] font-bold font-mono tracking-tight bg-blue-50 text-[#007AFF] dark:bg-blue-950/60 dark:text-[#0A84FF] border border-blue-200/60 dark:border-blue-800/50 flex-shrink-0 leading-none">${log.reg}</span>
                         <span class="text-[12px] font-medium text-slate-900 dark:text-slate-100 truncate tracking-tight leading-snug" data-tip-title="${safeDetails}">${safeDetails}</span>
                     </div>
-                    <button onclick="undoLastModification(${log.fileIdx}, '${paramKey}')" aria-label="${undoTip}" data-apple-hud="term_undo" class="hit-44 flex items-center justify-center w-7 h-7 rounded-[7px] bg-white dark:bg-slate-700/80 border border-slate-200/80 dark:border-white/10 text-slate-400 hover:text-[#FF3B30] dark:hover:text-[#FF453A] hover:bg-red-50 dark:hover:bg-red-950/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90 flex-shrink-0 shadow-2xs">
+                    <button type="button" data-undo-log="1" data-file-idx="${log.fileIdx}" data-param-key="${escapeHtml(paramKey)}" aria-label="${undoTip}" data-apple-hud="term_undo" class="hit-44 flex items-center justify-center w-7 h-7 rounded-[7px] bg-white dark:bg-slate-700/80 border border-slate-200/80 dark:border-white/10 text-slate-400 hover:text-[#FF3B30] dark:hover:text-[#FF453A] hover:bg-red-50 dark:hover:bg-red-950/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90 flex-shrink-0 shadow-2xs">
                         <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"></path></svg>
                     </button>
                 </div>`;
@@ -3554,19 +3647,13 @@
         }
 
         function exportLog(e) {
-            e.stopPropagation(); 
+            if (e) e.stopPropagation(); 
             if(liveLogMap.size === 0) return;
             
-            const sortedLogs = Array.from(liveLogMap.values()).sort((a,b) => b.time.localeCompare(a.time));
+            const sortedLogs = Array.from(liveLogMap.values()).sort((a, b) => b.ts - a.ts);
             const logText = sortedLogs.map(l => `[${l.time}] ${l.idx} | ${l.reg} | ${l.action} | ${l.details}`).join('\n');
             
-            const blob = new Blob([logText], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `Clivet_Editor_Log_${new Date().toISOString().replace(/[:.]/g,'-')}.txt`;
-            a.click();
-            URL.revokeObjectURL(url);
+            triggerBlobDownload(new Blob([logText], { type: 'text/plain' }), `Clivet_Editor_Log_${new Date().toISOString().replace(/[:.]/g,'-')}.txt`);
         }
 
         function checkExportState(idx) {
@@ -3675,40 +3762,52 @@
 
         // --- SEARCH ENGINE ---
         function resetHighlights() {
+            const parentsToNormalize = new Set();
             document.querySelectorAll('mark.search-hl').forEach(mark => {
                 const parent = mark.parentNode;
                 if(parent) {
                     parent.replaceChild(document.createTextNode(mark.textContent), mark);
-                    parent.normalize();
+                    parentsToNormalize.add(parent);
                 }
             });
+            parentsToNormalize.forEach(p => p.normalize());
             currentMatches0 = []; activeMatchIdx0 = -1;
             currentMatches1 = []; activeMatchIdx1 = -1;
         }
 
-        function highlightTextNode(node, regexStr, flags, targetArray) {
-            if (node.nodeType === 3) { 
-                const regex = new RegExp(regexStr, flags);
-                const match = regex.exec(node.nodeValue);
-                if (match && match[0].trim() !== '') {
+        function highlightTextNode(node, regex, targetArray) {
+            if (node.nodeType === 3) {
+                const text = node.nodeValue;
+                if (!text || text.trim() === '') return;
+                regex.lastIndex = 0;
+                let match = regex.exec(text);
+                if (!match) return;
+
+                const frag = document.createDocumentFragment();
+                let lastIdx = 0;
+                while (match) {
+                    if (match[0].length === 0) {
+                        regex.lastIndex++;
+                        match = regex.exec(text);
+                        continue;
+                    }
+                    if (match.index > lastIdx) {
+                        frag.appendChild(document.createTextNode(text.slice(lastIdx, match.index)));
+                    }
                     const mark = document.createElement('mark');
                     mark.className = 'search-hl';
-                    const splitPos = match.index;
-                    const matchedText = match[0];
-                    const afterText = node.nodeValue.substring(splitPos + matchedText.length);
-                    
-                    node.nodeValue = node.nodeValue.substring(0, splitPos);
-                    mark.textContent = matchedText;
-                    
-                    const afterNode = document.createTextNode(afterText);
-                    node.parentNode.insertBefore(mark, node.nextSibling);
-                    node.parentNode.insertBefore(afterNode, mark.nextSibling);
-                    
+                    mark.textContent = match[0];
+                    frag.appendChild(mark);
                     targetArray.push(mark);
-                    highlightTextNode(afterNode, regexStr, flags, targetArray);
+                    lastIdx = match.index + match[0].length;
+                    match = regex.exec(text);
                 }
+                if (lastIdx < text.length) {
+                    frag.appendChild(document.createTextNode(text.slice(lastIdx)));
+                }
+                node.parentNode.replaceChild(frag, node);
             } else if (node.nodeType === 1 && node.nodeName !== 'MARK' && node.nodeName !== 'SCRIPT' && node.nodeName !== 'STYLE' && node.nodeName !== 'INPUT' && node.nodeName !== 'BUTTON' && !node.classList.contains('no-search')) {
-                Array.from(node.childNodes).forEach(child => highlightTextNode(child, regexStr, flags, targetArray));
+                Array.from(node.childNodes).forEach(child => highlightTextNode(child, regex, targetArray));
             }
         }
 
@@ -3728,6 +3827,8 @@
                 searchRegex = new RegExp(escapedQuery, regexFlags);
             }
 
+            const hasDual = Boolean(filesData[0] && filesData[1]);
+
             unifiedKeys.forEach(k => {
                 const row0 = document.getElementById(`row-0-${k}`);
                 const row1 = document.getElementById(`row-1-${k}`);
@@ -3737,24 +3838,18 @@
                 if (searchRegex) {
                     if (row0) {
                         searchRegex.lastIndex = 0;
-                        if (searchRegex.test(row0.textContent)) {
-                            matchesSearch0 = true;
-                            highlightTextNode(row0, searchRegex.source, regexFlags, currentMatches0);
-                        }
+                        matchesSearch0 = searchRegex.test(row0.textContent);
                     }
                     if (row1) {
                         searchRegex.lastIndex = 0;
-                        if (searchRegex.test(row1.textContent)) {
-                            matchesSearch1 = true;
-                            highlightTextNode(row1, searchRegex.source, regexFlags, currentMatches1);
-                        }
+                        matchesSearch1 = searchRegex.test(row1.textContent);
                     }
                 } else {
                     matchesSearch0 = true; matchesSearch1 = true; 
                 }
 
                 let matchesDiff = true;
-                if (filesData[0] && filesData[1]) {
+                if (hasDual) {
                     const isDiff = updateRowDiffStyles(k);
                     if (showDiffOnly) matchesDiff = isDiff;
                 } else {
@@ -3767,13 +3862,24 @@
                 if (filesData[1] && filesData[1].errors.has(k)) isErrRow = true;
                 if (showErrOnly) matchesErr = isErrRow;
 
+                const visible0 = matchesSearch0 && matchesDiff && matchesErr;
+                const visible1 = matchesSearch1 && matchesDiff && matchesErr;
+
                 if (row0) {
-                    if (matchesSearch0 && matchesDiff && matchesErr) row0.classList.remove('search-hidden', 'diff-hidden');
-                    else row0.classList.add('search-hidden');
+                    if (visible0) {
+                        row0.classList.remove('search-hidden', 'diff-hidden');
+                        if (searchRegex) highlightTextNode(row0, searchRegex, currentMatches0);
+                    } else {
+                        row0.classList.add('search-hidden');
+                    }
                 }
                 if (row1) {
-                    if (matchesSearch1 && matchesDiff && matchesErr) row1.classList.remove('search-hidden', 'diff-hidden');
-                    else row1.classList.add('search-hidden');
+                    if (visible1) {
+                        row1.classList.remove('search-hidden', 'diff-hidden');
+                        if (searchRegex) highlightTextNode(row1, searchRegex, currentMatches1);
+                    } else {
+                        row1.classList.add('search-hidden');
+                    }
                 }
             });
 
@@ -4078,7 +4184,9 @@
                 const sortedLogs = Array.from(liveLogMap.values()).filter(l => l.fileIdx === idx).sort((a,b) => a.ts - b.ts);
                 if (sortedLogs.length > 0) {
                     const logText = sortedLogs.map(l => `[${l.time}] ${l.reg} | ${l.action} | ${l.details}`).join('\n');
-                    triggerBlobDownload(new Blob([logText], { type: 'text/plain' }), newLogName);
+                    setTimeout(() => {
+                        triggerBlobDownload(new Blob([logText], { type: 'text/plain' }), newLogName);
+                    }, 150);
                 }
             }
             currentExportIdx = -1;
