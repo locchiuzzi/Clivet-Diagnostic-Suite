@@ -154,6 +154,7 @@
             transition: width 0.35s var(--spring-easing), opacity 0.25s var(--smooth-easing), margin 0.35s var(--spring-easing);
         }
         .hig-dual-wrapper.is-expanded {
+            overflow: visible;
             width: 36px;
             opacity: 1;
             pointer-events: auto;
@@ -704,14 +705,14 @@
                             <!-- Btn: Errors -->
                             <button type="button" id="btn-filter-err" class="hit-44 hig-segment-btn h-full w-[36px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 focus:outline-none" aria-label="Show Errors only" data-i18n-aria="filter_err" data-apple-hud="filter_err">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span id="count-err" class="hidden absolute top-[3px] right-[3px] z-40 pointer-events-none px-1 h-[15px] min-w-[15px] text-[9px] font-bold font-sans tracking-tight bg-[#FF3B30] text-white rounded-full items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.2)] dark:shadow-[0_2px_4px_rgba(0,0,0,0.6)] tabular-nums will-change-transform border border-transparent" style="transform: translate3d(0,0,0); backface-visibility: hidden;">0</span>
+                                <span id="count-err" class="hidden absolute -top-2 -right-1.5 z-40 pointer-events-none px-1 h-[16px] min-w-[16px] text-[9px] font-bold font-sans tracking-tight bg-[#FF3B30] text-white rounded-full items-center justify-center ring-2 ring-white dark:ring-slate-800 shadow-sm tabular-nums will-change-transform">0</span>
                             </button>
 
                             <!-- Btn: Differences (Hidden in Single File) -->
                             <div id="diff-btn-wrapper" class="hig-dual-wrapper flex h-full">
                                 <button type="button" id="btn-filter-diff" class="hit-44 hig-segment-btn h-full w-[36px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 focus:outline-none flex-shrink-0" aria-label="Show Differences only" data-i18n-aria="filter_diff" data-apple-hud="filter_diff">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
-                                    <span id="count-diff" class="hidden absolute top-[3px] right-[3px] z-40 pointer-events-none px-1 h-[15px] min-w-[15px] text-[9px] font-bold font-sans tracking-tight bg-[#FF9500] text-white rounded-full items-center justify-center shadow-[0_2px_4px_rgba(0,0,0,0.2)] dark:shadow-[0_2px_4px_rgba(0,0,0,0.6)] tabular-nums will-change-transform border border-transparent" style="transform: translate3d(0,0,0); backface-visibility: hidden;">0</span>
+                                    <span id="count-diff" class="hidden absolute -top-2 -right-1.5 z-40 pointer-events-none px-1 h-[16px] min-w-[16px] text-[9px] font-bold font-sans tracking-tight bg-[#FF9500] text-white rounded-full items-center justify-center ring-2 ring-white dark:ring-slate-800 shadow-sm tabular-nums will-change-transform">0</span>
                                 </button>
                             </div>
                         </div>
@@ -730,7 +731,7 @@
                         <button type="button" id="toggleLogBtn" aria-expanded="false" aria-controls="side-panel" class="hit-44 hig-log-btn relative flex items-center justify-center h-[36px] w-[36px] rounded-[10px] focus:outline-none flex-shrink-0" aria-label="Session Modifications Log" data-i18n-aria="term_title" data-apple-hud="term_title">
                             <svg aria-hidden="true" class="w-[18px] h-[18px] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             <!-- Notification Badge GPU-Accelerated (Protruding Cutout) -->
-                            <span id="term-counter-badge" class="hidden absolute -top-1.5 -right-1.5 z-40 pointer-events-none px-1 h-[16px] min-w-[16px] text-[9px] font-bold font-sans tracking-tight bg-[#007AFF] text-white rounded-full items-center justify-center ring-2 ring-white dark:ring-slate-800 shadow-sm tabular-nums will-change-transform" style="transform: translate3d(0,0,0); backface-visibility: hidden;">0</span>
+                            <span id="term-counter-badge" class="hidden absolute -top-1.5 -right-1.5 z-40 pointer-events-none px-1 h-[16px] min-w-[16px] text-[9px] font-bold font-sans tracking-tight bg-[#007AFF] text-white rounded-full items-center justify-center ring-2 ring-white dark:ring-slate-800 shadow-sm tabular-nums will-change-transform">0</span>
                         </button>
                     </div>
                 </div>
