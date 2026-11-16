@@ -692,7 +692,7 @@
                     <div class="flex items-center flex-shrink-0">
                         
                         <!-- Apple HIG Segmented Control (Filters) -->
-                        <div id="filter-segmented-control" class="relative flex items-center p-0.5 bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 rounded-[10px] h-[36px]">
+                        <div id="filter-segmented-control" data-hud-track class="relative flex items-center p-0.5 bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 rounded-[10px] h-[36px]">
                             
                             <!-- GPU-Accelerated Sliding Thumb -->
                             <div id="filter-thumb" class="absolute left-0.5 top-0.5 bottom-0.5 w-[36px] bg-white dark:bg-slate-700 rounded-[8px] shadow-[0_1px_3px_rgba(0,0,0,0.12)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.4)] ring-1 ring-black/5 dark:ring-white/10 transition-transform duration-300 ease-[var(--spring-easing)] will-change-transform" style="transform: translate3d(0px, 0, 0);"></div>
@@ -704,7 +704,11 @@
                             
                             <!-- Btn: Errors -->
                             <button type="button" id="btn-filter-err" class="hit-44 hig-segment-btn h-full w-[36px] flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 focus:outline-none" aria-label="Show Errors only" data-i18n-aria="filter_err" data-apple-hud="filter_err">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" aria-hidden="true">
+                                    <circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8.25v4.5" />
+                                    <circle cx="12" cy="15.75" r="1" fill="currentColor" stroke="none" />
+                                </svg>
                                 <span id="count-err" class="hidden absolute -top-2 -right-1.5 z-40 pointer-events-none px-1 h-[16px] min-w-[16px] text-[9px] font-bold font-sans tracking-tight bg-[#FF3B30] text-white rounded-full items-center justify-center ring-2 ring-white dark:ring-slate-800 shadow-sm tabular-nums will-change-transform">0</span>
                             </button>
 
@@ -758,7 +762,7 @@
                         </div>
 
                         <div class="flex items-center gap-4 flex-shrink-0">
-                            <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
+                            <div data-hud-track class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
                                 <button type="button" id="btn-undo-0" disabled aria-label="Undo" data-i18n-aria="btn_undo" data-apple-hud="btn_undo" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white hover:shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-[background-color,color,transform,box-shadow] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:hover:text-slate-600 dark:disabled:hover:text-slate-300 disabled:hover:shadow-none disabled:active:scale-100">
                                     <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"></path></svg>
                                 </button>
@@ -768,7 +772,7 @@
                                 </button>
                             </div>
                             
-                            <button type="button" id="btn-export-0" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] bg-[#007AFF] dark:bg-[#0A84FF] text-white hover:bg-[#0071E3] dark:hover:bg-[#0077ED] shadow-sm transition-[background-color,color,transform,opacity,box-shadow] duration-150 ease-[var(--spring-easing)] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#007AFF] dark:disabled:hover:bg-[#0A84FF] disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
+                            <button type="button" id="btn-export-0" data-hud-track disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] bg-[#007AFF] dark:bg-[#0A84FF] text-white hover:bg-[#0071E3] dark:hover:bg-[#0077ED] shadow-sm transition-[background-color,color,transform,opacity,box-shadow] duration-150 ease-[var(--spring-easing)] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#007AFF] dark:disabled:hover:bg-[#0A84FF] disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             </button>
                         </div>
@@ -825,7 +829,7 @@
                         </div>
 
                         <div class="flex items-center gap-4 flex-shrink-0">
-                            <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
+                            <div data-hud-track class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
                                 <button type="button" id="btn-undo-1" disabled aria-label="Undo" data-i18n-aria="btn_undo" data-apple-hud="btn_undo" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white hover:shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-[background-color,color,transform,box-shadow] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:hover:text-slate-600 dark:disabled:hover:text-slate-300 disabled:hover:shadow-none disabled:active:scale-100">
                                     <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"></path></svg>
                                 </button>
@@ -835,7 +839,7 @@
                                 </button>
                             </div>
                             
-                            <button type="button" id="btn-export-1" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] bg-[#007AFF] dark:bg-[#0A84FF] text-white hover:bg-[#0071E3] dark:hover:bg-[#0077ED] shadow-sm transition-[background-color,color,transform,opacity,box-shadow] duration-150 ease-[var(--spring-easing)] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#007AFF] dark:disabled:hover:bg-[#0A84FF] disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
+                            <button type="button" id="btn-export-1" data-hud-track disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] bg-[#007AFF] dark:bg-[#0A84FF] text-white hover:bg-[#0071E3] dark:hover:bg-[#0077ED] shadow-sm transition-[background-color,color,transform,opacity,box-shadow] duration-150 ease-[var(--spring-easing)] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#007AFF] dark:disabled:hover:bg-[#0A84FF] disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             </button>
                         </div>
@@ -877,7 +881,7 @@
             </div>
 
             <!-- SIDE PANEL (LOG DRAWER - Apple HIG Docked Inspector) -->
-            <div id="side-panel-overlay" aria-hidden="true" class="fixed top-16 inset-x-0 bottom-0 bg-slate-900/40 z-[100] overlay-closed cursor-default"></div>
+            <div id="side-panel-overlay" aria-hidden="true" class="fixed top-16 inset-x-0 bottom-0 bg-slate-900/40 backdrop-blur-sm z-[100] overlay-closed cursor-default"></div>
             <div id="side-panel" role="dialog" aria-modal="false" aria-hidden="true" aria-label="Session Modifications Log" tabindex="-1" class="fixed top-16 bottom-0 right-0 w-full sm:w-[clamp(28rem,40vw,52rem)] h-[calc(100dvh-4rem)] bg-white/[0.97] dark:bg-slate-900/[0.97] backdrop-blur-md shadow-2xl z-[110] flex flex-col panel-closed border-l border-slate-200/80 dark:border-white/10 overscroll-contain focus:outline-none">
                 
                 <!-- Panel Header (HIG Compliant Header) -->
@@ -889,7 +893,7 @@
                         <h2 data-i18n="term_title" class="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm tracking-tight truncate">Session Modifications Log</h2>
                     </div>
                     <div class="flex items-center gap-1 sm:gap-1.5 flex-shrink-0">
-                        <button onclick="exportLog(event)" aria-label="Export Log" data-i18n-aria="term_export" data-apple-hud="term_export" class="hit-44 h-8 w-8 rounded-[8px] text-[#007AFF] dark:text-[#0A84FF] hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-95">
+                        <button id="btn-export-log" type="button" disabled onclick="exportLog(event)" aria-label="Export Log" data-i18n-aria="term_export" data-apple-hud="term_export" class="hit-44 h-8 w-8 rounded-[8px] text-[#007AFF] dark:text-[#0A84FF] hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-[background-color,color,transform,opacity] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:active:scale-100">
                             <svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"></path></svg>
                         </button>
                         <button onclick="closeSidePanel()" aria-label="Close panel" data-i18n-aria="ui_closePanel" data-apple-hud="ui_closePanel" class="hit-44 h-8 w-8 rounded-[8px] text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/70 dark:hover:bg-slate-800 transition-all flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 active:scale-95">
@@ -908,7 +912,7 @@
                                 <span class="w-2 h-2 rounded-full bg-[#007AFF] flex-shrink-0"></span>
                                 <span id="term-label-0" data-tip-title="" class="font-semibold text-[13px] text-slate-900 dark:text-slate-100 tracking-tight truncate select-text">File 1</span>
                             </div>
-                            <span id="term-count-0" class="flex-shrink-0 whitespace-nowrap inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-semibold leading-none bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400 tabular-nums select-none">0 mod.</span>
+                            <span id="term-count-0" data-tip-title="No modifications in this file" class="flex-shrink-0 whitespace-nowrap inline-flex items-center justify-center h-5 min-w-[20px] px-2 rounded-full text-[11px] font-semibold leading-none bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400 tabular-nums select-none cursor-default">0 mod.</span>
                         </div>
                         <div id="terminal-output-0" class="p-2.5 sm:p-3 overflow-y-auto custom-scrollbar flex flex-col gap-2 flex-1 min-h-0"></div>
                     </div>
@@ -920,7 +924,7 @@
                                 <span class="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0"></span>
                                 <span id="term-label-1" data-tip-title="" class="font-semibold text-[13px] text-slate-900 dark:text-slate-100 tracking-tight truncate select-text">File 2</span>
                             </div>
-                            <span id="term-count-1" class="flex-shrink-0 whitespace-nowrap inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-semibold leading-none bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400 tabular-nums select-none">0 mod.</span>
+                            <span id="term-count-1" data-tip-title="No modifications in this file" class="flex-shrink-0 whitespace-nowrap inline-flex items-center justify-center h-5 min-w-[20px] px-2 rounded-full text-[11px] font-semibold leading-none bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400 tabular-nums select-none cursor-default">0 mod.</span>
                         </div>
                         <div id="terminal-output-1" class="p-2.5 sm:p-3 overflow-y-auto custom-scrollbar flex flex-col gap-2 flex-1 min-h-0"></div>
                     </div>
@@ -2873,19 +2877,23 @@
                 const rect = el.getBoundingClientRect();
                 if (rect.width === 0 && rect.height === 0) return;
 
+                const track = el.closest('[data-hud-track]');
+                const trackRect = track ? track.getBoundingClientRect() : null;
+                const yRect = (trackRect && (trackRect.width > 0 || trackRect.height > 0)) ? trackRect : rect;
+
                 const w = h.offsetWidth || 80;
                 const hH = h.offsetHeight || 24;
 
                 let left = Math.round(rect.left + (rect.width / 2) - (w / 2));
-                let top = isTouch ? Math.round(rect.top - hH - 12) : Math.round(rect.bottom + 6);
+                let top = isTouch ? Math.round(yRect.top - hH - 12) : Math.round(yRect.bottom + 6);
 
                 // Boundary clipping rigoroso entro la viewport
                 if (left < 8) left = 8;
                 if (left + w > window.innerWidth - 8) left = window.innerWidth - w - 8;
                 if (!isTouch && (top + hH > window.innerHeight - 8)) {
-                    top = Math.round(rect.top - hH - 6);
+                    top = Math.round(yRect.top - hH - 6);
                 } else if (isTouch && top < 8) {
-                    top = Math.round(rect.bottom + 12);
+                    top = Math.round(yRect.bottom + 12);
                 }
 
                 // Posizionamento GPU hardware-accelerated a 60/120fps (compositor-only)
@@ -3308,7 +3316,8 @@
                     liveLogMap.delete(logKey);
                     liveLogMap.set(logKey, {
                         time: timeStr, ts: Date.now(), idx: `FILE ${idx+1}`, reg: `P${p.display_index}`,
-                        action: "MODIFIED", details: `${p.desc} -> ${inputEl.value} (Orig: ${p.origVal})`, fileIdx: idx
+                        action: "MODIFIED", desc: p.desc, origVal: p.origVal, newVal: inputEl.value,
+                        details: `${p.desc} (Old: ${p.origVal} \u2192 New: ${inputEl.value})`, fileIdx: idx
                     });
                 } else {
                     fd.modified.delete(k);
@@ -3479,6 +3488,9 @@
 
         function updateTerminal() {
             let countStr = liveLogMap.size;
+
+            const btnExportLog = document.getElementById('btn-export-log');
+            if (btnExportLog) btnExportLog.disabled = (countStr === 0);
             
             const badge = document.getElementById('term-counter-badge');
             if (badge) {
@@ -3519,18 +3531,25 @@
             });
 
             // Protezione assoluta non-wrapping con allineamento HIG
-            const badgeBaseClass = "flex-shrink-0 whitespace-nowrap inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-semibold leading-none tabular-nums select-none";
+            const badgeBaseClass = "flex-shrink-0 whitespace-nowrap inline-flex items-center justify-center h-5 min-w-[20px] px-2 rounded-full text-[11px] font-semibold leading-none tabular-nums select-none cursor-default";
+            const isIt = ClivetI18n.getCurrentLang() === 'it';
+            const formatCountTip = (n) => {
+                if (isIt) return n === 0 ? 'Nessuna modifica in questo file' : (n === 1 ? '1 modifica in questo file' : `${n} modifiche in questo file`);
+                return n === 0 ? 'No modifications in this file' : (n === 1 ? '1 modification in this file' : `${n} modifications in this file`);
+            };
 
             const countEl0 = document.getElementById('term-count-0');
             const countEl1 = document.getElementById('term-count-1');
             if (countEl0) {
                 countEl0.innerText = `${count0} mod.`;
+                countEl0.setAttribute('data-tip-title', formatCountTip(count0));
                 countEl0.className = count0 > 0 
                     ? `${badgeBaseClass} bg-blue-100 dark:bg-blue-900/50 text-[#007AFF] dark:text-[#0A84FF]`
                     : `${badgeBaseClass} bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400`;
             }
             if (countEl1) {
                 countEl1.innerText = `${count1} mod.`;
+                countEl1.setAttribute('data-tip-title', formatCountTip(count1));
                 countEl1.className = count1 > 0 
                     ? `${badgeBaseClass} bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400`
                     : `${badgeBaseClass} bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400`;
@@ -3578,18 +3597,30 @@
             sortedLogs.forEach(([key, log]) => {
                 const paramKey = key.replace(`${log.fileIdx}-`, '');
                 const undoTip = ClivetI18n.get('term_undo') || "Undo";
-                const safeDetails = typeof escapeHtml === 'function'
-                    ? escapeHtml(log.details)
-                    : String(log.details ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                const esc = typeof escapeHtml === 'function'
+                    ? escapeHtml
+                    : (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+                const hasStructuredDelta = log.desc !== undefined && log.origVal !== undefined && log.newVal !== undefined;
+                const safeDesc = esc(hasStructuredDelta ? log.desc : log.details);
+                const deltaHtml = hasStructuredDelta
+                    ? `<span class="inline-flex items-center gap-1 flex-shrink-0 font-mono text-[11px] tabular-nums leading-none whitespace-nowrap">
+                           <span class="text-slate-400 dark:text-slate-500 mr-0.5" aria-hidden="true">\u00b7</span>
+                           <span class="text-slate-500 dark:text-slate-400">${esc(log.origVal)}</span>
+                           <span class="text-slate-400 dark:text-slate-500" aria-hidden="true">\u2192</span>
+                           <span class="font-semibold text-[#007AFF] dark:text-[#0A84FF]">${esc(log.newVal)}</span>
+                       </span>`
+                    : '';
                 
                 let str = `
-                <div class="group relative flex items-center justify-between p-2 sm:p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 border border-slate-200/70 dark:border-white/10 transition-colors gap-2.5 font-sans">
-                    <div class="flex items-center gap-2 min-w-0 flex-1 pr-1">
-                        <span class="text-[11px] font-mono font-medium text-slate-400 dark:text-slate-500 tabular-nums flex-shrink-0 leading-none">${log.time}</span>
-                        <span class="px-1.5 py-0.5 rounded-[6px] text-[11px] font-bold font-mono tracking-tight bg-blue-50 text-[#007AFF] dark:bg-blue-950/60 dark:text-[#0A84FF] border border-blue-200/60 dark:border-blue-800/50 flex-shrink-0 leading-none">${log.reg}</span>
-                        <span class="text-[12px] font-medium text-slate-900 dark:text-slate-100 truncate tracking-tight leading-snug" data-tip-title="${safeDetails}">${safeDetails}</span>
+                <div class="group relative flex items-center justify-between p-2 sm:p-2.5 rounded-xl bg-slate-50/80 dark:bg-slate-800/50 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 border border-slate-200/70 dark:border-white/10 transition-colors gap-3 font-sans">
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
+                        <span class="text-[11px] font-mono font-medium text-slate-500 dark:text-slate-400 tabular-nums flex-shrink-0 leading-none">${log.time}</span>
+                        <span class="inline-flex items-center h-5 px-1.5 rounded-[6px] text-[11px] font-semibold font-mono tracking-tight bg-blue-500/10 text-[#007AFF] dark:bg-blue-500/20 dark:text-[#0A84FF] flex-shrink-0 leading-none">${log.reg}</span>
+                        <span class="text-[12px] font-medium text-slate-900 dark:text-slate-100 truncate tracking-tight leading-snug min-w-0" data-tip-title="${safeDesc}">${safeDesc}</span>
+                        ${deltaHtml}
                     </div>
-                    <button type="button" data-undo-log="1" data-file-idx="${log.fileIdx}" data-param-key="${escapeHtml(paramKey)}" aria-label="${undoTip}" data-apple-hud="term_undo" class="hit-44 flex items-center justify-center w-7 h-7 rounded-[7px] bg-white dark:bg-slate-700/80 border border-slate-200/80 dark:border-white/10 text-slate-400 hover:text-[#FF3B30] dark:hover:text-[#FF453A] hover:bg-red-50 dark:hover:bg-red-950/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90 flex-shrink-0 shadow-2xs">
+                    <button type="button" data-undo-log="1" data-file-idx="${log.fileIdx}" data-param-key="${esc(paramKey)}" aria-label="${undoTip}" data-apple-hud="term_undo" class="hit-44 flex items-center justify-center w-7 h-7 rounded-[7px] bg-white dark:bg-slate-700/80 border border-slate-200/80 dark:border-white/10 text-slate-400 hover:text-[#FF3B30] dark:hover:text-[#FF453A] hover:bg-red-50 dark:hover:bg-red-950/30 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 active:scale-90 flex-shrink-0 shadow-2xs">
                         <svg class="w-3.5 h-3.5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"></path></svg>
                     </button>
                 </div>`;
@@ -3602,14 +3633,66 @@
             if (term1) term1.innerHTML = html1 || emptyHtml;
         }
 
+        function buildModificationsLogText(fileIndices = [0, 1]) {
+            const appTitle = ClivetI18n.get('app_title') || 'Parameter List XML Editor';
+            const logTitle = ClivetI18n.get('term_title') || 'Session Modifications Log';
+            const snLabel = ClivetI18n.get('lbl_sn') || 'S/N or Item';
+
+            const now = new Date();
+            const stamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${now.toLocaleTimeString('en-GB', { hour12: false })}`;
+            const headerBar = '\u2501'.repeat(78);
+            const divider = '\u2500'.repeat(78);
+
+            const sections = [];
+            fileIndices.forEach(fIdx => {
+                const fd = filesData[fIdx];
+                const fileLogs = Array.from(liveLogMap.values())
+                    .filter(l => l.fileIdx === fIdx)
+                    .sort((a, b) => a.ts - b.ts);
+
+                if (!fd || fileLogs.length === 0) return;
+
+                const maxRegLen = Math.max(5, ...fileLogs.map(l => String(l.reg || '').length));
+                const maxDescLen = Math.min(36, Math.max(12, ...fileLogs.map(l => String(l.desc || '').length)));
+
+                const rows = fileLogs.map(l => {
+                    const regCol = String(l.reg || '').padEnd(maxRegLen);
+                    if (l.desc !== undefined && l.origVal !== undefined && l.newVal !== undefined) {
+                        const descStr = String(l.desc);
+                        const descCol = descStr.length > maxDescLen ? descStr : descStr.padEnd(maxDescLen);
+                        return `  ${l.time}   ${regCol}   ${descCol}   Old: ${l.origVal}  \u2192  New: ${l.newVal}`;
+                    }
+                    return `  ${l.time}   ${regCol}   ${l.details}`;
+                });
+
+                sections.push([
+                    fd.filename,
+                    `${snLabel}: ${fd.sn}  \u00b7  SW: ${fd.sw}`,
+                    divider,
+                    ...rows
+                ].join('\n'));
+            });
+
+            if (sections.length === 0) return '';
+
+            return [
+                headerBar,
+                `${appTitle} \u2014 ${logTitle}`,
+                stamp,
+                headerBar,
+                '',
+                sections.join('\n\n\n')
+            ].join('\n');
+        }
+
         function exportLog(e) {
             if (e) e.stopPropagation(); 
             if(liveLogMap.size === 0) return;
             
-            const sortedLogs = Array.from(liveLogMap.values()).sort((a, b) => b.ts - a.ts);
-            const logText = sortedLogs.map(l => `[${l.time}] ${l.idx} | ${l.reg} | ${l.action} | ${l.details}`).join('\n');
+            const logText = buildModificationsLogText([0, 1]);
+            if (!logText) return;
             
-            triggerBlobDownload(new Blob([logText], { type: 'text/plain' }), `Clivet_Editor_Log_${new Date().toISOString().replace(/[:.]/g,'-')}.txt`);
+            triggerBlobDownload(new Blob([logText], { type: 'text/plain;charset=utf-8' }), `Clivet_Editor_Log_${new Date().toISOString().replace(/[:.]/g,'-')}.txt`);
         }
 
         function checkExportState(idx) {
@@ -4136,11 +4219,10 @@
             triggerBlobDownload(new Blob([raw], { type: 'text/xml' }), newXmlName);
 
             if (withLog) {
-                const sortedLogs = Array.from(liveLogMap.values()).filter(l => l.fileIdx === idx).sort((a,b) => a.ts - b.ts);
-                if (sortedLogs.length > 0) {
-                    const logText = sortedLogs.map(l => `[${l.time}] ${l.reg} | ${l.action} | ${l.details}`).join('\n');
+                const logText = buildModificationsLogText([idx]);
+                if (logText) {
                     setTimeout(() => {
-                        triggerBlobDownload(new Blob([logText], { type: 'text/plain' }), newLogName);
+                        triggerBlobDownload(new Blob([logText], { type: 'text/plain;charset=utf-8' }), newLogName);
                     }, 150);
                 }
             }
