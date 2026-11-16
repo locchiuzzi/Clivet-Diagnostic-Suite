@@ -757,18 +757,18 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2 flex-shrink-0">
+                        <div class="flex items-center gap-4 flex-shrink-0">
                             <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
-                                <button type="button" id="btn-undo-0" data-i18n-title="btn_undo" title="Undo" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90">
-                                    <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                <button type="button" id="btn-undo-0" disabled aria-label="Undo" data-i18n-aria="btn_undo" data-apple-hud="btn_undo" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white hover:shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-[background-color,color,transform,box-shadow] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:hover:text-slate-600 dark:disabled:hover:text-slate-300 disabled:hover:shadow-none disabled:active:scale-100">
+                                    <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"></path></svg>
                                 </button>
                                 <div class="w-px h-3 bg-slate-300 dark:bg-slate-600 mx-0.5" aria-hidden="true"></div>
-                                    <button type="button" id="btn-restore-0" data-i18n-title="btn_restore" title="Restore All" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90">
+                                <button type="button" id="btn-restore-0" disabled aria-label="Restore All" data-i18n-aria="btn_restore" data-apple-hud="btn_restore" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white hover:shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-[background-color,color,transform,box-shadow] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:hover:text-slate-600 dark:disabled:hover:text-slate-300 disabled:hover:shadow-none disabled:active:scale-100">
                                     <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 </button>
                             </div>
                             
-                            <button type="button" id="btn-export-0" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
+                            <button type="button" id="btn-export-0" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] bg-[#007AFF] dark:bg-[#0A84FF] text-white hover:bg-[#0071E3] dark:hover:bg-[#0077ED] shadow-sm transition-[background-color,color,transform,opacity,box-shadow] duration-150 ease-[var(--spring-easing)] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#007AFF] dark:disabled:hover:bg-[#0A84FF] disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             </button>
                         </div>
@@ -824,18 +824,18 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-2 flex-shrink-0">
+                        <div class="flex items-center gap-4 flex-shrink-0">
                             <div class="flex items-center p-0.5 bg-slate-200/80 dark:bg-slate-700/60 ring-1 ring-slate-900/5 dark:ring-white/10 rounded-[8px] h-7">
-                                <button type="button" id="btn-undo-1" data-i18n-title="btn_undo" title="Undo" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90">
-                                    <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                                <button type="button" id="btn-undo-1" disabled aria-label="Undo" data-i18n-aria="btn_undo" data-apple-hud="btn_undo" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white hover:shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-[background-color,color,transform,box-shadow] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:hover:text-slate-600 dark:disabled:hover:text-slate-300 disabled:hover:shadow-none disabled:active:scale-100">
+                                    <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"></path></svg>
                                 </button>
                                 <div class="w-px h-3 bg-slate-300 dark:bg-slate-600 mx-0.5" aria-hidden="true"></div>
-                                    <button type="button" id="btn-restore-1" data-i18n-title="btn_restore" title="Restore All" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90">
+                                <button type="button" id="btn-restore-1" disabled aria-label="Restore All" data-i18n-aria="btn_restore" data-apple-hud="btn_restore" class="hit-44 relative h-[24px] w-[24px] rounded-[6px] text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-600 hover:text-slate-900 dark:hover:text-white hover:shadow-[0_1px_2px_rgba(0,0,0,0.08)] transition-[background-color,color,transform,box-shadow] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent dark:disabled:hover:bg-transparent disabled:hover:text-slate-600 dark:disabled:hover:text-slate-300 disabled:hover:shadow-none disabled:active:scale-100">
                                     <svg class="w-3.5 h-3.5 pointer-events-none stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                 </button>
                             </div>
                             
-                            <button type="button" id="btn-export-1" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
+                            <button type="button" id="btn-export-1" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] bg-[#007AFF] dark:bg-[#0A84FF] text-white hover:bg-[#0071E3] dark:hover:bg-[#0077ED] shadow-sm transition-[background-color,color,transform,opacity,box-shadow] duration-150 ease-[var(--spring-easing)] active:scale-90 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#007AFF] dark:disabled:hover:bg-[#0A84FF] disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             </button>
                         </div>
@@ -3614,9 +3614,15 @@
 
         function checkExportState(idx) {
             const btn = document.getElementById(`btn-export-${idx}`);
+            const btnUndo = document.getElementById(`btn-undo-${idx}`);
+            const btnRestore = document.getElementById(`btn-restore-${idx}`);
             const fd = filesData[idx];
             if (!btn || !fd) return;
             
+            const hasNoChanges = fd.modified.size === 0;
+            if (btnUndo) btnUndo.disabled = hasNoChanges;
+            if (btnRestore) btnRestore.disabled = hasNoChanges;
+
             let hasModifiedError = false;
             for (let modKey of fd.modified.keys()) {
                 if (fd.errors.has(modKey)) {
@@ -3625,15 +3631,7 @@
                 }
             }
             
-            if (fd.modified.size === 0 || hasModifiedError) {
-                btn.disabled = true;
-                btn.classList.add('opacity-50', 'cursor-not-allowed');
-                btn.classList.remove('hover:bg-blue-700', 'shadow-md');
-            } else {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                btn.classList.add('hover:bg-blue-700', 'shadow-md');
-            }
+            btn.disabled = hasNoChanges || hasModifiedError;
         }
 
         function restoreAll(idx) {
@@ -3661,6 +3659,7 @@
             updateErrorUI();
             runSearch(false); 
             updateTerminal();
+            checkExportState(idx);
         }
 
         function updateRowDiffStyles(k) {
