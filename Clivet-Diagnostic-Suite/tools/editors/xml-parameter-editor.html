@@ -10,7 +10,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class', theme: { extend: {} } };
-        if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) document.documentElement.classList.add('is-touch');
         let theme = 'system';
         try { theme = localStorage.getItem('clivet_theme') || 'system'; } catch (e) {}
         if (theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -57,27 +56,7 @@
         .hit-44 { position: relative; }
         .hit-44::after { content: ''; position: absolute; top: 50%; left: 50%; width: max(100%, 44px); height: max(100%, 44px); transform: translate(-50%, -50%); }
 
-        /* --- CARD ANIMATIONS & DROPZONES (Apple HIG Standard) --- */
-        .system-card { 
-            position: relative; z-index: 1; transform: translate3d(0, 0, 0) scale(1); will-change: transform, box-shadow; backface-visibility: hidden;
-            box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0), 0 8px 16px -6px rgba(0, 0, 0, 0);
-            transition: transform 0.4s var(--spring-easing), box-shadow 0.4s var(--spring-easing), border-color 0.3s ease, background-color 0.3s ease, z-index 0s linear 0.4s; 
-        }
-        .system-card:hover {
-            z-index: 50; transform: translate3d(0, -2px, 0) scale(1.02);
-            box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.12), 0 8px 16px -6px rgba(0, 0, 0, 0.06);
-            transition: transform 0.4s var(--spring-easing), box-shadow 0.4s var(--spring-easing), border-color 0.3s ease, background-color 0.3s ease, z-index 0s linear 0s;
-        }
-        .dark .system-card:hover { box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.5), 0 8px 16px -6px rgba(0, 0, 0, 0.3); }
-        
-        @media (hover: none) and (pointer: coarse) {
-            .system-card:hover { transform: none !important; box-shadow: none !important; z-index: auto !important; }
-        }
-        html.is-touch .system-card:hover { transform: none !important; box-shadow: none !important; z-index: auto !important; }
-
         /* Dropzone Specifics */
-        .dz-content-wrapper > * { pointer-events: none; }
-        .dz-content-wrapper button { pointer-events: auto; }
         .drag-over { transform: scale(1.02); border-color: #3b82f6 !important; background-color: #eff6ff !important; box-shadow: 0 20px 40px -8px rgba(59, 130, 246, 0.2) !important; z-index: 50; }
         .dark .drag-over { background-color: rgba(30, 58, 138, 0.4) !important; box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.5) !important; }
         input[type="file"] { display: none; }
@@ -86,8 +65,6 @@
         .view-layer { transition: opacity 0.25s ease; width: 100%; height: 100%; }
         .view-hidden { opacity: 0 !important; pointer-events: none !important; position: absolute !important; top: 0 !important; left: 0 !important; z-index: -1 !important; visibility: hidden !important; display: none !important; }
         .view-active { opacity: 1 !important; position: relative !important; z-index: 10 !important; visibility: visible !important; display: flex !important; flex-direction: column !important; flex: 1 1 0% !important; min-height: 0 !important; height: 100% !important; overflow: hidden !important; }
-        
-        tr.search-hidden, tr.diff-hidden { display: none !important; }
 
         /* Input Tabella (No Layout Shift) */
         .param-input { transition: all 0.2s ease; height: 1.75rem; padding-top: 0; padding-bottom: 0; border: 1px solid transparent; background-color: transparent; }
@@ -468,7 +445,7 @@
     <div id="global-tooltip" role="dialog" aria-modal="false" aria-labelledby="info-popover-title" tabindex="-1" class="hidden fixed z-[150] w-[300px] sm:w-[340px] max-h-[85vh] overflow-y-auto custom-scrollbar p-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl border border-slate-200/80 dark:border-white/10 rounded-2xl shadow-[0_20px_60px_-10px_rgba(0,0,0,0.25)] dark:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.8)] ring-1 ring-slate-900/5 dark:ring-white/10 pointer-events-auto opacity-0 focus:outline-none"></div>
 
     <!-- APPLE INSTANT HUD TOOLTIP (Zero-Latency Micro Popover - HIG Compliant) -->
-    <div id="apple-hud-popover" role="tooltip" aria-hidden="true" class="hud-hidden"></div>
+    <div id="apple-hud-popover" role="tooltip" aria-hidden="true"></div>
 
     <!-- GLOBAL DRAG OVERLAY -->
     <div id="global-drag-overlay" class="hidden fixed inset-0 z-[500] bg-blue-900/90 backdrop-blur-sm flex-col items-center justify-center border-4 border-blue-500 border-dashed m-4 rounded-3xl transition-all duration-300 pointer-events-none">
@@ -479,7 +456,7 @@
     </div>
 
     <!-- GLOBAL HEADER (1600px Alignment) -->
-    <header id="global-header" class="select-none no-print w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm z-40 flex-none h-16">
+    <header id="global-header" class="select-none w-full bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm z-40 flex-none h-16">
         <div class="max-w-[1600px] mx-auto w-full px-4 md:px-6 h-full flex items-center justify-between">
             <div class="flex items-center min-w-0">
                 <a href="../../index.html" title="Back to Tools" data-i18n-title="nav_backToTools" aria-label="Back to Tools" data-i18n-aria="nav_backToTools" class="hit-44 group -ml-2 mr-2 sm:mr-3 inline-flex items-center h-10 pl-1.5 pr-2.5 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors focus:outline-none flex-shrink-0">
@@ -790,7 +767,7 @@
                                 </button>
                             </div>
                             
-                            <button type="button" id="btn-export-0" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 hig-export-btn h-7 w-7 rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
+                            <button type="button" id="btn-export-0" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             </button>
                         </div>
@@ -813,7 +790,7 @@
                                                     aria-label="Address Info" 
                                                     aria-haspopup="dialog" 
                                                     data-info-key="infoAddr" 
-                                                    class="hit-44 info-icon relative inline-flex flex-shrink-0 items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:text-[#007AFF] dark:hover:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 transition-[color,background-color,transform] duration-150 ease-[var(--spring-easing)] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-800">
+                                                    class="hit-44 relative inline-flex flex-shrink-0 items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:text-[#007AFF] dark:hover:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 transition-[color,background-color,transform] duration-150 ease-[var(--spring-easing)] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-800">
                                                 <svg aria-hidden="true" class="w-3.5 h-3.5 pointer-events-none stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
@@ -857,7 +834,7 @@
                                 </button>
                             </div>
                             
-                            <button type="button" id="btn-export-1" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 hig-export-btn h-7 w-7 rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
+                            <button type="button" id="btn-export-1" disabled aria-label="Export XML" data-i18n-aria="btn_export" data-apple-hud="btn_export" class="hit-44 h-7 w-7 rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/50 flex items-center justify-center flex-shrink-0">
                                 <svg class="w-3.5 h-3.5 flex-shrink-0 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
                             </button>
                         </div>
@@ -880,7 +857,7 @@
                                                     aria-label="Address Info" 
                                                     aria-haspopup="dialog" 
                                                     data-info-key="infoAddr" 
-                                                    class="hit-44 info-icon relative inline-flex flex-shrink-0 items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:text-[#007AFF] dark:hover:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 transition-[color,background-color,transform] duration-150 ease-[var(--spring-easing)] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-800">
+                                                    class="hit-44 relative inline-flex flex-shrink-0 items-center justify-center w-4 h-4 rounded-full text-slate-400 hover:text-[#007AFF] dark:hover:text-[#0A84FF] hover:bg-black/5 dark:hover:bg-white/10 transition-[color,background-color,transform] duration-150 ease-[var(--spring-easing)] active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-1 dark:focus-visible:ring-offset-slate-800">
                                                 <svg aria-hidden="true" class="w-3.5 h-3.5 pointer-events-none stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                                 </svg>
@@ -899,8 +876,8 @@
             </div>
 
             <!-- SIDE PANEL (LOG DRAWER - Apple HIG Docked Inspector) -->
-            <div id="side-panel-overlay" aria-hidden="true" class="fixed top-16 inset-x-0 bottom-0 bg-slate-900/40 z-[100] overlay-closed no-print cursor-default"></div>
-            <div id="side-panel" role="dialog" aria-modal="false" aria-hidden="true" aria-label="Session Modifications Log" tabindex="-1" class="fixed top-16 bottom-0 right-0 w-full sm:w-[clamp(28rem,40vw,52rem)] h-[calc(100dvh-4rem)] bg-white/[0.97] dark:bg-slate-900/[0.97] backdrop-blur-md shadow-2xl z-[110] flex flex-col panel-closed border-l border-slate-200/80 dark:border-white/10 no-print overscroll-contain focus:outline-none">
+            <div id="side-panel-overlay" aria-hidden="true" class="fixed top-16 inset-x-0 bottom-0 bg-slate-900/40 z-[100] overlay-closed cursor-default"></div>
+            <div id="side-panel" role="dialog" aria-modal="false" aria-hidden="true" aria-label="Session Modifications Log" tabindex="-1" class="fixed top-16 bottom-0 right-0 w-full sm:w-[clamp(28rem,40vw,52rem)] h-[calc(100dvh-4rem)] bg-white/[0.97] dark:bg-slate-900/[0.97] backdrop-blur-md shadow-2xl z-[110] flex flex-col panel-closed border-l border-slate-200/80 dark:border-white/10 overscroll-contain focus:outline-none">
                 
                 <!-- Panel Header (HIG Compliant Header) -->
                 <div class="h-14 px-4 sm:px-5 border-b border-slate-200/80 dark:border-white/10 bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-md flex items-center justify-between flex-shrink-0">
@@ -1864,10 +1841,6 @@
                     closeSidePanel();
                 });
             }
-            const btnExpLog = document.getElementById('btn-export-log');
-            if (btnExpLog) btnExpLog.addEventListener('click', exportLog);
-            const btnCloseSide = document.getElementById('btn-close-side-panel');
-            if (btnCloseSide) btnCloseSide.addEventListener('click', toggleSidePanel);
 
             const expBg = document.getElementById('export-modal-bg');
             if (expBg) expBg.addEventListener('click', closeExportModal);
@@ -2383,12 +2356,6 @@
         }
 
         function updateDzUI(idx, fname) {
-            const idleContainer = document.getElementById(`dz-idle-${idx}`);
-            if (idleContainer) {
-                idleContainer.classList.remove('dz-content-enter');
-                void idleContainer.offsetWidth; // Trigger reflow for GPU animation
-                idleContainer.classList.add('dz-content-enter');
-            }
             
             const dzIcon = document.getElementById(`dz-icon-${idx}`);
             if(dzIcon) {
@@ -2422,13 +2389,6 @@
         if(event) { event.preventDefault(); event.stopPropagation(); }
         filesData[index] = null;
         document.getElementById(`file-${index}`).value = '';
-        
-        const idleContainer = document.getElementById(`dz-idle-${index}`);
-        if (idleContainer) {
-            idleContainer.classList.remove('dz-content-enter');
-            void idleContainer.offsetWidth; // Trigger reflow for GPU animation
-            idleContainer.classList.add('dz-content-enter');
-        }
         
         const icon = document.getElementById(`dz-icon-${index}`);
         if (icon) {
@@ -3156,21 +3116,16 @@
 
             const tBox0 = document.getElementById('term-box-0');
             const tBox1 = document.getElementById('term-box-1');
-            const viewEditor = document.getElementById('view-editor');
-            const diffBtn = document.getElementById('toggleDiffBtn');
-            const syncBtn = document.getElementById('toggleSyncBtn');
 
             const diffWrapper = document.getElementById('diff-btn-wrapper');
             const syncWrapper = document.getElementById('sync-btn-wrapper');
 
             if (filesData[0] && filesData[1]) {
-                if (viewEditor) viewEditor.classList.add('dual-view-active');
                 if (diffWrapper) diffWrapper.classList.add('is-expanded');
                 if (syncWrapper) syncWrapper.classList.add('is-expanded');
                 if (tBox0) tBox0.classList.remove('hidden');
                 if (tBox1) tBox1.classList.remove('hidden');
             } else {
-                if (viewEditor) viewEditor.classList.remove('dual-view-active');
                 if (diffWrapper) diffWrapper.classList.remove('is-expanded');
                 if (syncWrapper) syncWrapper.classList.remove('is-expanded');
                 
@@ -3273,7 +3228,7 @@
                     const safeAddr = escapeHtml(p.addr_write);
                     
                     html += `
-                    <tr id="row-${idx}-${safeKey}" class="hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors search-row diff-row">
+                    <tr id="row-${idx}-${safeKey}" class="hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors search-row">
                         <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-left tabular-nums"><span class="font-bold font-mono text-blue-600 dark:text-blue-400 whitespace-nowrap block">P${safeIdx}</span></td>
                         <td class="w-full max-w-0 overflow-hidden px-2 py-1 align-middle text-left"><span id="desc-${idx}-${safeKey}" class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate leading-5 block" title="${safeDesc}">${safeDesc}</span></td>
                         <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center relative">
@@ -3289,7 +3244,7 @@
                 } else {
                     const safeKey = escapeHtml(k);
                     html += `
-                    <tr id="row-${idx}-${safeKey}" class="bg-slate-50/50 dark:bg-slate-800/40 transition-colors search-row diff-row">
+                    <tr id="row-${idx}-${safeKey}" class="bg-slate-50/50 dark:bg-slate-800/40 transition-colors search-row">
                         <td colspan="6" class="p-1 align-middle max-w-0">
                             <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg w-full h-[26px] flex items-center justify-center text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs italic font-medium px-2 truncate">${ClivetI18n.get('err_missing')} (P${safeKey})</div>
                         </td>
@@ -3352,7 +3307,7 @@
                     liveLogMap.delete(logKey);
                     liveLogMap.set(logKey, {
                         time: timeStr, ts: Date.now(), idx: `FILE ${idx+1}`, reg: `P${p.display_index}`,
-                        action: "MODIFIED", details: `${p.desc} -> ${inputEl.value} (Orig: ${p.origVal})`, error: false, fileIdx: idx
+                        action: "MODIFIED", details: `${p.desc} -> ${inputEl.value} (Orig: ${p.origVal})`, fileIdx: idx
                     });
                 } else {
                     fd.modified.delete(k);
@@ -3867,7 +3822,7 @@
 
                 if (row0) {
                     if (visible0) {
-                        row0.classList.remove('search-hidden', 'diff-hidden');
+                        row0.classList.remove('search-hidden');
                         if (searchRegex) highlightTextNode(row0, searchRegex, currentMatches0);
                     } else {
                         row0.classList.add('search-hidden');
@@ -3875,7 +3830,7 @@
                 }
                 if (row1) {
                     if (visible1) {
-                        row1.classList.remove('search-hidden', 'diff-hidden');
+                        row1.classList.remove('search-hidden');
                         if (searchRegex) highlightTextNode(row1, searchRegex, currentMatches1);
                     } else {
                         row1.classList.add('search-hidden');
@@ -3907,7 +3862,7 @@
 
                 let emptyRow = document.getElementById(`empty-state-row-${idx}`);
                 const hasVisibleRows = Array.from(tbody.querySelectorAll('tr.search-row'))
-                    .some(tr => !tr.classList.contains('search-hidden') && !tr.classList.contains('diff-hidden'));
+                    .some(tr => !tr.classList.contains('search-hidden'));
 
                 if (!hasVisibleRows) {
                     if (!emptyRow) {
