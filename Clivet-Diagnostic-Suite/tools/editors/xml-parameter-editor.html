@@ -461,6 +461,72 @@
             100% { opacity: 1; transform: translateY(0); }
         }
 
+        /* Apple HIG Dropzone Precision Surface (Vector-Grade Strokes) */
+        .dz-organic-card {
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            -webkit-font-smoothing: subpixel-antialiased;
+            transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1),
+                        border-color 200ms var(--smooth-easing),
+                        box-shadow 300ms var(--spring-easing),
+                        background-color 200ms var(--smooth-easing);
+            will-change: transform, box-shadow;
+        }
+        .dz-organic-card:hover {
+            transform: translate3d(0, -3px, 0);
+        }
+        .dz-organic-card:active {
+            transform: translate3d(0, 1px, 0) scale3d(0.99, 0.99, 1);
+            transition-duration: 90ms;
+        }
+        /* Stato Empty: Bordo tratteggiato di precisione chirurgica Apple */
+        .dz-state-empty {
+            border: 1.5px dashed rgba(148, 163, 184, 0.65);
+        }
+        .dark .dz-state-empty {
+            border: 1.5px dashed rgba(100, 116, 139, 0.55);
+        }
+        .dz-state-empty:hover {
+            border-color: #007AFF;
+        }
+        .dark .dz-state-empty:hover {
+            border-color: #0A84FF;
+        }
+        /* Stato Loaded: Surface Document Card solido Apple HIG */
+        .dz-state-loaded {
+            border: 1.5px solid rgba(0, 122, 255, 0.45) !important;
+            background-color: rgba(255, 255, 255, 0.92) !important;
+            box-shadow: 0 10px 30px -6px rgba(0, 122, 255, 0.08), 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+        }
+        .dark .dz-state-loaded {
+            border: 1.5px solid rgba(10, 132, 255, 0.45) !important;
+            background-color: rgba(30, 41, 59, 0.75) !important;
+            box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.45) !important;
+        }
+        .dz-organic-card .dz-icon-spring {
+            transform: translate3d(0, 0, 0) scale3d(1, 1, 1);
+            backface-visibility: hidden;
+            transition: transform 340ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            will-change: transform;
+        }
+        .dz-organic-card:hover .dz-icon-spring {
+            transform: translate3d(0, -2px, 0) scale3d(1.08, 1.08, 1);
+        }
+        .dz-organic-card:active .dz-icon-spring {
+            transform: translate3d(0, 0, 0) scale3d(0.94, 0.94, 1);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .dz-organic-card,
+            .dz-organic-card:hover,
+            .dz-organic-card:active,
+            .dz-organic-card .dz-icon-spring,
+            .dz-organic-card:hover .dz-icon-spring,
+            .dz-organic-card:active .dz-icon-spring {
+                transform: none !important;
+                transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease !important;
+            }
+        }
+
         /* Apple HIG Scoped Drop Zones (Editor View - 100% GPU Compositor-Only) */
         .col-drop-overlay {
             position: absolute;
@@ -690,8 +756,8 @@
             <!-- Area Scrollabile Indipendente (Flex Column nativa) -->
             <div id="upload-scroll-container" class="flex-grow overflow-y-auto custom-scrollbar w-full flex flex-col items-center">
                 
-                <!-- Bounding Box HIG (max-w-4xl/5xl) con Optical Center bilanciato verso l'alto -->
-                <div id="upload-content-wrapper" class="w-full max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 my-auto pt-4 pb-14 sm:pt-6 sm:pb-20 flex flex-col flex-none transition-[padding] duration-300">
+                <!-- Bounding Box HIG Enterprise Hero Canvas (1024px) -->
+                <div id="upload-content-wrapper" class="w-full max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 md:px-8 my-auto pt-4 pb-28 sm:pt-6 sm:pb-32 flex flex-col flex-none">
                         
                     <!-- Titoli (Apple HIG Large Title & Content Hierarchy) -->
                     <div class="mb-6 sm:mb-8 text-center max-w-xl mx-auto flex-none font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Display','SF_Pro_Text',system-ui,sans-serif]">
@@ -706,12 +772,12 @@
                     <!-- Dropzones (HIG Compliant 100%) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 w-full flex-none font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Text',system-ui,sans-serif]">
 
-                        <!-- DROPZONE 1 -->
+                         <!-- DROPZONE 1 -->
                         <div id="dz-0" 
                             role="button" 
                             tabindex="0"
                             aria-label="Dropzone for XML File 1"
-                            class="group transform-gpu bg-white/70 dark:bg-slate-800/60 backdrop-blur-xl p-6 sm:p-8 rounded-[22px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.03)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_20px_40px_-8px_rgba(0,122,255,0.12),0_4px_12px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_20px_40px_-8px_rgba(0,0,0,0.6)] border-2 border-dashed border-slate-300/80 dark:border-slate-700/70 hover:border-[#007AFF] dark:hover:border-[#0A84FF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 flex flex-col items-center justify-center transition-all duration-300 ease-[var(--spring-easing)] w-full min-w-0 cursor-pointer relative min-h-[250px] sm:min-h-[270px] select-none will-change-transform hover:scale-[1.012] active:scale-[0.99]">
+                            class="group dz-organic-card dz-state-empty bg-white/75 dark:bg-slate-800/65 backdrop-blur-xl p-8 sm:p-10 rounded-[26px] shadow-[0_6px_24px_-4px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.02)] dark:shadow-[0_10px_35px_rgba(0,0,0,0.4)] hover:shadow-[0_24px_48px_-10px_rgba(0,122,255,0.18),0_4px_16px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_24px_48px_-10px_rgba(0,0,0,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 flex flex-col items-center justify-center w-full min-w-0 cursor-pointer relative h-[310px] sm:h-[330px] select-none">
                             
                             <!-- Apple HIG Dismiss Button (SF xmark standard) -->
                             <button id="btn-remove-0" 
@@ -721,22 +787,22 @@
                                 <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                             
-                            <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full transform-gpu group-hover:scale-[1.01] transition-transform duration-200 ease-[var(--spring-easing)] pointer-events-none">
-                                <div id="dz-icon-0" class="mb-3 sm:mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
-                                    <svg class="w-11 h-11 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                            <div id="dz-idle-0" class="flex flex-col items-center justify-center text-center w-full pointer-events-none subpixel-antialiased">
+                                 <div id="dz-icon-0" class="dz-icon-spring w-16 h-16 rounded-[20px] bg-[#007AFF]/10 dark:bg-[#0A84FF]/15 text-[#007AFF] dark:text-[#0A84FF] ring-1 ring-[#007AFF]/20 mb-4 flex items-center justify-center dz-spring-pop" aria-hidden="true">
+                                    <svg class="w-9 h-9 stroke-[1.65]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
                                 </div>
-                                <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1">
-                                    <span data-i18n="drop_1" class="text-base sm:text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 1 here</span>
+                                <div id="ui-drop1-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1.5">
+                                    <span data-i18n="drop_1" class="text-[17px] sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 1 here</span>
                                 </div>
-                                <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[220px] mb-4 sm:mb-5">
-                                    <p data-i18n="ui_supportedFormat" class="text-[11px] font-mono text-slate-400 dark:text-slate-500 mb-2.5">Supported format: .xml</p>
+                                <div id="ui-or-0" class="flex flex-col items-center w-full max-w-[240px] mb-5">
+                                    <p data-i18n="ui_supportedFormat" class="text-xs font-mono text-slate-400 dark:text-slate-500 mb-2.5">Supported format: .xml</p>
                                     <div class="flex items-center justify-center w-full">
                                         <div class="flex-grow h-px bg-slate-200/80 dark:bg-slate-700/60"></div>
-                                        <span data-i18n="drop_or" class="px-2.5 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Or</span>
+                                        <span data-i18n="drop_or" class="px-2.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Or</span>
                                         <div class="flex-grow h-px bg-slate-200/80 dark:bg-slate-700/60"></div>
                                     </div>
                                 </div>
-                                <div id="ui-btn-0" class="hit-44 h-10 sm:h-11 px-5 rounded-full bg-slate-100/90 dark:bg-slate-700/60 hover:bg-[#007AFF]/10 dark:hover:bg-[#0A84FF]/20 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[13px] tracking-tight ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-[#007AFF]/20 dark:hover:ring-[#0A84FF]/30 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-[0.96] shadow-xs">
+                                <div id="ui-btn-0" class="hit-44 h-11 px-6 rounded-full bg-slate-100/90 dark:bg-slate-700/60 hover:bg-[#007AFF]/10 dark:hover:bg-[#0A84FF]/20 text-[#007AFF] dark:text-[#0A84FF] font-bold text-[14px] tracking-tight ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-[#007AFF]/20 dark:hover:ring-[#0A84FF]/30 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-[0.96] shadow-xs">
                                     <span data-i18n="drop_browse">Browse File</span>
                                 </div>
                             </div>
@@ -748,7 +814,7 @@
                             role="button" 
                             tabindex="0"
                             aria-label="Dropzone for XML File 2"
-                            class="group transform-gpu bg-white/70 dark:bg-slate-800/60 backdrop-blur-xl p-6 sm:p-8 rounded-[22px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05),0_1px_2px_rgba(0,0,0,0.03)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)] hover:shadow-[0_20px_40px_-8px_rgba(0,122,255,0.12),0_4px_12px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_20px_40px_-8px_rgba(0,0,0,0.6)] border-2 border-dashed border-slate-300/80 dark:border-slate-700/70 hover:border-[#007AFF] dark:hover:border-[#0A84FF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 flex flex-col items-center justify-center transition-all duration-300 ease-[var(--spring-easing)] w-full min-w-0 cursor-pointer relative min-h-[250px] sm:min-h-[270px] select-none will-change-transform hover:scale-[1.012] active:scale-[0.99]">
+                            class="group dz-organic-card dz-state-empty bg-white/75 dark:bg-slate-800/65 backdrop-blur-xl p-8 sm:p-10 rounded-[26px] shadow-[0_6px_24px_-4px_rgba(0,0,0,0.04),0_1px_2px_rgba(0,0,0,0.02)] dark:shadow-[0_10px_35px_rgba(0,0,0,0.4)] hover:shadow-[0_24px_48px_-10px_rgba(0,122,255,0.18),0_4px_16px_rgba(0,0,0,0.04)] dark:hover:shadow-[0_24px_48px_-10px_rgba(0,0,0,0.7)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 flex flex-col items-center justify-center w-full min-w-0 cursor-pointer relative h-[310px] sm:h-[330px] select-none">
                             
                             <!-- Apple HIG Dismiss Button (SF xmark standard) -->
                             <button id="btn-remove-1" 
@@ -758,22 +824,22 @@
                                 <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
                             </button>
                             
-                            <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full transform-gpu group-hover:scale-[1.01] transition-transform duration-200 ease-[var(--spring-easing)] pointer-events-none">
-                                <div id="dz-icon-1" class="mb-3 sm:mb-4 text-[#007AFF] dark:text-[#0A84FF]" aria-hidden="true">
-                                    <svg class="w-11 h-11 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
+                            <div id="dz-idle-1" class="flex flex-col items-center justify-center text-center w-full pointer-events-none subpixel-antialiased">
+                               <div id="dz-icon-1" class="dz-icon-spring w-16 h-16 rounded-[20px] bg-[#007AFF]/10 dark:bg-[#0A84FF]/15 text-[#007AFF] dark:text-[#0A84FF] ring-1 ring-[#007AFF]/20 mb-4 flex items-center justify-center dz-spring-pop" aria-hidden="true">
+                                    <svg class="w-9 h-9 stroke-[1.65]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>
                                 </div>
-                                <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1">
-                                    <span data-i18n="drop_2" class="text-base sm:text-[17px] font-semibold tracking-tight text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 2 here</span>
+                                <div id="ui-drop2-container" class="flex flex-col items-center justify-center min-h-[44px] mb-1.5">
+                                    <span data-i18n="drop_2" class="text-[17px] sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white transition-colors duration-200">Drop XML File 2 here</span>
                                 </div>
-                                <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[220px] mb-4 sm:mb-5">
-                                    <p data-i18n="ui_supportedFormat" class="text-[11px] font-mono text-slate-400 dark:text-slate-500 mb-2.5">Supported format: .xml</p>
+                                <div id="ui-or-1" class="flex flex-col items-center w-full max-w-[240px] mb-5">
+                                    <p data-i18n="ui_supportedFormat" class="text-xs font-mono text-slate-400 dark:text-slate-500 mb-2.5">Supported format: .xml</p>
                                     <div class="flex items-center justify-center w-full">
                                         <div class="flex-grow h-px bg-slate-200/80 dark:bg-slate-700/60"></div>
-                                        <span data-i18n="drop_or" class="px-2.5 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Or</span>
+                                        <span data-i18n="drop_or" class="px-2.5 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Or</span>
                                         <div class="flex-grow h-px bg-slate-200/80 dark:bg-slate-700/60"></div>
                                     </div>
                                 </div>
-                                <div id="ui-btn-1" class="hit-44 h-10 sm:h-11 px-5 rounded-full bg-slate-100/90 dark:bg-slate-700/60 hover:bg-[#007AFF]/10 dark:hover:bg-[#0A84FF]/20 text-[#007AFF] dark:text-[#0A84FF] font-semibold text-[13px] tracking-tight ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-[#007AFF]/20 dark:hover:ring-[#0A84FF]/30 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-[0.96] shadow-xs">
+                                <div id="ui-btn-1" class="hit-44 h-11 px-6 rounded-full bg-slate-100/90 dark:bg-slate-700/60 hover:bg-[#007AFF]/10 dark:hover:bg-[#0A84FF]/20 text-[#007AFF] dark:text-[#0A84FF] font-bold text-[14px] tracking-tight ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:ring-[#007AFF]/20 dark:hover:ring-[#0A84FF]/30 transition-all duration-200 flex items-center justify-center pointer-events-auto active:scale-[0.96] shadow-xs">
                                     <span data-i18n="drop_browse">Browse File</span>
                                 </div>
                             </div>
@@ -2938,9 +3004,15 @@
                 const col = document.getElementById(`col-${idx}`);
                 const overlay = document.getElementById(`col-drop-${idx}`);
                 if (overlay) overlay.classList.remove('is-visible', 'is-target');
-                if (col && col.dataset.dragGhost === '1') {
+                if (col) {
+                    const wasGhost = col.dataset.dragGhost === '1';
                     delete col.dataset.dragGhost;
-                    if (!filesData[idx]) hideColumn(idx);
+                    if (wasGhost && !filesData[idx]) {
+                        hideColumn(idx);
+                    } else if (filesData[idx]) {
+                        col.classList.remove('hidden');
+                        col.classList.add('flex');
+                    }
                 }
             });
         }
@@ -3061,19 +3133,23 @@
         }
 
         function updateDzUI(idx, fname) {
-            
+            const dz = document.getElementById(`dz-${idx}`);
+            if (dz) {
+                dz.classList.remove('dz-state-empty');
+                dz.classList.add('dz-state-loaded');
+            }
+
             const dzIcon = document.getElementById(`dz-icon-${idx}`);
             if(dzIcon) {
-                // Apple System Green con Spring Pop
-                dzIcon.className = "p-3 rounded-full bg-[#34C759]/10 dark:bg-[#30D158]/15 text-[#34C759] dark:text-[#30D158] ring-1 ring-[#34C759]/25 dark:ring-[#30D158]/25 mb-4 dz-spring-pop";
-                dzIcon.innerHTML = `<svg class="w-10 h-10 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                dzIcon.className = "dz-icon-spring w-16 h-16 rounded-[20px] bg-[#34C759]/10 dark:bg-[#30D158]/15 text-[#34C759] dark:text-[#30D158] ring-1 ring-[#34C759]/25 dark:ring-[#30D158]/25 mb-4 flex items-center justify-center dz-spring-pop";
+                dzIcon.innerHTML = `<svg class="w-9 h-9 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
             }
             const container = document.getElementById(`ui-drop${idx+1}-container`);
             const loadedTxt = ClivetI18n.get('drop_loaded') || "Loaded:";
             if(container) {
                 const safeFname = escapeHtml(fname);
-                container.className = "flex flex-col items-center justify-center min-h-[48px] mb-1 dz-spring-slide";
-                container.innerHTML = `<span class="text-[0.8125rem] font-medium text-[#3C3C43]/60 dark:text-[#EBEBF5]/60 mb-1">${loadedTxt}</span><span class="text-[#007AFF] dark:text-[#0A84FF] font-[ui-monospace,SFMono-Regular,monospace] text-[0.9375rem] sm:text-[1rem] font-semibold break-all px-4" title="${safeFname}">${safeFname}</span>`;
+                container.className = "flex flex-col items-center justify-center min-h-[60px] max-w-full px-6 dz-spring-slide text-center";
+                container.innerHTML = `<span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5 select-none">${loadedTxt}</span><span class="text-[#007AFF] dark:text-[#0A84FF] font-mono text-base font-bold break-all leading-snug line-clamp-2" title="${safeFname}">${safeFname}</span>`;
             }
             
             const orEl = document.getElementById(`ui-or-${idx}`);
@@ -3095,18 +3171,23 @@
         filesData[index] = null;
         document.getElementById(`file-${index}`).value = '';
         
+        const dz = document.getElementById(`dz-${index}`);
+        if (dz) {
+            dz.classList.remove('dz-state-loaded');
+            dz.classList.add('dz-state-empty');
+        }
+
         const icon = document.getElementById(`dz-icon-${index}`);
         if (icon) {
-            // Ripristino icona coerente con lo standard HIG Apple
-            icon.className = "mb-3 sm:mb-4 text-blue-600 dark:text-blue-400 dz-spring-pop";
-            icon.innerHTML = `<svg class="w-11 h-11 stroke-[1.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>`;
+            icon.className = "dz-icon-spring w-16 h-16 rounded-[20px] bg-[#007AFF]/10 dark:bg-[#0A84FF]/15 text-[#007AFF] dark:text-[#0A84FF] ring-1 ring-[#007AFF]/20 mb-4 flex items-center justify-center dz-spring-pop";
+            icon.innerHTML = `<svg class="w-9 h-9 stroke-[1.65]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"></path></svg>`;
         }
         
         const container = document.getElementById(`ui-drop${index+1}-container`);
         if(container) {
             const dropText = ClivetI18n.get(`drop_${index+1}`);
-            container.className = "flex flex-col items-center justify-center min-h-[44px] mb-1 dz-spring-slide";
-            container.innerHTML = `<span data-i18n="drop_${index+1}" class="text-base sm:text-lg font-bold text-slate-900 dark:text-white transition-colors duration-200">${dropText}</span>`;
+            container.className = "flex flex-col items-center justify-center min-h-[44px] mb-1.5 dz-spring-slide text-center";
+            container.innerHTML = `<span data-i18n="drop_${index+1}" class="text-[17px] sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white transition-colors duration-200">${dropText}</span>`;
         }
         
         const orEl = document.getElementById(`ui-or-${index}`);
@@ -3586,7 +3667,12 @@
             const listEl = document.getElementById('batch-file-list');
             if (listEl) listEl.scrollTop = 0;
             batchPickerState = null;
-            setModalOpen('batch-modal', false);
+            setModalOpen('batch-modal', false, () => {
+                if (isEditorViewActive()) {
+                    if (filesData[0]) renderColumn(0);
+                    if (filesData[1]) renderColumn(1);
+                }
+            });
         }
 
         function confirmBatchSelection() {
@@ -3608,20 +3694,19 @@
                 showToastSuccess('msg_xml_loaded', "XML file loaded successfully.");
             };
 
-            if (isEditorViewActive()) {
-                setModalOpen('batch-modal', false, () => {
-                    applyChosen();
+            setModalOpen('batch-modal', false, () => {
+                applyChosen();
+                if (isEditorViewActive()) {
                     if (filesData[0] && filesData[1]) {
                         window._pendingEditorDropIdx = chosenData.length === 2 ? 1 : targetIdx;
                         checkAffinityAndProceed();
                     } else {
                         buildTables();
                     }
-                });
-            } else {
-                applyChosen();
-                setModalOpen('batch-modal', false);
-            }
+                } else {
+                    validateAndProceed();
+                }
+            });
         }
 
         async function handleFilesBatch(targetIdx, fileList) {
@@ -3677,7 +3762,6 @@
             const btn = document.getElementById('btn-proceed');
             const span = document.getElementById('ui-proceed');
             const container = document.getElementById('proceed-container');
-            const contentWrapper = document.getElementById('upload-content-wrapper');
             
             if (filesData[0] || filesData[1]) {
                 btn.disabled = false;
@@ -3686,10 +3770,6 @@
                 if (container) {
                     container.classList.remove('opacity-0');
                     container.classList.add('opacity-100');
-                }
-                // Iniezione diretta nativa: garantisce al 100% l'area di scroll sotto il pulsante
-                if (contentWrapper) {
-                    contentWrapper.style.paddingBottom = '7rem';
                 }
                 if (filesData[0] && filesData[1]) {
                     span.innerText = ClivetI18n.get('btn_proceed2');
@@ -3703,9 +3783,6 @@
                 if (container) {
                     container.classList.remove('opacity-100');
                     container.classList.add('opacity-0');
-                }
-                if (contentWrapper) {
-                    contentWrapper.style.paddingBottom = '';
                 }
             }
         }
@@ -4039,6 +4116,8 @@
                 return btn.getAttribute('data-tip-title') || btn.dataset.originalTitle || btn.getAttribute('title') || btn.getAttribute('aria-label') || '';
             }
 
+            let lastPointerX = null;
+
             function positionAndRender(el, text, isContinuous, isTouch = false) {
                 const h = getHud();
                 const rect = el.getBoundingClientRect();
@@ -4062,7 +4141,14 @@
                     const w = h.offsetWidth || 80;
                     const hH = h.offsetHeight || 24;
 
-                    let left = Math.round(rect.left + (rect.width / 2) - (w / 2));
+                    // Apple HIG: Se l'elemento è una riga estesa (> 120px) e abbiamo il puntatore mouse, àncora a X del cursore
+                    let left;
+                    if (!isTouch && rect.width > 120 && typeof lastPointerX === 'number' && lastPointerX >= rect.left && lastPointerX <= rect.right) {
+                        left = Math.round(lastPointerX - (w / 2));
+                    } else {
+                        left = Math.round(rect.left + (rect.width / 2) - (w / 2));
+                    }
+
                     let top = (isTouch || isErr) ? Math.round(yRect.top - hH - (isTouch ? 12 : 6)) : Math.round(yRect.bottom + 6);
 
                     // Boundary clipping rigoroso entro la viewport
@@ -4146,8 +4232,17 @@
             }
 
             function init() {
-                // Event Delegation globale in capture phase
+                // Event Delegation globale in capture phase con tracciamento puntatore per elementi estesi
+                document.addEventListener('mousemove', (e) => {
+                    lastPointerX = e.clientX;
+                    if (isVisible && activeTarget && activeTarget.getBoundingClientRect().width > 120) {
+                        const text = resolveText(activeTarget);
+                        if (text) positionAndRender(activeTarget, text, true, false);
+                    }
+                }, { passive: true, capture: true });
+
                 document.addEventListener('mouseover', (e) => {
+                    lastPointerX = e.clientX;
                     const btn = e.target.closest(targetSelector);
                     if (btn) {
                         if (btn === activeTarget && isVisible) return;
