@@ -71,7 +71,7 @@
         .view-active { opacity: 1 !important; position: relative !important; z-index: 10 !important; visibility: visible !important; display: flex !important; flex-direction: column !important; flex: 1 1 0% !important; min-height: 0 !important; height: 100% !important; overflow: hidden !important; }
 
         /* Input Tabella (No Layout Shift) */
-        .param-input { transition: all 0.2s ease; height: 1.75rem; padding-top: 0; padding-bottom: 0; border: 1px solid transparent; background-color: transparent; }
+        .param-input { transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; height: 1.75rem; padding-top: 0; padding-bottom: 0; border: 1px solid transparent; background-color: transparent; }
         .param-input:hover:not(:focus):not(.is-invalid):not(.is-modified) { background-color: rgba(148, 163, 184, 0.14); border-color: rgba(148, 163, 184, 0.28); }
         .dark .param-input:hover:not(:focus):not(.is-invalid):not(.is-modified) { background-color: rgba(148, 163, 184, 0.12); border-color: rgba(255, 255, 255, 0.12); }
         .param-input:focus { outline: none; box-shadow: 0 0 0 2px #3b82f6 !important; background-color: #ffffff !important; }
@@ -539,6 +539,23 @@
                 transition: opacity 150ms ease, visibility 0s linear 0s !important;
             }
         }
+
+        /* Apple HIG Gentle Error Nudge (composited, zero conflict with FLIP transform) */
+        @keyframes appleErrorNudge {
+            0%, 100% { translate: 0 0; }
+            20% { translate: -5px 0; }
+            40% { translate: 4px 0; }
+            60% { translate: -3px 0; }
+            80% { translate: 2px 0; }
+        }
+        .toast-error-nudge {
+            animation: appleErrorNudge 340ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .toast-error-nudge {
+                animation: none !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-200 transition-colors duration-200 flex flex-col relative h-screen">
@@ -582,20 +599,23 @@
         </div>
     </header>
 
-    <!-- TOAST NOTIFICATION PER ERRORE FILE -->
-    <div id="error-toast" role="alert" aria-live="assertive" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-[200] bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-6 py-4 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none flex items-center space-x-3 border border-slate-200 dark:border-slate-700 max-w-[calc(100vw-2rem)]">
-        <div class="bg-amber-50 dark:bg-amber-400/10 ring-1 ring-amber-500/20 p-2 rounded-xl flex-shrink-0">
-            <svg aria-hidden="true" class="w-6 h-6 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+    <!-- TOAST STACK CONTAINER (Apple HIG Non-Overlapping Banner Stack) -->
+    <div id="toast-stack" class="fixed top-20 left-1/2 -translate-x-1/2 z-[200] flex flex-col items-center gap-2.5 pointer-events-none w-full max-w-[calc(100vw-2rem)] sm:max-w-md px-2">
+        <!-- TOAST NOTIFICATION PER ERRORE FILE -->
+        <div id="error-toast" role="alert" aria-live="assertive" class="hidden w-fit max-w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl text-slate-800 dark:text-white px-5 py-3.5 rounded-2xl shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.65)] ring-1 ring-amber-500/25 dark:ring-amber-400/25 border border-slate-200/80 dark:border-white/10 items-center space-x-3 opacity-0 -translate-y-2 scale-95 transition-[opacity,transform] duration-300 ease-[var(--spring-easing)] will-change-[transform,opacity] pointer-events-none">
+            <div class="bg-amber-50 dark:bg-amber-400/10 ring-1 ring-amber-500/20 p-2 rounded-xl flex-shrink-0">
+                <svg aria-hidden="true" class="w-5 h-5 text-amber-500 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <span id="error-toast-text" data-i18n="toast_err_default" class="font-semibold text-sm leading-snug tracking-tight">File non valido</span>
         </div>
-        <span id="error-toast-text" data-i18n="toast_err_default" class="font-bold text-sm sm:text-base">File non valido</span>
-    </div>
 
-    <!-- TOAST NOTIFICATION PER SUCCESSO -->
-    <div id="success-toast" role="status" aria-live="polite" class="fixed top-20 left-1/2 transform -translate-x-1/2 z-[200] bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-6 py-4 rounded-xl shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none flex items-center space-x-3 border-l-4 border-green-500 border-y border-r border-slate-200 dark:border-slate-700">
-        <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-full flex-shrink-0">
-            <svg aria-hidden="true" class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path></svg>
+        <!-- TOAST NOTIFICATION PER SUCCESSO -->
+        <div id="success-toast" role="status" aria-live="polite" class="hidden w-fit max-w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl text-slate-800 dark:text-white px-5 py-3.5 rounded-2xl shadow-[0_16px_40px_-8px_rgba(0,0,0,0.2)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.65)] ring-1 ring-[#34C759]/25 dark:ring-[#30D158]/25 border border-slate-200/80 dark:border-white/10 items-center space-x-3 opacity-0 -translate-y-2 scale-95 transition-[opacity,transform] duration-300 ease-[var(--spring-easing)] will-change-[transform,opacity] pointer-events-none">
+            <div class="bg-[#34C759]/10 dark:bg-[#30D158]/15 ring-1 ring-[#34C759]/25 p-2 rounded-xl flex-shrink-0">
+                <svg aria-hidden="true" class="w-5 h-5 text-[#34C759] dark:text-[#30D158]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path></svg>
+            </div>
+            <span id="success-toast-text" data-i18n="toast_succ_default" class="font-semibold text-sm leading-snug tracking-tight">Data loaded successfully</span>
         </div>
-        <span id="success-toast-text" data-i18n="toast_succ_default" class="font-bold text-sm sm:text-base">Data loaded successfully</span>
     </div>
 
     <!-- MAIN WRAPPER -->
@@ -2255,15 +2275,14 @@
                 const tbody = document.getElementById(`tbody-${idx}`);
                 if (tbody) {
                     tbody.addEventListener('input', (e) => {
-                        if (e.target && e.target.classList.contains('param-input')) {
-                            const k = e.target.getAttribute('data-param-key');
-                            validateInput(idx, k);
-                        }
-                    });
-                    tbody.addEventListener('focusout', (e) => {
-                        if (e.target && e.target.classList.contains('param-input')) {
-                            const k = e.target.getAttribute('data-param-key');
-                            validateInput(idx, k);
+                        const target = e.target;
+                        if (target && target.classList.contains('param-input')) {
+                            const k = target.getAttribute('data-param-key');
+                            if (target._rafValidate) cancelAnimationFrame(target._rafValidate);
+                            target._rafValidate = requestAnimationFrame(() => {
+                                target._rafValidate = 0;
+                                validateInput(idx, k);
+                            });
                         }
                     });
                     tbody.addEventListener('click', (e) => {
@@ -2289,30 +2308,36 @@
             const s0 = document.getElementById('scroll-0');
             const s1 = document.getElementById('scroll-1');
             if (s0 && s1) {
-            let activeScrollSource = null;
-            let scrollLockTimer = 0;
-            let rafSync = 0;
-            const handleSyncScroll = (source, target, sourceId) => {
-                if (!isSyncScrollActive) return;
-                if (activeScrollSource && activeScrollSource !== sourceId) return;
+                let ignoredTarget = null;
+                let rafSync = 0;
+                let clearIgnoreRaf = 0;
 
-                activeScrollSource = sourceId;
-                clearTimeout(scrollLockTimer);
-                scrollLockTimer = setTimeout(() => { activeScrollSource = null; }, 60);
-
-                if (rafSync) cancelAnimationFrame(rafSync);
-                rafSync = requestAnimationFrame(() => {
-                    const top = source.scrollTop;
-                    if (Math.abs(target.scrollTop - top) >= 1) {
-                        target.scrollTop = top;
+                const handleSyncScroll = (source, target) => {
+                    if (!isSyncScrollActive) return;
+                    if (source === ignoredTarget) {
+                        ignoredTarget = null;
+                        return;
                     }
-                    rafSync = 0;
-                });
-            };
 
-            s0.addEventListener('scroll', () => handleSyncScroll(s0, s1, 's0'), { passive: true });
-            s1.addEventListener('scroll', () => handleSyncScroll(s1, s0, 's1'), { passive: true });
-        }
+                    if (rafSync) cancelAnimationFrame(rafSync);
+                    rafSync = requestAnimationFrame(() => {
+                        rafSync = 0;
+                        const top = source.scrollTop;
+                        if (Math.abs(target.scrollTop - top) >= 1) {
+                            ignoredTarget = target;
+                            target.scrollTop = top;
+                            if (clearIgnoreRaf) cancelAnimationFrame(clearIgnoreRaf);
+                            clearIgnoreRaf = requestAnimationFrame(() => {
+                                clearIgnoreRaf = 0;
+                                if (ignoredTarget === target) ignoredTarget = null;
+                            });
+                        }
+                    });
+                };
+
+                s0.addEventListener('scroll', () => handleSyncScroll(s0, s1), { passive: true });
+                s1.addEventListener('scroll', () => handleSyncScroll(s1, s0), { passive: true });
+            }
 
             // Inizializzazione Apple Instant HUD Tooltip
             AppleHUD.init();
@@ -2574,69 +2599,110 @@
             if (tooltip && !tooltip.classList.contains('hidden') && !tooltip.contains(e.target) && !e.target.closest('[data-info-key]')) {
                 closeInfoPopover();
             }
+            const dropdown = document.getElementById('searchSettingsDropdown');
+            const gearBtn = document.getElementById('searchSettingsBtn');
+            if (dropdown && !dropdown.classList.contains('hidden') && !dropdown.contains(e.target) && (!gearBtn || !gearBtn.contains(e.target))) {
+                toggleSearchSettings();
+            }
         });
 
         window.addEventListener('resize', () => {
             closeInfoPopover();
         }, { passive: true });
 
-        ['scroll-0', 'scroll-1'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('scroll', () => {
-                    closeInfoPopover();
-                }, { passive: true });
-            }
-        });
-
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                const sDropdown = document.getElementById('searchSettingsDropdown');
-                if (sDropdown && !sDropdown.classList.contains('hidden')) {
-                    toggleSearchSettings();
-                    const gearBtn = document.getElementById('searchSettingsBtn');
-                    if (gearBtn) gearBtn.focus({ preventScroll: true });
-                }
-                closeInfoPopover(true);
-                closeMenuModal();
-                closeExportModal();
-                const panel = document.getElementById('side-panel');
-                if (panel && panel.classList.contains('panel-open')) {
-                    closeSidePanel();
-                }
+            if (e.key !== 'Escape') return;
+
+            const sDropdown = document.getElementById('searchSettingsDropdown');
+            if (sDropdown && !sDropdown.classList.contains('hidden')) {
+                toggleSearchSettings();
+                const gearBtn = document.getElementById('searchSettingsBtn');
+                if (gearBtn) gearBtn.focus({ preventScroll: true });
+                return;
+            }
+            if (closeInfoPopover(true)) return;
+
+            const expModal = document.getElementById('export-modal');
+            if (expModal && !expModal.classList.contains('hidden')) { closeExportModal(); return; }
+
+            const identModal = document.getElementById('identical-modal');
+            if (identModal && !identModal.classList.contains('hidden')) { closeIdentical(false); return; }
+
+            const affModal = document.getElementById('affinity-modal');
+            if (affModal && !affModal.classList.contains('hidden')) { closeAffinity(false); return; }
+
+            const menuModal = document.getElementById('menu-modal');
+            if (menuModal && !menuModal.classList.contains('hidden')) { closeMenuModal(); return; }
+
+            const panel = document.getElementById('side-panel');
+            if (panel && panel.classList.contains('panel-open')) {
+                closeSidePanel();
             }
         });
 
-        function promptExport(idx) {
-            currentExportIdx = idx;
-            const m = document.getElementById('export-modal');
-            const bg = document.getElementById('export-modal-bg');
-            const c = document.getElementById('export-modal-content');
+        function setModalOpen(modalId, isOpen, onClosed) {
+            const m = document.getElementById(modalId);
+            const bg = document.getElementById(`${modalId}-bg`);
+            const c = document.getElementById(`${modalId}-content`);
             if (!m) return;
-            m.classList.remove('hidden');
-            m.style.display = 'flex';
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    if (bg) bg.classList.remove('opacity-0');
-                    if (c) {
-                        c.classList.remove('translate-y-10', 'scale-95', 'opacity-0');
-                        c.classList.add('translate-y-0', 'scale-100', 'opacity-100');
-                    }
-                });
-            });
-        }
 
-        function closeExportModal() {
-            const m = document.getElementById('export-modal');
-            const bg = document.getElementById('export-modal-bg');
-            const c = document.getElementById('export-modal-content');
-            if (!m || m.classList.contains('hidden')) return;
+            clearTimeout(m._closeTimer);
+            if (m._onTransitionEnd && c) {
+                c.removeEventListener('transitionend', m._onTransitionEnd);
+                m._onTransitionEnd = null;
+            }
+
+            if (isOpen) {
+                m.classList.remove('hidden');
+                m.style.display = 'flex';
+                if (c) c.style.willChange = 'transform, opacity';
+                if (bg) bg.style.willChange = 'opacity';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        if (bg) bg.classList.remove('opacity-0');
+                        if (c) {
+                            c.classList.remove('translate-y-10', 'scale-95', 'opacity-0');
+                            c.classList.add('translate-y-0', 'scale-100', 'opacity-100');
+                        }
+                    });
+                });
+                return;
+            }
+
+            if (m.classList.contains('hidden')) return;
             if (bg) bg.classList.add('opacity-0');
             if (c) {
                 c.classList.remove('translate-y-0', 'scale-100', 'opacity-100');
                 c.classList.add('translate-y-10', 'scale-95', 'opacity-0');
             }
-            setTimeout(() => { m.classList.add('hidden'); m.style.display = 'none'; }, 300);
+
+            const finalizeClose = (e) => {
+                if (e && c && (e.target !== c || (e.propertyName !== 'transform' && e.propertyName !== 'opacity'))) return;
+                if (c && m._onTransitionEnd) c.removeEventListener('transitionend', m._onTransitionEnd);
+                m._onTransitionEnd = null;
+                clearTimeout(m._closeTimer);
+                if (m.classList.contains('hidden') || (c && c.classList.contains('opacity-100'))) return;
+                m.classList.add('hidden');
+                m.style.display = 'none';
+                if (c) c.style.willChange = 'auto';
+                if (bg) bg.style.willChange = 'auto';
+                if (typeof onClosed === 'function') onClosed();
+            };
+
+            if (c) {
+                m._onTransitionEnd = finalizeClose;
+                c.addEventListener('transitionend', finalizeClose);
+            }
+            m._closeTimer = setTimeout(() => finalizeClose(null), 340);
+        }
+
+        function promptExport(idx) {
+            currentExportIdx = idx;
+            setModalOpen('export-modal', true);
+        }
+
+        function closeExportModal() {
+            setModalOpen('export-modal', false);
         }
 
         // --- DRAG & DROP ENGINE ---
@@ -2848,34 +2914,112 @@
             updateProceedButton();
         }
 
-        function showToastError(messageKey, fallbackMsg) {
-            const toast = document.getElementById('error-toast');
-            const toastText = document.getElementById('error-toast-text');
-            if (toast && toastText) {
-                toastText.innerText = ClivetI18n.get(messageKey) || fallbackMsg;
-                toast.classList.remove('opacity-0', 'pointer-events-none');
-                toast.classList.add('opacity-100');
-                clearTimeout(toast._hideTimer);
-                toast._hideTimer = setTimeout(() => {
-                    toast.classList.remove('opacity-100');
-                    toast.classList.add('opacity-0', 'pointer-events-none');
-                }, 5000);
+        function runToastStackFlip(stack, excludeEl, mutateDom) {
+            if (!stack || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                mutateDom();
+                return;
+            }
+
+            if (stack._flipRaf) {
+                cancelAnimationFrame(stack._flipRaf);
+                stack._flipRaf = 0;
+            }
+
+            const prevTops = new Map();
+            const children = stack.children;
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
+                if (child !== excludeEl && !child.classList.contains('hidden')) {
+                    prevTops.set(child, child.getBoundingClientRect().top);
+                }
+            }
+
+            mutateDom();
+
+            const moved = [];
+            prevTops.forEach((oldTop, child) => {
+                const dy = oldTop - child.getBoundingClientRect().top;
+                if (Math.abs(dy) >= 1) {
+                    child.style.transition = 'none';
+                    child.style.transform = `translate3d(0, ${dy}px, 0)`;
+                    moved.push(child);
+                }
+            });
+
+            if (moved.length > 0) {
+                void stack.offsetHeight;
+                stack._flipRaf = requestAnimationFrame(() => {
+                    stack._flipRaf = 0;
+                    for (let i = 0; i < moved.length; i++) {
+                        moved[i].style.transition = '';
+                        moved[i].style.transform = '';
+                    }
+                });
             }
         }
 
-        function showToastSuccess(messageKey, fallbackMsg) {
-            const toast = document.getElementById('success-toast');
-            const toastText = document.getElementById('success-toast-text');
-            if (toast && toastText) {
-                toastText.innerText = ClivetI18n.get(messageKey) || fallbackMsg;
-                toast.classList.remove('opacity-0', 'pointer-events-none');
-                toast.classList.add('opacity-100');
-                clearTimeout(toast._hideTimer);
-                toast._hideTimer = setTimeout(() => {
-                    toast.classList.remove('opacity-100');
-                    toast.classList.add('opacity-0', 'pointer-events-none');
-                }, 3000);
+        function showToast(toastId, textId, messageKey, fallbackMsg, duration) {
+            const toast = document.getElementById(toastId);
+            const toastText = document.getElementById(textId);
+            if (!toast || !toastText) return;
+
+            clearTimeout(toast._hideTimer);
+            clearTimeout(toast._collapseTimer);
+            if (toast._showRaf) {
+                cancelAnimationFrame(toast._showRaf);
+                toast._showRaf = 0;
             }
+
+            toastText.textContent = ClivetI18n.get(messageKey) || fallbackMsg;
+
+            const stack = document.getElementById('toast-stack');
+            const wasVisible = !toast.classList.contains('hidden');
+
+            runToastStackFlip(stack, wasVisible ? null : toast, () => {
+                if (stack) stack.prepend(toast);
+                if (!wasVisible) {
+                    toast.classList.remove('hidden');
+                    toast.classList.add('flex');
+                }
+            });
+
+            toast._showRaf = requestAnimationFrame(() => {
+                toast._showRaf = requestAnimationFrame(() => {
+                    toast._showRaf = 0;
+                    toast.classList.remove('opacity-0', '-translate-y-2', 'scale-95');
+                    toast.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+                });
+            });
+
+            toast._hideTimer = setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+                toast.classList.add('opacity-0', '-translate-y-2', 'scale-95');
+                toast._collapseTimer = setTimeout(() => {
+                    runToastStackFlip(stack, toast, () => {
+                        toast.classList.remove('flex');
+                        toast.classList.add('hidden');
+                    });
+                }, 300);
+            }, duration);
+        }
+
+        function showToastError(messageKey, fallbackMsg) {
+            showToast('error-toast', 'error-toast-text', messageKey, fallbackMsg, 4000);
+            const toast = document.getElementById('error-toast');
+            if (!toast) return;
+            toast.classList.remove('toast-error-nudge');
+            toast.onanimationend = (e) => {
+                if (e.animationName === 'appleErrorNudge') {
+                    toast.classList.remove('toast-error-nudge');
+                }
+            };
+            requestAnimationFrame(() => {
+                toast.classList.add('toast-error-nudge');
+            });
+        }
+
+        function showToastSuccess(messageKey, fallbackMsg) {
+            showToast('success-toast', 'success-toast-text', messageKey, fallbackMsg, 4000);
         }
 
         function handleFileSelect(index, file) {
@@ -3356,48 +3500,46 @@
 
             function positionAndRender(el, text, isContinuous, isTouch = false) {
                 const h = getHud();
-                const isErr = el.hasAttribute('data-err-msg');
-                h.classList.toggle('hud-error', isErr);
-                h.textContent = text;
-                
                 const rect = el.getBoundingClientRect();
                 if (rect.width === 0 && rect.height === 0) return;
 
                 const track = el.closest('[data-hud-track]');
                 const trackRect = track ? track.getBoundingClientRect() : null;
                 const yRect = (trackRect && (trackRect.width > 0 || trackRect.height > 0)) ? trackRect : rect;
+                const isErr = el.hasAttribute('data-err-msg');
 
-                const w = h.offsetWidth || 80;
-                const hH = h.offsetHeight || 24;
-
-                let left = Math.round(rect.left + (rect.width / 2) - (w / 2));
-                let top = (isTouch || isErr) ? Math.round(yRect.top - hH - (isTouch ? 12 : 6)) : Math.round(yRect.bottom + 6);
-
-                // Boundary clipping rigoroso entro la viewport
-                if (left < 8) left = 8;
-                if (left + w > window.innerWidth - 8) left = window.innerWidth - w - 8;
-                if ((isTouch || isErr) && top < 8) {
-                    top = Math.round(yRect.bottom + (isTouch ? 12 : 6));
-                } else if (!isTouch && !isErr && (top + hH > window.innerHeight - 8)) {
-                    top = Math.round(yRect.top - hH - 6);
-                }
-
-                // Posizionamento GPU hardware-accelerated a 60/120fps (compositor-only)
-                h.style.setProperty('--hud-x', `${left}px`);
-                h.style.setProperty('--hud-y', `${top}px`);
-
-                if (isContinuous) {
-                    h.classList.add('hud-continuous');
-                } else {
-                    h.classList.remove('hud-continuous');
-                }
-
-                h.classList.add('hud-active');
-                h.setAttribute('aria-hidden', 'false');
-                el.setAttribute('aria-describedby', 'apple-hud-popover');
+                h.classList.toggle('hud-error', isErr);
+                if (h.textContent !== text) h.textContent = text;
+                h.classList.toggle('hud-continuous', Boolean(isContinuous));
 
                 isVisible = true;
                 isWarm = true;
+
+                requestAnimationFrame(() => {
+                    if (activeTarget !== el) return;
+
+                    const w = h.offsetWidth || 80;
+                    const hH = h.offsetHeight || 24;
+
+                    let left = Math.round(rect.left + (rect.width / 2) - (w / 2));
+                    let top = (isTouch || isErr) ? Math.round(yRect.top - hH - (isTouch ? 12 : 6)) : Math.round(yRect.bottom + 6);
+
+                    // Boundary clipping rigoroso entro la viewport
+                    if (left < 8) left = 8;
+                    if (left + w > window.innerWidth - 8) left = window.innerWidth - w - 8;
+                    if ((isTouch || isErr) && top < 8) {
+                        top = Math.round(yRect.bottom + (isTouch ? 12 : 6));
+                    } else if (!isTouch && !isErr && (top + hH > window.innerHeight - 8)) {
+                        top = Math.round(yRect.top - hH - 6);
+                    }
+
+                    // Posizionamento GPU hardware-accelerated a 60/120fps (compositor-only)
+                    h.style.setProperty('--hud-x', `${left}px`);
+                    h.style.setProperty('--hud-y', `${top}px`);
+                    h.classList.add('hud-active');
+                    h.setAttribute('aria-hidden', 'false');
+                    el.setAttribute('aria-describedby', 'apple-hud-popover');
+                });
             }
 
             function show(el, instant = false, isTouch = false) {
@@ -3653,9 +3795,17 @@
             updateTerminal();
         }
 
+        const rowRefs = [new Map(), new Map()];
+
         function hideColumn(idx) {
-            document.getElementById(`col-${idx}`).classList.add('hidden');
-            document.getElementById(`col-${idx}`).classList.remove('flex');
+            const col = document.getElementById(`col-${idx}`);
+            if (col) {
+                col.classList.add('hidden');
+                col.classList.remove('flex');
+            }
+            const tbody = document.getElementById(`tbody-${idx}`);
+            if (tbody) tbody.textContent = '';
+            rowRefs[idx].clear();
         }
 
         function escapeHtml(str) {
@@ -3709,40 +3859,42 @@
             }
 
             const tbody = document.getElementById(`tbody-${idx}`);
-            let html = "";
+            const rowsHtml = new Array(unifiedKeys.length);
 
-            unifiedKeys.forEach(k => {
+            for (let i = 0, len = unifiedKeys.length; i < len; i++) {
+                const k = unifiedKeys[i];
                 const p = fd.params.get(k);
+                const safeKey = escapeHtml(k);
+
                 if (p) {
                     const isMod = fd.modified.has(k);
                     const valToPrint = isMod ? fd.modified.get(k) : p.value;
                     const hasErr = fd.errors.has(k);
                     let inputClass = "";
-                if (hasErr) inputClass = "is-invalid";
-                else if (isMod) inputClass = "is-modified";
+                    if (hasErr) inputClass = "is-invalid";
+                    else if (isMod) inputClass = "is-modified";
 
-                let errMsg = "";
-                let errIconClass = "hidden";
-                if (hasErr) {
-                    const initNum = parseFloat(String(valToPrint).trim().replace(',', '.'));
-                    errMsg = isNaN(initNum)
-                        ? ClivetI18n.get('err_nan')
-                        : (ClivetI18n.get('err_range') + ' (' + p.min + ' / ' + p.max + ')');
-                    errIconClass = "";
-                }
+                    let errMsg = "";
+                    let errIconClass = "hidden";
+                    if (hasErr) {
+                        const initNum = parseFloat(String(valToPrint).trim().replace(',', '.'));
+                        errMsg = isNaN(initNum)
+                            ? ClivetI18n.get('err_nan')
+                            : (ClivetI18n.get('err_range') + ' (' + p.min + ' / ' + p.max + ')');
+                        errIconClass = "";
+                    }
 
-                const safeKey = escapeHtml(k);
-                const safeIdx = escapeHtml(p.display_index);
-                const safeDesc = escapeHtml(p.desc);
-                const safeVal = escapeHtml(valToPrint);
-                const safeUm = escapeHtml(p.u_m === 'nessuna' || /^-+$/.test(p.u_m) ? '-' : p.u_m);
-                const safeMin = escapeHtml(p.min);
-                const safeMax = escapeHtml(p.max);
-                const safeAddr = escapeHtml(p.addr_write);
-                const errAttrs = hasErr ? ('aria-invalid="true" data-err-msg="' + escapeHtml(errMsg) + '"') : '';
+                    const safeIdx = escapeHtml(p.display_index);
+                    const safeDesc = escapeHtml(p.desc);
+                    const safeVal = escapeHtml(valToPrint);
+                    const safeUm = escapeHtml(p.u_m === 'nessuna' || /^-+$/.test(p.u_m) ? '-' : p.u_m);
+                    const safeMin = escapeHtml(p.min);
+                    const safeMax = escapeHtml(p.max);
+                    const safeAddr = escapeHtml(p.addr_write);
+                    const errAttrs = hasErr ? ('aria-invalid="true" data-err-msg="' + escapeHtml(errMsg) + '"') : '';
 
-                    html += `
-                    <tr id="row-${idx}-${safeKey}" class="hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-colors search-row">
+                    rowsHtml[i] = `
+                    <tr id="row-${idx}-${safeKey}" data-row-key="${safeKey}" class="hover:bg-slate-100 dark:hover:bg-slate-700/50 search-row">
                         <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-left tabular-nums"><span class="font-bold font-mono text-blue-600 dark:text-blue-400 whitespace-nowrap block">P${safeIdx}</span></td>
                         <td class="w-full max-w-0 overflow-hidden px-2 py-1 align-middle text-left"><span id="desc-${idx}-${safeKey}" class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate leading-5 block cursor-default" data-tip-title="${safeDesc}">${safeDesc}</span></td>
                         <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center">
@@ -3756,18 +3908,55 @@
                         <td class="w-px whitespace-nowrap px-2 py-1 align-middle text-center tabular-nums"><span id="addr-${idx}-${safeKey}" class="text-[10px] sm:text-xs font-mono tabular-nums text-slate-400 dark:text-slate-500 whitespace-nowrap block">${safeAddr}</span></td>
                     </tr>`;
                 } else {
-                const safeKey = escapeHtml(k);
-                const safeDisplayKey = escapeHtml(k.split('__dup')[0]);
-                    html +=
-                    '<tr id="row-' + idx + '-' + safeKey + '" class="bg-slate-50/50 dark:bg-slate-800/40 transition-colors search-row">' +
+                    const safeDisplayKey = escapeHtml(k.split('__dup')[0]);
+                    rowsHtml[i] =
+                    '<tr id="row-' + idx + '-' + safeKey + '" data-row-key="' + safeKey + '" class="bg-slate-50/50 dark:bg-slate-800/40 search-row">' +
                         '<td colspan="6" class="p-1 align-middle max-w-0">' +
                             '<div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg w-full h-7 flex items-center justify-center text-slate-400 dark:text-slate-500 text-[10px] sm:text-xs italic font-medium px-2 truncate">' + ClivetI18n.get('err_missing') + ' (P' + safeDisplayKey + ')</div>' +
                         '</td>' +
                     '</tr>';
-                    }
-            });
-            tbody.innerHTML = html;
+                }
+            }
+
+            tbody.innerHTML = rowsHtml.join('');
+
+            const cache = rowRefs[idx];
+            cache.clear();
+            const trList = tbody.children;
+            for (let i = 0, len = trList.length; i < len; i++) {
+                const row = trList[i];
+                const key = row.getAttribute('data-row-key');
+                if (!key) continue;
+                cache.set(key, {
+                    row,
+                    input: row.querySelector('.param-input'),
+                    desc: row.querySelector('[id^="desc-"]'),
+                    addr: row.querySelector('[id^="addr-"]'),
+                    errIcon: row.querySelector('[id^="err-icon-"]'),
+                    baseText: row.textContent
+                });
+            }
+
             checkExportState(idx);
+        }
+
+        function validateParamValue(rawVal, minStr, maxStr, allowEmpty = false) {
+            const normalized = String(rawVal ?? '').trim().replace(',', '.');
+            if (normalized === '') {
+                return allowEmpty
+                    ? { isValid: true, normalized, errMsg: '' }
+                    : { isValid: false, normalized, errMsg: ClivetI18n.get('err_nan') };
+            }
+            const num = parseFloat(normalized);
+            if (isNaN(num)) {
+                return { isValid: false, normalized, errMsg: ClivetI18n.get('err_nan') };
+            }
+            const min = parseFloat(String(minStr ?? '').replace(',', '.'));
+            const max = parseFloat(String(maxStr ?? '').replace(',', '.'));
+            if ((!isNaN(min) && num < min) || (!isNaN(max) && num > max)) {
+                return { isValid: false, normalized, errMsg: `${ClivetI18n.get('err_range')} (${minStr} / ${maxStr})` };
+            }
+            return { isValid: true, normalized, errMsg: '' };
         }
 
         function validateInput(idx, k) {
@@ -3783,21 +3972,7 @@
                 inputEl.parentElement.dataset.val = inputEl.value;
             }
 
-            let rawStr = inputEl.value.trim().replace(',', '.');
-            let num = parseFloat(rawStr);
-            let min = parseFloat(p.min.replace(',', '.'));
-            let max = parseFloat(p.max.replace(',', '.'));
-            
-            let isValid = true;
-            let errMsg = "";
-            
-            if (rawStr === "" || isNaN(num)) {
-                isValid = false;
-                errMsg = ClivetI18n.get('err_nan');
-            } else if ((!isNaN(min) && num < min) || (!isNaN(max) && num > max)) {
-                isValid = false;
-                errMsg = `${ClivetI18n.get('err_range')} (${p.min} / ${p.max})`;
-            }
+            const { isValid, normalized: rawStr, errMsg } = validateParamValue(inputEl.value, p.min, p.max, false);
             
             let logKey = `${idx}-${k}`;
 
@@ -4279,51 +4454,61 @@
 
             const p0 = filesData[0].params.get(k);
             const p1 = filesData[1].params.get(k);
-            const row0 = document.getElementById(`row-0-${k}`);
-            const row1 = document.getElementById(`row-1-${k}`);
-            
+            const ref0 = rowRefs[0].get(k);
+            const ref1 = rowRefs[1].get(k);
+            const d0 = ref0 ? ref0.desc : null;
+            const d1 = ref1 ? ref1.desc : null;
+            const a0 = ref0 ? ref0.addr : null;
+            const a1 = ref1 ? ref1.addr : null;
+            const i0 = ref0 ? ref0.input : null;
+            const i1 = ref1 ? ref1.input : null;
+
             let isDiff = false;
-            
-            if(row0) row0.querySelectorAll('.hl-diff').forEach(el => el.classList.remove('hl-diff', 'bg-amber-100', 'dark:bg-amber-900/40'));
-            if(row1) row1.querySelectorAll('.hl-diff').forEach(el => el.classList.remove('hl-diff', 'bg-amber-100', 'dark:bg-amber-900/40'));
-            if(row0) { const i = row0.querySelector('input'); if(i && !i.classList.contains('is-invalid') && !i.classList.contains('is-modified')) i.classList.remove('bg-amber-50', 'dark:bg-amber-900/30', 'border-amber-400'); }
-            if(row1) { const i = row1.querySelector('input'); if(i && !i.classList.contains('is-invalid') && !i.classList.contains('is-modified')) i.classList.remove('bg-amber-50', 'dark:bg-amber-900/30', 'border-amber-400'); }
+
+            if (d0) d0.classList.remove('hl-diff', 'bg-amber-100', 'dark:bg-amber-900/40');
+            if (a0) a0.classList.remove('hl-diff', 'bg-amber-100', 'dark:bg-amber-900/40');
+            if (d1) d1.classList.remove('hl-diff', 'bg-amber-100', 'dark:bg-amber-900/40');
+            if (a1) a1.classList.remove('hl-diff', 'bg-amber-100', 'dark:bg-amber-900/40');
+            if (i0 && !i0.classList.contains('is-invalid') && !i0.classList.contains('is-modified')) {
+                i0.classList.remove('bg-amber-50', 'dark:bg-amber-900/30', 'border-amber-400');
+            }
+            if (i1 && !i1.classList.contains('is-invalid') && !i1.classList.contains('is-modified')) {
+                i1.classList.remove('bg-amber-50', 'dark:bg-amber-900/30', 'border-amber-400');
+            }
 
             if (!p0 || !p1) {
                 isDiff = true;
             } else {
                 if (p0.desc !== p1.desc) {
                     isDiff = true;
-                    const d0 = document.getElementById(`desc-0-${k}`);
-                    const d1 = document.getElementById(`desc-1-${k}`);
-                    if(d0) d0.classList.add('hl-diff');
-                    if(d1) d1.classList.add('hl-diff');
+                    if (d0) d0.classList.add('hl-diff');
+                    if (d1) d1.classList.add('hl-diff');
                 }
                 if (p0.addr_write !== p1.addr_write) {
                     isDiff = true;
-                    const a0 = document.getElementById(`addr-0-${k}`);
-                    const a1 = document.getElementById(`addr-1-${k}`);
-                    if(a0) a0.classList.add('hl-diff');
-                    if(a1) a1.classList.add('hl-diff');
+                    if (a0) a0.classList.add('hl-diff');
+                    if (a1) a1.classList.add('hl-diff');
                 }
-                const i0 = document.getElementById(`input-0-${k}`);
-                const i1 = document.getElementById(`input-1-${k}`);
-                const v0 = i0 ? i0.value.replace(',','.') : p0.value;
-                const v1 = i1 ? i1.value.replace(',','.') : p1.value;
-                
+                const v0 = i0 ? i0.value.replace(',', '.') : p0.value;
+                const v1 = i1 ? i1.value.replace(',', '.') : p1.value;
+
                 if (v0 !== v1) {
                     isDiff = true;
-                    if(i0 && !i0.classList.contains('is-invalid') && !i0.classList.contains('is-modified')) i0.classList.add('bg-amber-50', 'dark:bg-amber-900/30', 'border-amber-400');
-                    if(i1 && !i1.classList.contains('is-invalid') && !i1.classList.contains('is-modified')) i1.classList.add('bg-amber-50', 'dark:bg-amber-900/30', 'border-amber-400');
+                    if (i0 && !i0.classList.contains('is-invalid') && !i0.classList.contains('is-modified')) {
+                        i0.classList.add('bg-amber-50', 'dark:bg-amber-900/30', 'border-amber-400');
+                    }
+                    if (i1 && !i1.classList.contains('is-invalid') && !i1.classList.contains('is-modified')) {
+                        i1.classList.add('bg-amber-50', 'dark:bg-amber-900/30', 'border-amber-400');
+                    }
                 }
             }
-            
+
             if (isDiff) {
                 window.activeDiffs.add(k);
             } else {
                 window.activeDiffs.delete(k);
             }
-            
+
             return isDiff;
         }
 
@@ -4430,25 +4615,27 @@
         const hasDual = Boolean(filesData[0] && filesData[1]);
         const visibleCounts = [0, 0];
         const rowsToHighlight = [];
+        const cache0 = rowRefs[0];
+        const cache1 = rowRefs[1];
 
         for (let i = 0, len = unifiedKeys.length; i < len; i++) {
             const k = unifiedKeys[i];
-            const row0 = document.getElementById(`row-0-${k}`);
-            const row1 = document.getElementById(`row-1-${k}`);
+            const ref0 = cache0.get(k);
+            const ref1 = cache1.get(k);
+            const row0 = ref0 ? ref0.row : null;
+            const row1 = ref1 ? ref1.row : null;
 
             let matchesSearch0 = false;
             let matchesSearch1 = false;
 
             if (searchRegex) {
-                if (row0) {
-                    const inp0 = document.getElementById(`input-0-${k}`);
+                if (ref0) {
                     searchRegex.lastIndex = 0;
-                    matchesSearch0 = searchRegex.test(row0.textContent) || (inp0 ? (searchRegex.lastIndex = 0, searchRegex.test(inp0.value)) : false);
+                    matchesSearch0 = searchRegex.test(ref0.baseText) || (ref0.input ? (searchRegex.lastIndex = 0, searchRegex.test(ref0.input.value)) : false);
                 }
-                if (row1) {
-                    const inp1 = document.getElementById(`input-1-${k}`);
+                if (ref1) {
                     searchRegex.lastIndex = 0;
-                    matchesSearch1 = searchRegex.test(row1.textContent) || (inp1 ? (searchRegex.lastIndex = 0, searchRegex.test(inp1.value)) : false);
+                    matchesSearch1 = searchRegex.test(ref1.baseText) || (ref1.input ? (searchRegex.lastIndex = 0, searchRegex.test(ref1.input.value)) : false);
                 }
             } else {
                 matchesSearch0 = true;
