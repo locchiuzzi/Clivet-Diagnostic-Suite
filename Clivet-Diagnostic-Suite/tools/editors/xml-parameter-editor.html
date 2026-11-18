@@ -91,7 +91,8 @@
         
         mark.search-hl { background-color: #fef08a; color: #0f172a; padding: 0 2px; border-radius: 2px; transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.2s var(--spring-easing); }
         mark.search-hl.active-match { background-color: #fbbf24; color: #000; font-weight: bold; box-shadow: 0 0 0 2px #d97706; transform: scale(1.05); display: inline-block; position: relative; z-index: 10; }
-        #searchInput:focus-visible { outline: none !important; }
+        #searchInput:focus-visible,
+        #export-filename-input:focus-visible { outline: none !important; }
 
         /* Struttura Tabella (Dynamic Shrink-Wrap + Scroll Nativo GPU 120fps) */
         .sync-table-container { 
@@ -669,9 +670,80 @@
                 stroke-dashoffset: 0 !important;
             }
             .batch-checkbox,
-            .batch-checkbox svg path {
+            .batch-checkbox svg path,
+            .hig-switch,
+            .hig-switch-thumb {
                 transition: none !important;
             }
+        }
+
+        /* Apple HIG Save Sheet Surfaces (120fps Zero-Jank & GPU-Safe) */
+        #export-modal-content {
+            max-height: min(90vh, 720px);
+        }
+        .export-log-row-wrapper {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 260ms var(--spring-easing);
+            will-change: grid-template-rows;
+        }
+        .export-log-row-wrapper.is-expanded {
+            grid-template-rows: 1fr;
+        }
+        .export-log-row-inner {
+            overflow: hidden;
+            opacity: 0;
+            transform: translate3d(0, -4px, 0);
+            transition: opacity 180ms var(--smooth-easing), transform 260ms var(--spring-easing);
+            will-change: transform, opacity;
+        }
+        .export-log-row-wrapper.is-expanded .export-log-row-inner {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .export-log-row-wrapper,
+            .export-log-row-inner {
+                transition: none !important;
+            }
+        }
+
+        /* Apple HIG Switch (100% GPU Compositor-Only) */
+        .hig-switch {
+            width: 42px;
+            height: 24px;
+            border-radius: 9999px;
+            padding: 2px;
+            background-color: rgba(120, 120, 128, 0.16);
+            box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+            transition: background-color 200ms var(--smooth-easing);
+            touch-action: manipulation;
+        }
+        .dark .hig-switch {
+            background-color: rgba(120, 120, 128, 0.32);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        }
+        .hig-switch[aria-checked="true"] {
+            background-color: #34C759;
+            box-shadow: none;
+        }
+        .dark .hig-switch[aria-checked="true"] {
+            background-color: #30D158;
+            box-shadow: none;
+        }
+        .hig-switch-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 9999px;
+            background-color: #ffffff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15), 0 1px 1px rgba(0, 0, 0, 0.06);
+            transform: translate3d(0px, 0, 0);
+            will-change: transform;
+            backface-visibility: hidden;
+            transition: transform 240ms var(--spring-easing);
+        }
+        .hig-switch[aria-checked="true"] .hig-switch-thumb {
+            transform: translate3d(18px, 0, 0);
         }
     </style>
 </head>
@@ -1215,21 +1287,67 @@
         </div>
     </div>
 
-    <!-- MODALE EXPORT CONFIRM -->
-    <div id="export-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4">
+    <!-- MODALE EXPORT SAVE SHEET (Apple HIG) -->
+    <div id="export-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="export-modal-title">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300 opacity-0" id="export-modal-bg"></div>
-        <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden border border-slate-200/80 dark:border-white/10 relative z-10 transform transition-[transform,opacity] duration-300 translate-y-10 scale-95 opacity-0 spring-anim p-6" id="export-modal-content">
-            <h2 data-i18n="exp_title" class="text-lg font-bold text-slate-900 dark:text-white mb-2">Export Options</h2>
-            <p data-i18n="exp_desc" class="text-sm text-slate-500 dark:text-slate-400 mb-6">Do you want to export the modifications log (.txt) along with the XML file?</p>
-            <div class="flex flex-col space-y-3">
-                <button type="button" id="btn-export-with-log" class="hit-44 w-full py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition shadow-md focus:outline-none flex items-center justify-center space-x-2 active:scale-95">
-                    <span data-i18n="exp_yes">Yes, XML + Log</span>
+        <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl w-full max-w-[min(94vw,620px)] rounded-[20px] shadow-[0_24px_64px_-12px_rgba(0,0,0,0.28)] dark:shadow-[0_24px_64px_-12px_rgba(0,0,0,0.75)] overflow-hidden border border-slate-200/80 dark:border-white/10 ring-1 ring-black/[0.04] dark:ring-white/[0.06] relative z-10 transform transition-[transform,opacity] duration-300 translate-y-10 scale-95 opacity-0 spring-anim flex flex-col font-[-apple-system,BlinkMacSystemFont,'SF_Pro_Display','SF_Pro_Text',system-ui,sans-serif] antialiased" id="export-modal-content">
+            <!-- Header -->
+            <div class="px-5 py-3.5 border-b border-slate-200/80 dark:border-white/10 bg-slate-50/80 dark:bg-slate-800/60 flex items-center justify-between gap-3 flex-shrink-0">
+                <h2 id="export-modal-title" data-i18n="exp_title" class="text-[17px] font-semibold text-slate-900 dark:text-white tracking-[-0.022em] leading-snug truncate">Export Options</h2>
+                <button id="btn-export-close" type="button" aria-label="Close panel" data-i18n-aria="ui_closePanel" data-apple-hud="ui_closePanel" class="hit-44 flex-shrink-0 w-7 h-7 rounded-full bg-slate-200/75 hover:bg-slate-300/80 dark:bg-slate-700/75 dark:hover:bg-slate-600/90 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white ring-1 ring-black/[0.05] dark:ring-white/10 transition-[background-color,color,transform] duration-150 ease-[var(--spring-easing)] flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF] active:scale-90">
+                    <svg aria-hidden="true" class="w-3.5 h-3.5 stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
-                <button type="button" id="btn-export-xml-only" class="hit-44 w-full py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition focus:outline-none active:scale-95">
-                    <span data-i18n="exp_no">Only XML</span>
-                </button>
-                <button type="button" id="btn-export-cancel" class="hit-44 w-full py-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-sm font-medium transition focus:outline-none mt-2 active:scale-95">
+            </div>
+            <!-- Inset Grouped Body (Scrollable with Protected Anchored Footer) -->
+            <div class="p-4 bg-slate-100/80 dark:bg-slate-900/65 flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col gap-3.5">
+                <div class="flex flex-col gap-1.5">
+                    <label for="export-filename-input" data-i18n="exp_filename" class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1 select-none">File Name</label>
+                    <div id="export-filename-wrap" class="flex items-center min-h-[38px] rounded-[10px] bg-white dark:bg-slate-800/95 ring-1 ring-slate-900/10 dark:ring-white/10 focus-within:ring-2 focus-within:ring-[#007AFF] dark:focus-within:ring-[#0A84FF] shadow-[0_1px_2px_rgba(0,0,0,0.04)] overflow-hidden transition-shadow duration-150">
+                        <textarea id="export-filename-input" rows="1" autocomplete="off" spellcheck="false" class="flex-1 min-w-0 py-2 pl-3 pr-1 bg-transparent border-none text-[14px] font-medium leading-[22px] tracking-[-0.01em] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 resize-none overflow-y-auto max-h-[82px] focus:outline-none"></textarea>
+                        <div class="relative w-7 h-7 mr-0.5 flex-shrink-0">
+                            <button type="button" id="export-filename-clear" aria-label="Clear" class="hit-44 absolute inset-0 flex items-center justify-center w-7 h-7 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-[opacity,transform,color] duration-150 ease-[var(--spring-easing)] will-change-[opacity,transform] focus:outline-none opacity-0 pointer-events-none scale-75">
+                                <svg aria-hidden="true" class="w-[15px] h-[15px]" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z" clip-rule="evenodd"></path></svg>
+                            </button>
+                            <button type="button" id="export-filename-restore" aria-label="Restore All" data-i18n-aria="btn_restore" data-apple-hud="btn_restore" class="hit-44 absolute inset-0 flex items-center justify-center w-7 h-7 text-[#007AFF] dark:text-[#0A84FF] hover:text-[#0071E3] dark:hover:text-[#409CFF] transition-[opacity,transform,color] duration-150 ease-[var(--spring-easing)] will-change-[opacity,transform] focus:outline-none opacity-0 pointer-events-none scale-75">
+                                <svg aria-hidden="true" class="w-[15px] h-[15px] stroke-[2.25]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            </button>
+                        </div>
+                        <span class="self-stretch px-2.5 flex items-center bg-slate-100/90 dark:bg-slate-700/60 border-l border-slate-200/80 dark:border-white/10 text-[13px] font-mono font-semibold text-slate-500 dark:text-slate-400 select-none flex-shrink-0">.xml</span>
+                    </div>
+                </div>
+                <div class="rounded-xl bg-white dark:bg-slate-800/95 border border-slate-200/80 dark:border-white/10 shadow-[0_1px_2px_rgba(0,0,0,0.04)] px-3.5 py-2.5 flex items-center justify-between gap-3">
+                    <span id="export-log-label" data-i18n="exp_include_log" class="text-[13px] font-medium tracking-[-0.008em] text-slate-900 dark:text-slate-100 leading-snug select-none">Include Modifications Log (.txt)</span>
+                    <button type="button" id="export-log-switch" role="switch" aria-checked="true" aria-labelledby="export-log-label" class="hit-44 hig-switch flex items-center flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]">
+                        <span class="hig-switch-thumb pointer-events-none block"></span>
+                    </button>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                    <span data-i18n="exp_output" class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 px-1 select-none">Output Files</span>
+                    <div id="export-preview-names" class="rounded-xl bg-white dark:bg-slate-800/95 border border-slate-200/80 dark:border-white/10 overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+                        <!-- XML Row (Permanent) -->
+                        <div class="flex items-center gap-2.5 px-3.5 py-2.5 min-h-[40px]">
+                            <span class="inline-flex items-center justify-center h-[20px] min-w-[36px] px-1.5 rounded-[6px] text-[10px] font-bold font-mono tracking-tight flex-shrink-0 select-none bg-[#007AFF]/12 dark:bg-[#0A84FF]/20 text-[#007AFF] dark:text-[#0A84FF] ring-1 ring-[#007AFF]/20">XML</span>
+                            <span id="export-preview-xml-name" class="text-[12px] font-mono text-slate-800 dark:text-slate-200 break-all leading-snug select-text"></span>
+                        </div>
+                        <!-- Log Row (Animated Disclosure) -->
+                        <div id="export-preview-log-wrapper" class="export-log-row-wrapper border-t border-slate-200/70 dark:border-white/[0.07]">
+                            <div class="export-log-row-inner">
+                                <div class="flex items-center gap-2.5 px-3.5 py-2.5 min-h-[40px]">
+                                    <span class="inline-flex items-center justify-center h-[20px] min-w-[36px] px-1.5 rounded-[6px] text-[10px] font-bold font-mono tracking-tight flex-shrink-0 select-none bg-slate-200/80 dark:bg-slate-700/80 text-slate-600 dark:text-slate-300 ring-1 ring-black/[0.06] dark:ring-white/10">TXT</span>
+                                    <span id="export-preview-log-name" class="text-[12px] font-mono text-slate-700 dark:text-slate-300 break-all leading-snug select-text"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="px-5 py-3.5 border-t border-slate-200/80 dark:border-white/10 bg-slate-50/80 dark:bg-slate-800/60 flex items-center justify-end gap-2.5 flex-shrink-0">
+                <button id="btn-export-cancel" type="button" class="hit-44 h-[38px] px-4 rounded-[10px] bg-slate-200/75 dark:bg-slate-700/80 hover:bg-slate-300/80 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 font-semibold text-[13px] tracking-[-0.01em] ring-1 ring-black/[0.04] dark:ring-white/[0.08] transition-[background-color,transform] duration-150 ease-[var(--spring-easing)] active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]">
                     <span data-i18n="btn_cancel">Cancel</span>
+                </button>
+                <button id="btn-export-confirm" type="button" class="hit-44 h-[38px] px-5 rounded-[10px] bg-[#007AFF] hover:bg-[#0071E3] dark:bg-[#0A84FF] dark:hover:bg-[#0077ED] text-white font-semibold text-[13px] tracking-[-0.01em] shadow-[0_1px_2px_rgba(0,122,255,0.25),inset_0_1px_0_rgba(255,255,255,0.18)] ring-1 ring-black/[0.06] dark:ring-white/10 transition-[background-color,transform,opacity] duration-150 ease-[var(--spring-easing)] active:scale-[0.96] disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#007AFF]/60">
+                    <span data-i18n="btn_export">Export XML</span>
                 </button>
             </div>
         </div>
@@ -1509,7 +1627,7 @@
                 btn_proceedAnyway: "Proceed Anyway", btn_force: "Force Proceed", btn_cancel: "Cancel",
                 lbl_sn: "S/N or Item", search_case: "Match Case", search_word: "Whole Word",
                 term_title: "Session Modifications Log", term_export: "Export Log (.txt)", term_mod_count: "mod.", term_mod_none: "No modifications in this file", term_mod_one: "1 modification in this file", term_mod_many: "{n} modifications in this file", term_empty_title: "No modifications", term_empty_desc: "Modified parameters will appear here in real time.", term_undo: "Undo",                info_addr: "This value corresponds to the 'addr_write' attribute in the XML file.",
-                exp_title: "Export Options", exp_desc: "Do you want to export the modifications log (.txt) along with the XML file?", exp_yes: "Yes, XML + Log", exp_no: "Only XML"
+                exp_title: "Export Options", exp_filename: "File Name", exp_include_log: "Include Modifications Log (.txt)", exp_output: "Output Files"
             },
             it: {
                 batch_max_limit: "Massimo 2 file. Deselezionane uno per scegliere questo.",
@@ -1547,7 +1665,7 @@
                 lbl_sn: "S/N o Item", search_case: "Maiuscole/Minuscole", search_word: "Parola Intera",
                 term_title: "Log Modifiche di Sessione", term_export: "Esporta Log (.txt)", term_mod_count: "mod.", term_mod_none: "Nessuna modifica in questo file", term_mod_one: "1 modifica in questo file", term_mod_many: "{n} modifiche in questo file", term_empty_title: "Nessuna modifica", term_empty_desc: "I parametri modificati compariranno qui in tempo reale.", term_undo: "Annulla",
                 info_addr: "Questo valore corrisponde all'attributo 'addr_write' nel file XML.",
-                exp_title: "Opzioni di Esportazione", exp_desc: "Vuoi esportare il registro delle modifiche (.txt) insieme al file XML?", exp_yes: "Sì, XML + Log", exp_no: "Solo XML"
+                exp_title: "Opzioni di Esportazione", exp_filename: "Nome File", exp_include_log: "Includi Log Modifiche (.txt)", exp_output: "File Esportati"
             },
             de: {
                 batch_max_limit: "Maximal 2 Dateien. Eine abwählen, um diese zu wählen.",
@@ -1585,7 +1703,7 @@
                 lbl_sn: "S/N oder Artikelcode", search_case: "Groß-/Kleinschreibung beachten", search_word: "Nur ganzes Wort",
                 term_title: "Sitzungsänderungsprotokoll", term_export: "Protokoll exportieren (.txt)", term_mod_count: "Änd.", term_mod_none: "Keine Änderungen in dieser Datei", term_mod_one: "1 Änderung in dieser Datei", term_mod_many: "{n} Änderungen in dieser Datei", term_empty_title: "Keine Änderungen", term_empty_desc: "Geänderte Parameter werden hier in Echtzeit angezeigt.", term_undo: "Rückgängig",
                 info_addr: "Dieser Wert entspricht dem Attribut 'addr_write' in der XML-Datei.",
-                exp_title: "Exportoptionen", exp_desc: "Möchten Sie das Änderungsprotokoll (.txt) zusammen mit der XML-Datei exportieren?", exp_yes: "Ja, XML + Protokoll", exp_no: "Nur XML"
+                exp_title: "Exportoptionen", exp_filename: "Dateiname", exp_include_log: "Änderungsprotokoll einschließen (.txt)", exp_output: "Exportierte Dateien"
             },
             fr: {
                 empty_diff_title: "Aucune différence détectée",
@@ -1621,7 +1739,7 @@
                 lbl_sn: "S/N ou Article", search_case: "Respecter la Casse", search_word: "Mot Entier",
                 term_title: "Journal des modifications", term_export: "Exporter le Journal (.txt)", term_mod_count: "mod.", term_mod_none: "Aucune modification dans ce fichier", term_mod_one: "1 modification dans ce fichier", term_mod_many: "{n} modifications dans ce fichier", term_empty_title: "Aucune modification", term_empty_desc: "Les paramètres modifiés apparaîtront ici en temps réel.", term_undo: "Annuler",
                 info_addr: "Cette valeur correspond à l'attribut 'addr_write' dans le fichier XML.",
-                exp_title: "Options d'exportation", exp_desc: "Voulez-vous exporter le journal des modifications (.txt) avec le fichier XML ?", exp_yes: "Oui, XML + Log", exp_no: "Seulement XML"
+                exp_title: "Options d'exportation", exp_filename: "Nom du fichier", exp_include_log: "Inclure le journal des modifications (.txt)", exp_output: "Fichiers exportés"
             },
             es: {
                 batch_max_limit: "Máximo 2 archivos. Deselecciona uno para elegir este.",
@@ -1659,7 +1777,7 @@
                 lbl_sn: "S/N o Artículo", search_case: "Distinguir Mayúsculas y Minúsculas", search_word: "Palabra Completa",
                 term_title: "Registro de modificaciones", term_export: "Exportar Registro (.txt)", term_mod_count: "mod.", term_mod_none: "Sin modificaciones en este archivo", term_mod_one: "1 modificación en este archivo", term_mod_many: "{n} modificaciones en este archivo", term_empty_title: "Sin modificaciones", term_empty_desc: "Los parámetros modificados aparecerán aquí en tiempo real.", term_undo: "Deshacer",
                 info_addr: "Este valor corresponde al atributo 'addr_write' en el archivo XML.",
-                exp_title: "Opciones de exportación", exp_desc: "¿Desea exportar el registro de modificaciones (.txt) junto con el archivo XML?", exp_yes: "Sí, XML + Log", exp_no: "Solo XML"
+                exp_title: "Opciones de exportación", exp_filename: "Nombre de archivo", exp_include_log: "Incluir registro de modificaciones (.txt)", exp_output: "Archivos exportados"
             },
             zh: {
                 batch_max_limit: "最多选择 2 个文件。取消选择一个后即可选择此项。",
@@ -1697,7 +1815,7 @@
                 lbl_sn: "S/N 或产品代码", search_case: "区分大小写", search_word: "全字匹配",
                 term_title: "会话修改日志", term_export: "导出日志 (.txt)", term_mod_count: "项修改", term_mod_none: "此文件中没有修改", term_mod_one: "此文件中有 1 处修改", term_mod_many: "此文件中有 {n} 处修改", term_empty_title: "暂无修改", term_empty_desc: "修改的参数将在此处实时显示。", term_undo: "撤销",
                 info_addr: "该值对应于 XML 文件中的 'addr_write' 属性。",
-                exp_title: "导出选项", exp_desc: "您想将修改日志 (.txt) 与 XML 文件一起导出吗？", exp_yes: "是，XML + 日志", exp_no: "仅 XML"
+                exp_title: "导出选项", exp_filename: "文件名", exp_include_log: "包含修改日志 (.txt)", exp_output: "导出文件"
             },
             pt: {
                 batch_max_limit: "Máximo de 2 ficheiros. Desmarque um para escolher este.",
@@ -1735,7 +1853,7 @@
                 lbl_sn: "S/N ou Código do Item", search_case: "Diferenciar Maiúsculas de Minúsculas", search_word: "Palavra Inteira",
                 term_title: "Registo de modificações", term_export: "Exportar Registo (.txt)", term_mod_count: "mod.", term_mod_none: "Sem modificações neste ficheiro", term_mod_one: "1 modificação neste ficheiro", term_mod_many: "{n} modificações neste ficheiro", term_empty_title: "Sem modificações", term_empty_desc: "Os parâmetros modificados aparecerão aqui em tempo real.", term_undo: "Anular",
                 info_addr: "Este valor corresponde ao atributo 'addr_write' no ficheiro XML.",
-                exp_title: "Opções de Exportação", exp_desc: "Deseja exportar o registo de modificações (.txt) juntamente com o ficheiro XML?", exp_yes: "Sim, XML + Log", exp_no: "Apenas XML"
+                exp_title: "Opções de Exportação", exp_filename: "Nome do ficheiro", exp_include_log: "Incluir registo de modificações (.txt)", exp_output: "Ficheiros exportados"
             },
             ru: {
                 batch_max_limit: "Максимум 2 файла. Снимите выбор с одного, чтобы выбрать этот.",
@@ -1773,7 +1891,7 @@
                 lbl_sn: "S/N или Код продукта", search_case: "Учитывать регистр", search_word: "Слово целиком",
                 term_title: "Журнал изменений сеанса", term_export: "Экспорт журнала (.txt)", term_mod_count: "изм.", term_mod_none: "Нет изменений в этом файле", term_mod_one: "1 изменение в этом файле", term_mod_many: "{n} изменений в этом файле", term_empty_title: "Нет изменений", term_empty_desc: "Измененные параметры будут отображаться здесь в реальном времени.", term_undo: "Отменить",
                 info_addr: "Это значение соответствует атрибуту 'addr_write' в файле XML.",
-                exp_title: "Параметры экспорта", exp_desc: "Хотите экспортировать журнал изменений (.txt) вместе с файлом XML?", exp_yes: "Да, XML + Журнал", exp_no: "Только XML"
+                exp_title: "Параметры экспорта", exp_filename: "Имя файла", exp_include_log: "Включить журнал изменений (.txt)", exp_output: "Экспортируемые файлы"
             },
             ja: {
                 batch_max_limit: "最大2ファイルまで。これを選ぶには1つ選択解除してください。",
@@ -1811,7 +1929,7 @@
                 lbl_sn: "S/Nまたは製品コード", search_case: "大文字と小文字を区別", search_word: "単語単位で検索",
                 term_title: "セッション変更ログ", term_export: "ログをエクスポート (.txt)", term_mod_count: "件", term_mod_none: "このファイルに変更はありません", term_mod_one: "このファイルに 1 件の変更", term_mod_many: "このファイルに {n} 件の変更", term_empty_title: "変更なし", term_empty_desc: "変更されたパラメータはここにリアルタイムで表示されます。", term_undo: "元に戻す",
                 info_addr: "この値はXMLファイルの 'addr_write' 属性に対応します。",
-                exp_title: "エクスポートオプション", exp_desc: "XMLファイルと一緒に変更ログ（.txt）をエクスポートしますか？", exp_yes: "はい、XML + ログ", exp_no: "XMLのみ"
+                exp_title: "エクスポートオプション", exp_filename: "ファイル名", exp_include_log: "変更ログを含める (.txt)", exp_output: "書き出すファイル"
             },
             ko: {
                 batch_max_limit: "최대 2개 파일. 이 파일을 선택하려면 하나를 선택 해제하세요.",
@@ -1849,7 +1967,7 @@
                 lbl_sn: "S/N 또는 품목 코드", search_case: "대소문자 구분", search_word: "단어 단위로 검색",
                 term_title: "세션 수정 로그", term_export: "로그 내보내기 (.txt)", term_mod_count: "건", term_mod_none: "이 파일에 수정 사항이 없습니다", term_mod_one: "이 파일에 1건의 수정", term_mod_many: "이 파일에 {n}건의 수정", term_empty_title: "수정 사항 없음", term_empty_desc: "수정된 매개변수가 여기에 실시간으로 표시됩니다.", term_undo: "실행 취소",
                 info_addr: "이 값은 XML 파일의 'addr_write' 속성에 해당합니다.",
-                exp_title: "내보내기 옵션", exp_desc: "수정 로그(.txt)를 XML 파일과 함께 내보내시겠습니까?", exp_yes: "예, XML + 로그", exp_no: "XML만"
+                exp_title: "내보내기 옵션", exp_filename: "파일 이름", exp_include_log: "수정 로그 포함 (.txt)", exp_output: "내보낼 파일"
             },
             tr: {
                 batch_max_limit: "En fazla 2 dosya. Bunu seçmek için birinin seçimini kaldırın.",
@@ -1887,7 +2005,7 @@
                 lbl_sn: "S/N veya Ürün Kodu", search_case: "Büyük/Küçük Harf Duyarlı", search_word: "Tam Sözcük",
                 term_title: "Oturum Değişiklik Günlüğü", term_export: "Günlüğü Dışa Aktar (.txt)", term_mod_count: "değ.", term_mod_none: "Bu dosyada değişiklik yok", term_mod_one: "Bu dosyada 1 değişiklik", term_mod_many: "Bu dosyada {n} değişiklik", term_empty_title: "Değişiklik yok", term_empty_desc: "Değiştirilen parametreler burada gerçek zamanlı olarak görünecektir.", term_undo: "Geri Al",
                 info_addr: "Bu değer, XML dosyasındaki 'addr_write' niteliğine karşılık gelir.",
-                exp_title: "Dışa Aktarma Seçenekleri", exp_desc: "Değişiklik günlüğünü (.txt) XML dosyasıyla birlikte dışa aktarmak istiyor musunuz?", exp_yes: "Evet, XML + Log", exp_no: "Sadece XML"
+                exp_title: "Dışa Aktarma Seçenekleri", exp_filename: "Dosya Adı", exp_include_log: "Değişiklik Günlüğünü Dahil Et (.txt)", exp_output: "Dışa Aktarılan Dosyalar"
             },
             pl: {
                 batch_max_limit: "Maksymalnie 2 pliki. Odznacz jeden, aby wybrać ten.",
@@ -1925,7 +2043,7 @@
                 lbl_sn: "S/N lub Kod przedmiotu", search_case: "Uwzględniaj Wielkość Liter", search_word: "Całe Słowo",
                 term_title: "Dziennik modyfikacji sesji", term_export: "Eksportuj Dziennik (.txt)", term_mod_count: "zm.", term_mod_none: "Brak modyfikacji w tym pliku", term_mod_one: "1 modyfikacja w tym pliku", term_mod_many: "{n} modyfikacji w tym pliku", term_empty_title: "Brak modyfikacji", term_empty_desc: "Zmodyfikowane parametry pojawią się tutaj w czasie rzeczywistym.", term_undo: "Cofnij",
                 info_addr: "Ta wartość odpowiada atrybutowi 'addr_write' w pliku XML.",
-                exp_title: "Opcje eksportu", exp_desc: "Czy chcesz wyeksportować dziennik zmian (.txt) razem z plikiem XML?", exp_yes: "Tak, XML + Log", exp_no: "Tylko XML"
+               exp_title: "Opcje eksportu", exp_filename: "Nazwa pliku", exp_include_log: "Dołącz dziennik modyfikacji (.txt)", exp_output: "Eksportowane pliki"
             },
             nl: {
                 batch_max_limit: "Maximaal 2 bestanden. Deselecteer er één om deze te kiezen.",
@@ -1963,7 +2081,7 @@
                 lbl_sn: "S/N of Artikelcode", search_case: "Hoofdlettergevoelig", search_word: "Heel Woord",
                 term_title: "Sessie Wijzigingenlogboek", term_export: "Logboek Exporteren (.txt)", term_mod_count: "wijz.", term_mod_none: "Geen wijzigingen in dit bestand", term_mod_one: "1 wijziging in dit bestand", term_mod_many: "{n} wijzigingen in dit bestand", term_empty_title: "Geen wijzigingen", term_empty_desc: "Gewijzigde parameters verschijnen hier in realtime.", term_undo: "Ongedaan maken",
                 info_addr: "Deze waarde komt overeen met het 'addr_write' attribuut in het XML-bestand.",
-                exp_title: "Exportopties", exp_desc: "Wilt u het wijzigingenlogboek (.txt) samen met het XML-bestand exporteren?", exp_yes: "Ja, XML + Log", exp_no: "Alleen XML"
+                exp_title: "Exportopties", exp_filename: "Bestandsnaam", exp_include_log: "Wijzigingenlogboek opnemen (.txt)", exp_output: "Geëxporteerde bestanden"
             },
             sv: {
                 batch_max_limit: "Högst 2 filer. Avmarkera en för att välja denna.",
@@ -2001,7 +2119,7 @@
                 lbl_sn: "S/N eller Artikelkod", search_case: "Matcha Skiftläge", search_word: "Hela Ord",
                 term_title: "Sessionsändringslogg", term_export: "Exportera Logg (.txt)", term_mod_count: "ändr.", term_mod_none: "Inga ändringar i denna fil", term_mod_one: "1 ändring i denna fil", term_mod_many: "{n} ändringar i denna fil", term_empty_title: "Inga ändringar", term_empty_desc: "Ändrade parametrar visas här i realtid.", term_undo: "Ångra",
                 info_addr: "Detta värde motsvarar attributet 'addr_write' i XML-filen.",
-                exp_title: "Exportalternativ", exp_desc: "Vill du exportera ändringsloggen (.txt) tillsammans med XML-filen?", exp_yes: "Ja, XML + Logg", exp_no: "Endast XML"
+                exp_title: "Exportalternativ", exp_filename: "Filnamn", exp_include_log: "Inkludera ändringslogg (.txt)", exp_output: "Exporterade filer"
             },
             da: {
                 batch_max_limit: "Maks. 2 filer. Fravælg én for at vælge denne.",
@@ -2039,7 +2157,7 @@
                 lbl_sn: "S/N eller Varekode", search_case: "Forskel på Store og Små Bogstaver", search_word: "Hele Ord",
                 term_title: "Sessionsændringslog", term_export: "Eksportér Log (.txt)", term_mod_count: "ændr.", term_mod_none: "Ingen ændringer i denne fil", term_mod_one: "1 ændring i denne fil", term_mod_many: "{n} ændringer i denne fil", term_empty_title: "Ingen ændringer", term_empty_desc: "Ændrede parametre vises her i realtid.", term_undo: "Fortryd",
                 info_addr: "Denne værdi svarer til 'addr_write' attributten i XML-filen.",
-                exp_title: "Eksportindstillinger", exp_desc: "Vil du eksportere ændringsloggen (.txt) sammen med XML-filen?", exp_yes: "Ja, XML + Log", exp_no: "Kun XML"
+                exp_title: "Eksportindstillinger", exp_filename: "Filnavn", exp_include_log: "Medtag ændringslog (.txt)", exp_output: "Eksporterede filer"
             },
             fi: {
                 batch_max_limit: "Enintään 2 tiedostoa. Poista yhden valinta valitaksesi tämän.",
@@ -2077,7 +2195,7 @@
                 lbl_sn: "S/N tai Nimikekoodi", search_case: "Huomioi Kirjainkoko", search_word: "Koko Sana",
                 term_title: "Istunnon muutosloki", term_export: "Vie Loki (.txt)", term_mod_count: "muut.", term_mod_none: "Ei muutoksia tässä tiedostossa", term_mod_one: "1 muutos tässä tiedostossa", term_mod_many: "{n} muutosta tässä tiedostossa", term_empty_title: "Ei muutoksia", term_empty_desc: "Muutetut parametrit näkyvät tässä reaaliajassa.", term_undo: "Kumoa",
                 info_addr: "Tämä arvo vastaa XML-tiedoston 'addr_write' -määritettä.",
-                exp_title: "Vientivaihtoehdot", exp_desc: "Haluatko viedä muutoslokin (.txt) XML-tiedoston mukana?", exp_yes: "Kyllä, XML + Loki", exp_no: "Vain XML"
+                exp_title: "Vientivaihtoehdot", exp_filename: "Tiedostonimi", exp_include_log: "Sisällytä muutosloki (.txt)", exp_output: "Vietävät tiedostot"
             }
         };
 
@@ -2447,12 +2565,51 @@
 
             const expBg = document.getElementById('export-modal-bg');
             if (expBg) expBg.addEventListener('click', closeExportModal);
-            const btnExpWL = document.getElementById('btn-export-with-log');
-            if (btnExpWL) btnExpWL.addEventListener('click', () => executeExport(true));
-            const btnExpXO = document.getElementById('btn-export-xml-only');
-            if (btnExpXO) btnExpXO.addEventListener('click', () => executeExport(false));
+            const btnExpClose = document.getElementById('btn-export-close');
+            if (btnExpClose) btnExpClose.addEventListener('click', closeExportModal);
             const btnExpCancel = document.getElementById('btn-export-cancel');
             if (btnExpCancel) btnExpCancel.addEventListener('click', closeExportModal);
+            const btnExpConfirm = document.getElementById('btn-export-confirm');
+            if (btnExpConfirm) btnExpConfirm.addEventListener('click', submitExportModal);
+            const expSwitch = document.getElementById('export-log-switch');
+            if (expSwitch) {
+                expSwitch.addEventListener('click', () => {
+                    const next = expSwitch.getAttribute('aria-checked') !== 'true';
+                    expSwitch.setAttribute('aria-checked', String(next));
+                    syncExportSheetUI();
+                });
+            }
+            const expInput = document.getElementById('export-filename-input');
+            if (expInput) {
+                expInput.addEventListener('input', syncExportSheetUI);
+                expInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        submitExportModal();
+                    }
+                });
+            }
+            const expClear = document.getElementById('export-filename-clear');
+            if (expClear && expInput) {
+                expClear.addEventListener('click', () => {
+                    AppleHUD.hide();
+                    expInput.value = '';
+                    syncExportSheetUI();
+                    expInput.focus({ preventScroll: true });
+                });
+            }
+            const expRestore = document.getElementById('export-filename-restore');
+            if (expRestore && expInput) {
+                expRestore.addEventListener('click', () => {
+                    AppleHUD.hide();
+                    expInput.value = expInput.dataset.defaultName || '';
+                    syncExportSheetUI();
+                    requestAnimationFrame(() => {
+                        expInput.focus({ preventScroll: true });
+                        expInput.select();
+                    });
+                });
+            }
 
             const idBg = document.getElementById('identical-modal-bg');
             if (idBg) idBg.addEventListener('click', () => closeIdentical(false));
@@ -2631,6 +2788,7 @@
         function serializeState(fd) {
             return JSON.stringify({
                 rawText: fd.rawText, filename: fd.filename, sn: fd.sn, sw: fd.sw,
+                decimalSep: fd.decimalSep || '.',
                 params: Array.from(fd.params.entries()),
                 modified: Array.from(fd.modified.entries()),
                 errors: Array.from(fd.errors) 
@@ -2641,6 +2799,7 @@
             const obj = JSON.parse(jsonStr);
             return {
                 rawText: obj.rawText, filename: obj.filename, sn: obj.sn, sw: obj.sw,
+                decimalSep: obj.decimalSep || '.',
                 params: new Map(obj.params),
                 modified: new Map(obj.modified),
                 errors: new Set(obj.errors) 
@@ -2942,13 +3101,137 @@
             m._closeTimer = setTimeout(() => finalizeClose(null), 340);
         }
 
+        function getSuggestedExportBaseName(filename) {
+            let base = String(filename || 'parameters').replace(/\.[^.]+$/, '');
+            let rev = 1;
+            const m = base.match(/_R(\d+)$/);
+            if (m) {
+                rev = parseInt(m[1], 10) + 1;
+                base = base.replace(/_R\d+$/, '');
+            }
+            return `${base}_R${rev}`;
+        }
+
+        function sanitizeExportBaseName(raw) {
+            return String(raw ?? '')
+                .replace(/[\\/:*?"<>|\x00-\x1F]/g, '')
+                .trim()
+                .replace(/\.xml$/i, '')
+                .trim();
+        }
+
+        let exportTextareaResizeRaf = 0;
+
+        function resizeExportFilenameInput(input) {
+            if (!input) return;
+            input.style.height = 'auto';
+            const targetH = Math.min(Math.max(input.scrollHeight, 22), 82);
+            input.style.height = `${targetH}px`;
+        }
+
+        function syncExportSheetUI() {
+            const input = document.getElementById('export-filename-input');
+            const clearBtn = document.getElementById('export-filename-clear');
+            const restoreBtn = document.getElementById('export-filename-restore');
+            const confirmBtn = document.getElementById('btn-export-confirm');
+            const switchEl = document.getElementById('export-log-switch');
+            const logWrapper = document.getElementById('export-preview-log-wrapper');
+            const xmlNameEl = document.getElementById('export-preview-xml-name');
+            const logNameEl = document.getElementById('export-preview-log-name');
+            if (!input) return;
+
+            if (/[\r\n]/.test(input.value)) {
+                const pos = input.selectionStart;
+                input.value = input.value.replace(/[\r\n]+/g, ' ');
+                if (typeof pos === 'number') input.setSelectionRange(pos, pos);
+            }
+
+            if (exportTextareaResizeRaf) cancelAnimationFrame(exportTextareaResizeRaf);
+            exportTextareaResizeRaf = requestAnimationFrame(() => {
+                exportTextareaResizeRaf = 0;
+                resizeExportFilenameInput(input);
+            });
+
+            const hasRawText = input.value.length > 0;
+            if (clearBtn) {
+                clearBtn.classList.toggle('opacity-100', hasRawText);
+                clearBtn.classList.toggle('pointer-events-auto', hasRawText);
+                clearBtn.classList.toggle('scale-100', hasRawText);
+                clearBtn.classList.toggle('opacity-0', !hasRawText);
+                clearBtn.classList.toggle('pointer-events-none', !hasRawText);
+                clearBtn.classList.toggle('scale-75', !hasRawText);
+            }
+            if (restoreBtn) {
+                const showRestore = !hasRawText && Boolean(input.dataset.defaultName);
+                restoreBtn.classList.toggle('opacity-100', showRestore);
+                restoreBtn.classList.toggle('pointer-events-auto', showRestore);
+                restoreBtn.classList.toggle('scale-100', showRestore);
+                restoreBtn.classList.toggle('opacity-0', !showRestore);
+                restoreBtn.classList.toggle('pointer-events-none', !showRestore);
+                restoreBtn.classList.toggle('scale-75', !showRestore);
+            }
+
+            const cleanBase = sanitizeExportBaseName(input.value);
+            if (confirmBtn) confirmBtn.disabled = (cleanBase.length === 0);
+
+            const previewBase = cleanBase || '—';
+            if (xmlNameEl) xmlNameEl.textContent = `${previewBase}.xml`;
+            if (logNameEl) logNameEl.textContent = `LOG_${previewBase}.txt`;
+
+            const withLog = switchEl ? (switchEl.getAttribute('aria-checked') === 'true') : true;
+            if (logWrapper) {
+                logWrapper.classList.toggle('is-expanded', withLog);
+            }
+        }
+
+        function submitExportModal() {
+            const input = document.getElementById('export-filename-input');
+            const wrap = document.getElementById('export-filename-wrap');
+            const switchEl = document.getElementById('export-log-switch');
+            const cleanBase = input ? sanitizeExportBaseName(input.value) : '';
+            if (!cleanBase) {
+                if (wrap) {
+                    wrap.classList.remove('toast-error-nudge');
+                    void wrap.offsetWidth;
+                    wrap.classList.add('toast-error-nudge');
+                    wrap.addEventListener('animationend', () => wrap.classList.remove('toast-error-nudge'), { once: true });
+                }
+                if (input) input.focus({ preventScroll: true });
+                if (navigator.vibrate) navigator.vibrate(12);
+                return;
+            }
+            const withLog = switchEl ? (switchEl.getAttribute('aria-checked') === 'true') : true;
+            executeExport(withLog, cleanBase);
+        }
+
         function promptExport(idx) {
+            const fd = filesData[idx];
+            if (!fd) return;
+            rememberFocus();
             currentExportIdx = idx;
+
+            const input = document.getElementById('export-filename-input');
+            if (input) {
+                const suggested = getSuggestedExportBaseName(fd.filename);
+                input.value = suggested;
+                input.dataset.defaultName = suggested;
+            }
+            syncExportSheetUI();
             setModalOpen('export-modal', true);
+            if (input) {
+                requestAnimationFrame(() => {
+                    resizeExportFilenameInput(input);
+                    requestAnimationFrame(() => {
+                        input.focus({ preventScroll: true });
+                        input.select();
+                    });
+                });
+            }
         }
 
         function closeExportModal() {
-            setModalOpen('export-modal', false);
+            AppleHUD.hide();
+            setModalOpen('export-modal', false, restoreFocus);
         }
 
         // --- DRAG & DROP ENGINE ---
@@ -3365,6 +3648,7 @@
                     filename: file.name,
                     sn: "N/A",
                     sw: "N/A",
+                    decimalSep: ".",
                     params: new Map(),
                     modified: new Map(),
                     errors: new Set()
@@ -3377,6 +3661,8 @@
 
                 const varsNodes = xmlDoc.getElementsByTagName('VARIABILE');
                 const seenDisplayIndices = new Map();
+                let valSep = null;
+                let rangeSep = null;
 
                 for (let i = 0; i < varsNodes.length; i++) {
                     const node = varsNodes[i];
@@ -3392,6 +3678,15 @@
                     const vStr = (val !== null && val !== undefined) ? String(val).trim() : "0";
                     const mStr = (min !== null && min !== undefined) ? String(min).trim() : "";
                     const xStr = (max !== null && max !== undefined) ? String(max).trim() : "";
+
+                    if (valSep === null) {
+                        if (vStr.includes(',')) valSep = ',';
+                        else if (vStr.includes('.')) valSep = '.';
+                    }
+                    if (rangeSep === null) {
+                        if (mStr.includes(',') || xStr.includes(',')) rangeSep = ',';
+                        else if (mStr.includes('.') || xStr.includes('.')) rangeSep = '.';
+                    }
 
                     if (!validateParamValue(vStr, mStr, xStr, true).isValid) {
                         parsedData.errors.add(paramKey);
@@ -3409,6 +3704,8 @@
                         addr_write: addr
                     });
                 }
+
+                parsedData.decimalSep = valSep || rangeSep || '.';
 
                 if (parsedData.params.size === 0) {
                     return { ok: false, reason: 'parse', filename: file.name };
@@ -4584,7 +4881,7 @@
                 fd.errors.delete(k);
                 
                 if (rawStr !== p.origVal.replace(',', '.')) {
-                    fd.modified.set(k, inputEl.value);
+                    fd.modified.set(k, rawStr);
                     inputEl.classList.add('is-modified');
                     
                     const timeStr = new Date().toLocaleTimeString('en-GB', { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit" });
@@ -4592,8 +4889,8 @@
                     liveLogMap.delete(logKey);
                     liveLogMap.set(logKey, {
                         time: timeStr, ts: Date.now(), idx: `FILE ${idx+1}`, reg: `P${p.display_index}`,
-                        action: "MODIFIED", desc: p.desc, origVal: p.origVal, newVal: inputEl.value,
-                        details: `${p.desc} (Old: ${p.origVal} \u2192 New: ${inputEl.value})`, fileIdx: idx
+                        action: "MODIFIED", desc: p.desc, origVal: p.origVal, newVal: rawStr,
+                        details: `${p.desc} (Old: ${p.origVal} \u2192 New: ${rawStr})`, fileIdx: idx
                     });
                 } else {
                     fd.modified.delete(k);
@@ -5542,10 +5839,10 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
         }
 
-        function executeExport(withLog) {
+        function executeExport(withLog, customBaseName = null) {
             closeExportModal();
 
             if (currentExportIdx === -1) return;
@@ -5560,19 +5857,27 @@
             const modByXmlIndex = new Map();
             const fallbackMods = [];
 
+            const formatExportValue = (val, sep) => (sep === ',' ? String(val).replace('.', ',') : String(val));
+
             for (const [k, newVal] of fd.modified.entries()) {
+                if (fd.errors.has(k)) {
+                    currentExportIdx = -1;
+                    showToastError('err_parse_xml', "Unable to parse the XML file. Please check its format.");
+                    return;
+                }
                 const p = fd.params.get(k);
                 if (!p) continue;
+                const formattedVal = formatExportValue(newVal, fd.decimalSep);
                 if (typeof p.xmlIndex === 'number') {
-                    modByXmlIndex.set(p.xmlIndex, newVal);
+                    modByXmlIndex.set(p.xmlIndex, formattedVal);
                 } else {
-                    fallbackMods.push({ key: k, param: p, newVal });
+                    fallbackMods.push({ key: k, param: p, newVal: formattedVal });
                 }
             }
 
             let varIdx = 0;
             const raw = fd.rawText.replace(
-                /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<VARIABILE\b(?:"[^"]*"|'[^']*'|[^>"'])*>/g,
+                /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<\?[\s\S]*?\?>|<!DOCTYPE(?:\[[\s\S]*?\]|[^>])*>|<VARIABILE\b(?:"[^"]*"|'[^']*'|[^>"'])*>/g,
                 (token) => {
                     if (!token.startsWith('<VARIABILE')) return token;
 
@@ -5609,19 +5914,33 @@
                 }
             );
             
+            const verifyDoc = new DOMParser().parseFromString(raw, "text/xml");
+            const verifyNodes = verifyDoc.getElementsByTagName('VARIABILE');
+            let exportValid = verifyDoc.getElementsByTagName("parsererror").length === 0 && verifyNodes.length === fd.params.size;
+            if (exportValid) {
+                for (const [xmlIdx, expectedVal] of modByXmlIndex.entries()) {
+                    const node = verifyNodes[xmlIdx];
+                    if (!node || node.getAttribute('value') !== expectedVal) {
+                        exportValid = false;
+                        break;
+                    }
+                }
+            }
+            if (!exportValid) {
+                currentExportIdx = -1;
+                showToastError('err_parse_xml', "Unable to parse the XML file. Please check its format.");
+                return;
+            }
+
             const extMatch = fd.filename.match(/\.[^.]+$/);
             const extension = extMatch ? extMatch[0] : '.xml';
-            let baseFilename = fd.filename.replace(/\.[^.]+$/, '');
-            let revisionNum = 1;
-            
-            const revisionMatch = baseFilename.match(/_R(\d+)$/);
-            if (revisionMatch) {
-                revisionNum = parseInt(revisionMatch[1], 10) + 1;
-                baseFilename = baseFilename.replace(/_R\d+$/, ''); 
+            let baseFilename = customBaseName ? sanitizeExportBaseName(customBaseName) : '';
+            if (!baseFilename) {
+                baseFilename = getSuggestedExportBaseName(fd.filename);
             }
-            
-            const newXmlName = `${baseFilename}_R${revisionNum}${extension}`;
-            const newLogName = `LOG_${baseFilename}_R${revisionNum}.txt`;
+
+            const newXmlName = `${baseFilename}${extension}`;
+            const newLogName = `LOG_${baseFilename}.txt`;
 
             fd.filename = newXmlName;
             const uiFname = document.getElementById(`fname-${idx}`);
@@ -5637,13 +5956,15 @@
                 termLabel.removeAttribute('title');
             }
 
-            triggerBlobDownload(new Blob([raw], { type: 'text/xml' }), newXmlName);
+            triggerBlobDownload(new Blob([raw], { type: 'text/xml;charset=utf-8' }), newXmlName);
             if (withLog) {
-            const logText = buildModificationsLogText([idx]);
-            if (logText) {
-                triggerBlobDownload(new Blob([logText], { type: 'text/plain;charset=utf-8' }), newLogName);
+                const logText = buildModificationsLogText([idx]);
+                if (logText) {
+                    setTimeout(() => {
+                        triggerBlobDownload(new Blob([logText], { type: 'text/plain;charset=utf-8' }), newLogName);
+                    }, 150);
+                }
             }
-        }
         currentExportIdx = -1;
         }
 
