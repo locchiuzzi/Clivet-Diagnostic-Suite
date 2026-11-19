@@ -677,9 +677,42 @@
             }
         }
 
+        /* Apple HIG Readable Content Sheet (Single-File Mode) */
+        #editor-workspace.is-single-file {
+            max-width: 65rem;
+        }
+
+        /* Emergency Vertical Reflow Fallback (Landscape Mobile / High Zoom) */
+        @media (max-height: 420px) {
+            html, body {
+                height: auto;
+                min-height: 100%;
+                overflow-y: auto;
+            }
+            #main-wrapper,
+            #view-editor.view-active {
+                height: auto !important;
+                overflow: visible !important;
+            }
+            #editor-workspace {
+                overflow: visible !important;
+            }
+            #col-0, #col-1 {
+                min-height: 280px;
+            }
+        }
+
         /* Apple HIG Save Sheet Surfaces (120fps Zero-Jank & GPU-Safe) */
         #export-modal-content {
             max-height: min(90vh, 720px);
+        }
+        #export-filename-input {
+            transition: height 240ms var(--spring-easing);
+            will-change: height;
+        }
+        #export-preview-names.is-height-animating {
+            transition: height 240ms var(--spring-easing);
+            will-change: height;
         }
         .export-log-row-wrapper {
             display: grid;
@@ -702,6 +735,8 @@
             transform: translate3d(0, 0, 0);
         }
         @media (prefers-reduced-motion: reduce) {
+            #export-filename-input,
+            #export-preview-names,
             .export-log-row-wrapper,
             .export-log-row-inner {
                 transition: none !important;
@@ -950,17 +985,17 @@
         
             <!-- TOOLBAR TOP (Apple HIG High-Density / Zero-Scroll) -->
             <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md border-b border-slate-200/80 dark:border-white/10 flex-none z-40 shadow-sm relative">
-                <div class="max-w-[1600px] mx-auto w-full px-3 sm:px-4 md:px-6 py-2 flex items-center justify-between gap-3">
+                <div class="max-w-[1600px] mx-auto w-full px-3 sm:px-4 md:px-6 py-2 flex flex-wrap items-center justify-between gap-2 sm:gap-3">
                     
                     <!-- Left: Back Button & Apple HIG Searchbar with Gear -->
-                    <div class="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
+                    <div class="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-[150px]">
                         <button id="btn-back-upload" type="button" aria-label="Back" class="hit-44 -ml-1 sm:-ml-2 flex-shrink-0 p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700/60 rounded-[10px] transition-colors focus:outline-none" title="Back to Upload">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path></svg>
                         </button>
                         
                         <!-- Search Field Wrapper -->
                         <div class="flex items-center gap-1.5 flex-1 min-w-0 max-w-md">
-                            <div class="relative flex items-center flex-1 min-w-[120px] h-[36px] bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 rounded-[10px] focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-500/50 dark:focus-within:ring-blue-400/50 transition-[background-color,box-shadow] duration-200 group">
+                            <div class="relative flex items-center flex-1 min-w-0 h-[36px] bg-slate-200/60 dark:bg-slate-900/60 ring-1 ring-slate-900/10 dark:ring-white/10 rounded-[10px] focus-within:bg-white dark:focus-within:bg-slate-900 focus-within:ring-2 focus-within:ring-blue-500/50 dark:focus-within:ring-blue-400/50 transition-[background-color,box-shadow] duration-200 group">
                                 <div class="pl-2.5 pr-1.5 flex items-center pointer-events-none flex-shrink-0">
                                     <svg class="h-[16px] w-[16px] text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
                                 </div>
@@ -1050,7 +1085,7 @@
             </div>
 
             <!-- DUAL TABLES WORKSPACE -->
-            <div class="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 px-4 py-3 max-w-[1600px] mx-auto w-full overflow-hidden">
+            <div id="editor-workspace" class="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 px-4 py-3 max-w-[1600px] mx-auto w-full overflow-hidden">
                 
                 <!-- CONTAINER 1 -->
                 <div id="col-0" class="isolate flex-1 min-h-0 flex flex-col bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden relative">
@@ -1356,7 +1391,7 @@
     <!-- MODALE FILE IDENTICI -->
     <div id="identical-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300 opacity-0" id="identical-modal-bg"></div>
-        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-200/80 dark:border-white/10 relative z-10 transform transition-[transform,opacity] duration-300 translate-y-10 scale-95 opacity-0 spring-anim p-6" id="identical-modal-content">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto custom-scrollbar rounded-2xl shadow-2xl border border-slate-200/80 dark:border-white/10 relative z-10 transform transition-[transform,opacity] duration-300 translate-y-10 scale-95 opacity-0 spring-anim p-6" id="identical-modal-content">
             <div class="w-14 h-14 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-5 mx-auto">
                 <svg class="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
@@ -1376,7 +1411,7 @@
     <!-- MODALE ERROR AFFINITY / VERSION DISCREPANCY -->
     <div id="affinity-modal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300 opacity-0" id="affinity-modal-bg"></div>
-        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-slate-200/80 dark:border-white/10 relative z-10 transform transition-[transform,opacity] duration-300 translate-y-10 scale-95 opacity-0 spring-anim p-6" id="affinity-modal-content">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto custom-scrollbar rounded-2xl shadow-2xl border border-slate-200/80 dark:border-white/10 relative z-10 transform transition-[transform,opacity] duration-300 translate-y-10 scale-95 opacity-0 spring-anim p-6" id="affinity-modal-content">
             <div class="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-5 mx-auto">
                 <svg class="w-7 h-7 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             </div>
@@ -3122,20 +3157,97 @@
 
         let exportTextareaResizeRaf = 0;
 
-        function resizeExportFilenameInput(input) {
+        function resizeExportFilenameInput(input, animate = true) {
             if (!input) return;
+            if (exportTextareaResizeRaf) {
+                cancelAnimationFrame(exportTextareaResizeRaf);
+                exportTextareaResizeRaf = 0;
+            }
+
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const prevH = animate && !reduced ? (input.getBoundingClientRect().height || 22) : 0;
+
+            input.style.transition = 'none';
             input.style.height = 'auto';
             const targetH = Math.min(Math.max(input.scrollHeight, 22), 82);
-            input.style.height = `${targetH}px`;
+
+            if (!animate || reduced || Math.abs(targetH - prevH) < 1) {
+                input.style.height = `${targetH}px`;
+                void input.offsetHeight;
+                input.style.transition = '';
+                return;
+            }
+
+            input.style.height = `${prevH}px`;
+            void input.offsetHeight;
+            input.style.transition = '';
+
+            exportTextareaResizeRaf = requestAnimationFrame(() => {
+                exportTextareaResizeRaf = 0;
+                input.style.height = `${targetH}px`;
+            });
         }
 
-        function syncExportSheetUI() {
+        function animatePreviewBoxHeight(previewEl, mutateFn) {
+            if (!previewEl || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                mutateFn();
+                return;
+            }
+
+            if (previewEl._resizeRaf) {
+                cancelAnimationFrame(previewEl._resizeRaf);
+                previewEl._resizeRaf = 0;
+            }
+            clearTimeout(previewEl._resizeTimer);
+            if (previewEl._onResizeEnd) {
+                previewEl.removeEventListener('transitionend', previewEl._onResizeEnd);
+                previewEl._onResizeEnd = null;
+            }
+
+            const prevH = previewEl.getBoundingClientRect().height;
+            previewEl.classList.remove('is-height-animating');
+            previewEl.style.height = 'auto';
+            mutateFn();
+            const nextH = previewEl.getBoundingClientRect().height;
+
+            if (Math.abs(nextH - prevH) < 1) {
+                previewEl.style.height = '';
+                return;
+            }
+
+            previewEl.style.height = `${prevH}px`;
+            void previewEl.offsetHeight;
+            previewEl.classList.add('is-height-animating');
+
+            const cleanup = (e) => {
+                if (e && (e.target !== previewEl || e.propertyName !== 'height')) return;
+                if (previewEl._onResizeEnd) {
+                    previewEl.removeEventListener('transitionend', previewEl._onResizeEnd);
+                    previewEl._onResizeEnd = null;
+                }
+                clearTimeout(previewEl._resizeTimer);
+                previewEl.classList.remove('is-height-animating');
+                previewEl.style.height = '';
+            };
+
+            previewEl._onResizeEnd = cleanup;
+            previewEl.addEventListener('transitionend', cleanup);
+            previewEl._resizeTimer = setTimeout(() => cleanup(null), 280);
+
+            previewEl._resizeRaf = requestAnimationFrame(() => {
+                previewEl._resizeRaf = 0;
+                previewEl.style.height = `${nextH}px`;
+            });
+        }
+
+        function syncExportSheetUI(animate = true) {
             const input = document.getElementById('export-filename-input');
             const clearBtn = document.getElementById('export-filename-clear');
             const restoreBtn = document.getElementById('export-filename-restore');
             const confirmBtn = document.getElementById('btn-export-confirm');
             const switchEl = document.getElementById('export-log-switch');
             const logWrapper = document.getElementById('export-preview-log-wrapper');
+            const previewBox = document.getElementById('export-preview-names');
             const xmlNameEl = document.getElementById('export-preview-xml-name');
             const logNameEl = document.getElementById('export-preview-log-name');
             if (!input) return;
@@ -3146,11 +3258,7 @@
                 if (typeof pos === 'number') input.setSelectionRange(pos, pos);
             }
 
-            if (exportTextareaResizeRaf) cancelAnimationFrame(exportTextareaResizeRaf);
-            exportTextareaResizeRaf = requestAnimationFrame(() => {
-                exportTextareaResizeRaf = 0;
-                resizeExportFilenameInput(input);
-            });
+            resizeExportFilenameInput(input, Boolean(animate));
 
             const hasRawText = input.value.length > 0;
             if (clearBtn) {
@@ -3175,8 +3283,21 @@
             if (confirmBtn) confirmBtn.disabled = (cleanBase.length === 0);
 
             const previewBase = cleanBase || '—';
-            if (xmlNameEl) xmlNameEl.textContent = `${previewBase}.xml`;
-            if (logNameEl) logNameEl.textContent = `LOG_${previewBase}.txt`;
+            const nextXmlText = `${previewBase}.xml`;
+            const nextLogText = `LOG_${previewBase}.txt`;
+            const textChanged = (xmlNameEl && xmlNameEl.textContent !== nextXmlText) || (logNameEl && logNameEl.textContent !== nextLogText);
+
+            if (textChanged) {
+                const updateNames = () => {
+                    if (xmlNameEl) xmlNameEl.textContent = nextXmlText;
+                    if (logNameEl) logNameEl.textContent = nextLogText;
+                };
+                if (animate && previewBox) {
+                    animatePreviewBoxHeight(previewBox, updateNames);
+                } else {
+                    updateNames();
+                }
+            }
 
             const withLog = switchEl ? (switchEl.getAttribute('aria-checked') === 'true') : true;
             if (logWrapper) {
@@ -3216,11 +3337,11 @@
                 input.value = suggested;
                 input.dataset.defaultName = suggested;
             }
-            syncExportSheetUI();
+            syncExportSheetUI(false);
             setModalOpen('export-modal', true);
             if (input) {
                 requestAnimationFrame(() => {
-                    resizeExportFilenameInput(input);
+                    resizeExportFilenameInput(input, false);
                     requestAnimationFrame(() => {
                         input.focus({ preventScroll: true });
                         input.select();
@@ -4637,29 +4758,20 @@
             if (filesData[0]) renderColumn(0); else hideColumn(0);
             if (filesData[1]) renderColumn(1); else hideColumn(1);
 
+            const hasDual = Boolean(filesData[0] && filesData[1]);
+            const workspace = document.getElementById('editor-workspace');
             const tBox0 = document.getElementById('term-box-0');
             const tBox1 = document.getElementById('term-box-1');
-
             const diffWrapper = document.getElementById('diff-btn-wrapper');
             const syncWrapper = document.getElementById('sync-btn-wrapper');
 
-            if (filesData[0] && filesData[1]) {
-                if (diffWrapper) diffWrapper.classList.add('is-expanded');
-                if (syncWrapper) syncWrapper.classList.add('is-expanded');
-                if (tBox0) tBox0.classList.remove('hidden');
-                if (tBox1) tBox1.classList.remove('hidden');
-            } else {
-                if (diffWrapper) diffWrapper.classList.remove('is-expanded');
-                if (syncWrapper) syncWrapper.classList.remove('is-expanded');
-                
-                if (filesData[1] && !filesData[0]) {
-                    if (tBox0) tBox0.classList.add('hidden');
-                    if (tBox1) tBox1.classList.remove('hidden');
-                } else {
-                    if (tBox0) tBox0.classList.remove('hidden');
-                    if (tBox1) tBox1.classList.add('hidden');
-                }
-                
+            if (workspace) workspace.classList.toggle('is-single-file', !hasDual);
+            if (diffWrapper) diffWrapper.classList.toggle('is-expanded', hasDual);
+            if (syncWrapper) syncWrapper.classList.toggle('is-expanded', hasDual);
+            if (tBox0) tBox0.classList.toggle('hidden', !hasDual && Boolean(filesData[1] && !filesData[0]));
+            if (tBox1) tBox1.classList.toggle('hidden', !hasDual && !(filesData[1] && !filesData[0]));
+
+            if (!hasDual) {
                 showDiffOnly = false;
                 syncFilterButtonsUI();
             }
